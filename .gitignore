@@ -1,0 +1,9 @@
+/vendor/
+/writable/
+/.env
+/public/uploads/
+/node_modules/
+.phpunit.result.cache
+php_errors.log
+tests/_support/_generated
+userguide
