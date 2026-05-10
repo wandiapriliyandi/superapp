@@ -1,5 +1,8 @@
 /vendor/
-/writable/
+/writable/*
+!/writable/.gitkeep
+!/writable/index.html
+!/writable/.htaccess
 /.env
 /public/uploads/
 /node_modules/
