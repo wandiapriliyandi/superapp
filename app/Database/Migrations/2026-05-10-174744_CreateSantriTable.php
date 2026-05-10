@@ -48,11 +48,6 @@ class CreateSantriTable extends Migration
                 'type'       => 'ENUM',
                 'constraint' => ['L', 'P'],
             ],
-            'agama' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '20',
-                'default'    => 'Islam',
-            ],
             'alamat' => [
                 'type' => 'TEXT',
                 'null' => true,

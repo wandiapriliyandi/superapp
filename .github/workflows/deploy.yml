@@ -1,8 +1,8 @@
-name: Deploy to Server
+name: Deploy to InfinityFree (FTP)
 
 on:
   push:
-    branches: [ main ] # Ganti dengan branch utama Anda (main/master)
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -12,16 +12,25 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@master
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: 22 # Ganti jika port SSH Anda berbeda
-        script: |
-          cd /var/www/html/superapp # Ganti dengan path folder project di server Anda
-          git pull origin main
-          composer install --no-dev --optimize-autoloader
-          php spark migrate
-          php spark cache:clear
+        php-version: '8.1' # Sesuaikan dengan versi PHP di InfinityFree (biasanya 8.1 atau 8.2)
+
+    - name: Install Dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: Sync Files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ftpupload.net
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./
+        server-dir: /htdocs/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/tests/**
+          **/node_modules/**
+          writable/logs/*.log
