@@ -15,7 +15,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1' # Sesuaikan dengan versi PHP di InfinityFree (biasanya 8.1 atau 8.2)
+        php-version: '8.2' # Harus 8.2 karena composer.json meminta ^8.2
 
     - name: Install Dependencies
       run: composer install --no-dev --optimize-autoloader
