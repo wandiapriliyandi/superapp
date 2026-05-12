@@ -138,56 +138,49 @@ class CreateSkillMateriTables extends Migration
                 'kategori'       => 'Structure & Written Expression',
                 'icon'           => 'bi-clock',
                 'color'          => 'primary',
-                'ringkasan'      => 'Penggunaan kata kerja berdasarkan waktu: Simple, Continuous, dan Perfect serta penanda waktunya.',
+                'ringkasan'      => 'Panduan mendalam 12 Tenses: Logika penggunaan Simple, Continuous, Perfect, dan Perfect Continuous.',
                 'materi_lengkap' => "
-<h4 class='fw-bold text-primary mb-3'>Mastering the 12 English Tenses</h4>
-<p>Dalam tes TOEFL, pemahaman tentang kapan sebuah aksi dimulai dan berakhir sangat menentukan pilihan kata kerja Anda. Berikut adalah panduan lengkap 12 tenses.</p>
+<h4 class='fw-bold text-primary mb-4'>Panduan Lengkap Logika 12 Tenses</h4>
+<p>Kunci menguasai Tenses di TOEFL bukan hanya menghafal rumus, tapi memahami <strong>garis waktu (timeline)</strong> kejadian.</p>
 
-<h5 class='fw-bold mt-4'>1. Present Tenses (Masa Kini)</h5>
-<table class='table table-bordered table-sm small'>
-    <thead class='bg-light text-center'>
-        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
-    </thead>
-    <tbody>
-        <tr><td><strong>Simple Present</strong></td><td>S + V1 (s/es)</td><td>Fakta umum, kebiasaan (Every day).</td></tr>
-        <tr><td><strong>Present Continuous</strong></td><td>S + am/is/are + V-ing</td><td>Aksi yang sedang berlangsung sekarang.</td></tr>
-        <tr><td><strong>Present Perfect</strong></td><td>S + have/has + V3</td><td>Aksi masa lalu yang efeknya masih ada.</td></tr>
-        <tr><td><strong>Present Perfect Cont.</strong></td><td>S + have/has + been + V-ing</td><td>Aksi yang dimulai di masa lalu dan masih berlanjut.</td></tr>
-    </tbody>
-</table>
-
-<h5 class='fw-bold mt-4'>2. Past Tenses (Masa Lampau)</h5>
-<table class='table table-bordered table-sm small'>
-    <thead class='bg-light text-center'>
-        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
-    </thead>
-    <tbody>
-        <tr><td><strong>Simple Past</strong></td><td>S + V2</td><td>Aksi selesai di waktu spesifik (Yesterday).</td></tr>
-        <tr><td><strong>Past Continuous</strong></td><td>S + was/were + V-ing</td><td>Aksi yang sedang berlangsung di masa lalu.</td></tr>
-        <tr><td><strong>Past Perfect</strong></td><td>S + had + V3</td><td>Aksi yang selesai SEBELUM aksi lampau lain.</td></tr>
-        <tr><td><strong>Past Perfect Cont.</strong></td><td>S + had + been + V-ing</td><td>Durasi aksi sebelum aksi lampau lain terjadi.</td></tr>
-    </tbody>
-</table>
-
-<h5 class='fw-bold mt-4'>3. Future Tenses (Masa Depan)</h5>
-<table class='table table-bordered table-sm small'>
-    <thead class='bg-light text-center'>
-        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
-    </thead>
-    <tbody>
-        <tr><td><strong>Simple Future</strong></td><td>S + will + V1</td><td>Prediksi atau rencana masa depan.</td></tr>
-        <tr><td><strong>Future Continuous</strong></td><td>S + will be + V-ing</td><td>Aksi yang akan sedang berlangsung di masa depan.</td></tr>
-        <tr><td><strong>Future Perfect</strong></td><td>S + will have + V3</td><td>Aksi yang akan sudah selesai di masa depan.</td></tr>
-        <tr><td><strong>Future Perfect Cont.</strong></td><td>S + will have been + V-ing</td><td>Durasi aksi yang akan sudah berjalan di masa depan.</td></tr>
-    </tbody>
-</table>
-
-<h5 class='fw-bold mt-4 text-danger'>⚠️ Tips TOEFL: Fokus pada Penanda Waktu</h5>
+<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-1-circle-fill me-2 text-primary'></i>Kelompok SIMPLE (Kebenaran & Kepastian)</h5>
+<p>Digunakan untuk menyatakan aksi yang dianggap sebagai satu kesatuan fakta atau kejadian yang selesai tepat waktu.</p>
 <ul>
-    <li><strong>Since / For:</strong> Biasanya merujuk pada Perfect atau Perfect Continuous.</li>
-    <li><strong>By the time:</strong> Sering memicu penggunaan Past Perfect atau Future Perfect.</li>
-    <li><strong>While:</strong> Menandakan penggunaan Continuous (sedang berlangsung).</li>
-</ul>",
+    <li><strong>Simple Present:</strong> Menyatakan kebenaran umum atau kebiasaan. <br><em>Contoh: The sun rises in the east.</em></li>
+    <li><strong>Simple Past:</strong> Menyatakan aksi yang <strong>benar-benar selesai</strong> di masa lalu. Harus ada keterangan waktu spesifik (yesterday, last year).</li>
+    <li><strong>Simple Future:</strong> Rencana atau prediksi masa depan.</li>
+</ul>
+
+<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-2-circle-fill me-2 text-primary'></i>Kelompok CONTINUOUS (Sedang Berlangsung)</h5>
+<p>Menekankan pada <strong>proses</strong> atau durasi yang sedang terjadi pada titik waktu tertentu.</p>
+<ul>
+    <li><strong>Present Continuous:</strong> Sedang terjadi saat kita bicara.</li>
+    <li><strong>Past Continuous:</strong> Digunakan untuk aksi yang sedang berlangsung di masa lalu ketika aksi lain menyela (interupsi). <br><em>Rumus: S + was/were + V-ing. Contoh: I <strong>was sleeping</strong> when you called.</em></li>
+</ul>
+
+<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-3-circle-fill me-2 text-primary'></i>Kelompok PERFECT (Sudah Selesai Sebelum...)</h5>
+<p>Tense ini paling sering muncul di TOEFL. Logikanya adalah aksi yang selesai <strong>sebelum</strong> titik waktu lain.</p>
+<ul>
+    <li><strong>Present Perfect (has/have + V3):</strong> Aksi masa lalu yang waktunya tidak penting, tapi hasilnya masih terasa sekarang. <br>⚠️ <em>Tip: Jangan gunakan tenses ini jika ada keterangan waktu 'yesterday'.</em></li>
+    <li><strong>Past Perfect (had + V3):</strong> Digunakan jika ada DUA kejadian di masa lalu. Kejadian yang <strong>lebih awal</strong> menggunakan Past Perfect. <br><em>Contoh: He <strong>had left</strong> before I arrived.</em></li>
+</ul>
+
+<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-4-circle-fill me-2 text-primary'></i>Kelompok PERFECT CONTINUOUS (Durasi yang Telah Berjalan)</h5>
+<p>Menekankan pada <strong>berapa lama</strong> suatu aksi telah berlangsung hingga titik waktu tertentu.</p>
+<ul>
+    <li><strong>Present Perfect Cont. (has/have + been + V-ing):</strong> <em>I have been waiting for two hours.</em> (Masih menunggu sampai sekarang).</li>
+    <li><strong>Past Perfect Cont. (had + been + V-ing):</strong> <em>He had been working there for ten years before he retired.</em></li>
+</ul>
+
+<div class='alert alert-info mt-4'>
+    <h6 class='fw-bold'>Tabel Rumus Cepat:</h6>
+    <table class='table table-sm table-borderless mb-0 small'>
+        <tr><td><strong>Simple</strong></td><td>V1 / V2 / will V1</td></tr>
+        <tr><td><strong>Continuous</strong></td><td>be + V-ing</td></tr>
+        <tr><td><strong>Perfect</strong></td><td>have/has/had + V3</td></tr>
+        <tr><td><strong>Perfect Cont.</strong></td><td>have/has/had + been + V-ing</td></tr>
+    </table>
+</div>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
             [
