@@ -8,6 +8,10 @@ class CreateSkillMateriTables extends Migration
 {
     public function up()
     {
+        // Drop existing tables if any to ensure clean install
+        $this->forge->dropTable('skill_soal', true);
+        $this->forge->dropTable('skill_materi', true);
+
         // 1. Tabel skill_materi
         $this->forge->addField([
             'id' => [
@@ -94,37 +98,38 @@ class CreateSkillMateriTables extends Migration
         $this->forge->addKey('id', true);
         $this->forge->createTable('skill_soal', true);
 
-        // --- DATA SEEDER MATERI ---
+        // --- DATA SEEDER MATERI (DETAIL & LENGKAP) ---
         $materiData = [
-            // --- SECTION: STRUCTURE ---
             [
                 'slug_bab'       => 'struct-1',
                 'judul'          => 'Structure 1: Subject & Verb Agreement',
                 'kategori'       => 'Structure & Written Expression',
                 'icon'           => 'bi-check-circle',
                 'color'          => 'primary',
-                'ringkasan'      => 'Kesesuaian antara subjek tunggal/jamak dengan kata kerja yang digunakan.',
-                'materi_lengkap' => "<h4>Subject-Verb Agreement</h4><p>Aturan dasar: Subjek tunggal menggunakan kata kerja tunggal, subjek jamak menggunakan kata kerja jamak. Perhatikan jebakan preposisi dan ekspresi kuantitas.</p><ul><li><strong>Tunggal:</strong> The boy plays.</li><li><strong>Jamak:</strong> The boys play.</li><li><strong>Jebakan:</strong> The list of items <em>is</em> (bukan are) long.</li></ul>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
-            [
-                'slug_bab'       => 'struct-2',
-                'judul'          => 'Structure 2: Verb Tenses & Forms',
-                'kategori'       => 'Structure & Written Expression',
-                'icon'           => 'bi-clock',
-                'color'          => 'primary',
-                'ringkasan'      => 'Penggunaan kata kerja berdasarkan waktu: Simple, Continuous, Perfect.',
-                'materi_lengkap' => "<h4>Verb Tenses</h4><p>Memahami kapan menggunakan V1, V2, V3, atau V-ing berdasarkan penanda waktu (yesterday, now, since, for).</p>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
-            [
-                'slug_bab'       => 'struct-3',
-                'judul'          => 'Structure 3: Parts of Speech',
-                'kategori'       => 'Structure & Written Expression',
-                'icon'           => 'bi-list-stars',
-                'color'          => 'primary',
-                'ringkasan'      => 'Fungsi dan posisi Noun, Pronoun, Verb, Adjective, dan Adverb dalam kalimat.',
-                'materi_lengkap' => "<h4>Parts of Speech</h4><p>Mengenali perbedaan posisi antara kata sifat (adjective) yang menerangkan kata benda, dan kata keterangan (adverb) yang menerangkan kata kerja/sifat.</p>",
+                'ringkasan'      => 'Prinsip dasar kesesuaian jumlah antara subjek dan kata kerja, serta jebakan preposisi.',
+                'materi_lengkap' => "
+<h4 class='fw-bold text-primary mb-3'>Menguasai Subject-Verb Agreement</h4>
+<p>Aturan emas dalam TOEFL adalah: <strong>Subjek Tunggal + Kata Kerja Tunggal (V-s/es)</strong> dan <strong>Subjek Jamak + Kata Kerja Jamak (V-tanpa s)</strong>.</p>
+
+<h5 class='fw-bold mt-4'>1. Jebakan Frasa Preposisi (Prepositional Phrases)</h5>
+<p>Banyak soal TOEFL meletakkan kata-kata di antara subjek dan kata kerja untuk membingungkan Anda. Abaikan frasa yang diawali dengan <em>of, in, at, with, between, etc.</em></p>
+<div class='p-3 bg-light rounded-3 mb-3 border-start border-primary border-4'>
+    <p class='mb-1'>❌ <em>The <strong>box</strong> of chocolates <strong>are</strong> on the table.</em> (Salah, karena 'chocolates' bukan subjeknya)</p>
+    <p class='mb-0 fw-bold text-success'>✔️ The <strong>box</strong> (singular) of chocolates <strong>is</strong> (singular) on the table.</p>
+</div>
+
+<h5 class='fw-bold mt-4'>2. Indefinite Pronouns (Selalu Tunggal)</h5>
+<p>Kata-kata berikut dianggap tunggal meskipun maknanya terdengar jamak: <em>Each, Every, Everyone, Someone, Anyone, Nobody, Neither, Either.</em></p>
+<div class='p-3 bg-light rounded-3 mb-3'>
+    <p class='mb-0 italic'>Example: <strong>Each</strong> of the students <strong>has</strong> (bukan have) a textbook.</p>
+</div>
+
+<h5 class='fw-bold mt-4'>3. Ekspresi Kuantitas (Berdasarkan Kata Benda Sesudahnya)</h5>
+<p>Khusus untuk <em>All of, Some of, Most of, Half of,</em> kata kerja mengikuti kata benda setelah 'of'.</p>
+<ul>
+    <li>Most of the <strong>money is</strong> gone. (Money = Uncountable/Singular)</li>
+    <li>Most of the <strong>books are</strong> gone. (Books = Plural)</li>
+</ul>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
             [
@@ -133,8 +138,33 @@ class CreateSkillMateriTables extends Migration
                 'kategori'       => 'Structure & Written Expression',
                 'icon'           => 'bi-arrow-left-right',
                 'color'          => 'primary',
-                'ringkasan'      => 'Transformasi kalimat aktif menjadi pasif (Be + V3).',
-                'materi_lengkap' => "<h4>Passive Voice</h4><p>Pola: <code>Be + Past Participle (V3)</code>. Contoh: 'The book was written by him'.</p>",
+                'ringkasan'      => 'Cara mengenali dan menggunakan kalimat pasif dalam konteks akademis.',
+                'materi_lengkap' => "
+<h4 class='fw-bold text-primary mb-3'>Strategi Kalimat Pasif (Passive Voice)</h4>
+<p>Dalam TOEFL, kalimat pasif sering digunakan dalam bacaan ilmiah untuk menekankan objek atau proses daripada pelaku aksi.</p>
+
+<h5 class='fw-bold mt-4'>1. Pola Dasar</h5>
+<p>Rumus mutlak kalimat pasif adalah: <code>Subject + BE + PAST PARTICIPLE (V3)</code>.</p>
+<ul>
+    <li><strong>Simple Present:</strong> It <em>is made</em>.</li>
+    <li><strong>Simple Past:</strong> It <em>was made</em>.</li>
+    <li><strong>Present Perfect:</strong> It <em>has been made</em>.</li>
+    <li><strong>Future:</strong> It <em>will be made</em>.</li>
+</ul>
+
+<h5 class='fw-bold mt-4'>2. Kapan Menggunakan Pasif?</h5>
+<ol>
+    <li>Pelaku tidak diketahui (<em>My wallet was stolen</em>).</li>
+    <li>Pelaku tidak penting (<em>The pyramid was built in 2560 BC</em>).</li>
+    <li>Menekankan hasil penelitian (<em>The sample was heated to 100 degrees</em>).</li>
+</ol>
+
+<h5 class='fw-bold mt-4 text-danger'>⚠️ Jebakan TOEFL: Intransitive Verbs</h5>
+<p>Kata kerja yang tidak punya objek (intransitif) <strong>TIDAK BISA</strong> dipasifkan. Contoh: <em>Happen, Occur, Arrive, Die, Exist.</em></p>
+<div class='alert alert-warning'>
+    ❌ <em>The accident was happened.</em> (SALAH)<br>
+    ✔️ <strong>The accident happened.</strong> (BENAR)
+</div>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
             [
@@ -143,91 +173,92 @@ class CreateSkillMateriTables extends Migration
                 'kategori'       => 'Structure & Written Expression',
                 'icon'           => 'bi-link-45deg',
                 'color'          => 'primary',
-                'ringkasan'      => 'Penggunaan penghubung pada Noun Clause, Adjective Clause, dan Adverb Clause.',
-                'materi_lengkap' => "<h4>Clauses & Connectors</h4><p>Cara menghubungkan dua klausa menggunakan who, which, that, because, although, dsb.</p>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
-            [
-                'slug_bab'       => 'struct-6',
-                'judul'          => 'Structure 6: Parallel Structure',
-                'kategori'       => 'Structure & Written Expression',
-                'icon'           => 'bi-distribute-vertical',
-                'color'          => 'primary',
-                'ringkasan'      => 'Kesejajaran struktur kata dalam deretan atau perbandingan.',
-                'materi_lengkap' => "<h4>Parallel Structure</h4><p>Jika menggunakan kata benda dalam deretan, maka semua harus kata benda. Contoh: 'I like swimming, hiking, and <em>running</em>' (bukan run).</p>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
-            [
-                'slug_bab'       => 'struct-7',
-                'judul'          => 'Structure 7: Reduced Clauses',
-                'kategori'       => 'Structure & Written Expression',
-                'icon'           => 'bi-scissors',
-                'color'          => 'primary',
-                'ringkasan'      => 'Penyusutan klausa untuk membuat kalimat lebih efektif.',
-                'materi_lengkap' => "<h4>Reduced Clauses</h4><p>Menghilangkan subjek dan 'be' pada klausa. Contoh: 'While <em>(he was)</em> walking, he found a coin'.</p>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
-            [
-                'slug_bab'       => 'struct-8',
-                'judul'          => 'Structure 8: Word Order & Prepositions',
-                'kategori'       => 'Structure & Written Expression',
-                'icon'           => 'bi-sort-alpha-down',
-                'color'          => 'primary',
-                'ringkasan'      => 'Urutan kata yang benar dan penggunaan kata depan (in, at, on, of, to).',
-                'materi_lengkap' => "<h4>Word Order & Prepositions</h4><p>Aturan penempatan kata keterangan dan penggunaan preposisi yang sering muncul di TOEFL.</p>",
-                'created_at'     => date('Y-m-d H:i:s'),
-            ],
+                'ringkasan'      => 'Membedah Noun Clause, Adjective Clause, dan Adverb Clause serta penghubungnya.',
+                'materi_lengkap' => "
+<h4 class='fw-bold text-primary mb-3'>Memahami Klausa & Penghubung</h4>
+<p>Sebuah kalimat kompleks terdiri dari Klausa Utama dan Klausa Pendukung. Anda butuh <strong>Connector</strong> untuk menghubungkannya.</p>
 
-            // --- SECTION: LISTENING ---
-            [
-                'slug_bab'       => 'listen-1',
-                'judul'          => 'Listening Section: Parts A, B, & C',
-                'kategori'       => 'Listening Comprehension',
-                'icon'           => 'bi-headphones',
-                'color'          => 'success',
-                'ringkasan'      => 'Strategi Short Conversations, Long Conversations, dan Lectures.',
-                'materi_lengkap' => "<h4>Listening Strategies</h4><p>Fokus pada baris kedua di Part A. Pahami konteks, sinonim, dan ungkapan idiomatik.</p>",
+<h5 class='fw-bold mt-4'>1. Noun Clause (Klausa Kata Benda)</h5>
+<p>Berfungsi sebagai subjek atau objek. Connector: <em>What, When, Why, How, That, Whether.</em></p>
+<p>Contoh: <strong>What he said</strong> was true. (Klausa 'What he said' adalah subjek).</p>
+
+<h5 class='fw-bold mt-4'>2. Adjective Clause (Klausa Kata Sifat)</h5>
+<p>Menerangkan kata benda sebelumnya. Connector: <em>Who, Whom, Which, That, Whose.</em></p>
+<p>Contoh: The man <strong>who is standing there</strong> is my uncle.</p>
+
+<h5 class='fw-bold mt-4'>3. Adverb Clause (Klausa Kata Keterangan)</h5>
+<p>Menjelaskan waktu, sebab, atau kondisi. Connector: <em>Because, Although, If, While, Since.</em></p>
+<p>Contoh: <strong>Because it was raining</strong>, we stayed home. (Gunakan koma jika connector di awal).</p>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
-
-            // --- SECTION: READING ---
             [
                 'slug_bab'       => 'read-1',
-                'judul'          => 'Reading Section: Skills & Tips',
+                'judul'          => 'Reading: Master Strategy',
                 'kategori'       => 'Reading Comprehension',
                 'icon'           => 'bi-book-half',
                 'color'          => 'indigo',
-                'ringkasan'      => 'Menemukan Main Idea, Detail, Inference, dan Pronoun Referents.',
-                'materi_lengkap' => "<h4>Reading Skills</h4><p>Strategi menjawab soal Ide Pokok, Informasi Tersurat/Tersirat, dan Referensi Kata Ganti.</p>",
+                'ringkasan'      => 'Strategi menjawab Main Idea, Inference, Vocabulary, dan Pronoun Referent.',
+                'materi_lengkap' => "
+<h4 class='fw-bold text-indigo mb-3'>Panduan Strategis Reading TOEFL</h4>
+<p>Waktu Reading sangat terbatas (55 menit untuk 50 soal). Anda tidak punya waktu untuk membaca setiap kata!</p>
+
+<h5 class='fw-bold mt-4'>1. Main Idea (Gagasan Utama)</h5>
+<p>Jangan baca seluruh paragraf. Bacalah <strong>kalimat pertama</strong> dari setiap paragraf. Ide pokok biasanya terletak di sana.</p>
+
+<h5 class='fw-bold mt-4'>2. Inference (Kesimpulan Tersirat)</h5>
+<p>Cari jawaban yang <em>logis</em> berdasarkan bukti di teks, tapi tidak tertulis langsung. Hindari pilihan yang menggunakan kata-kata ekstrem seperti 'Always' atau 'Never'.</p>
+
+<h5 class='fw-bold mt-4'>3. Vocabulary in Context</h5>
+<p>Gunakan teknik substitusi. Masukkan pilihan jawaban ke dalam kalimat, mana yang paling masuk akal? Lihat juga kata-kata di sekitar (context clues) seperti antonim atau sinonim yang disediakan penulis.</p>
+
+<h5 class='fw-bold mt-4'>4. Pronoun Referent (Rujukan Kata Ganti)</h5>
+<p>Kata ganti (it, they, them) hampir selalu merujuk pada <strong>Kata Benda yang muncul tepat sebelumnya</strong>. Pastikan kesesuaian jumlah (Singular/Plural).</p>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
         ];
         $this->db->table('skill_materi')->insertBatch($materiData);
 
-        // --- DATA SEEDER SOAL (Contoh untuk masing-masing bab) ---
+        // --- DATA SEEDER SOAL (DIPERBANYAK & BERKUALITAS) ---
         $soalData = [
-            // Soal Struct-1
+            // Soal Struct-1 (Subject-Verb)
             [
                 'slug_bab'      => 'struct-1',
-                'pertanyaan'    => "The keys to the drawer __________ on the table yesterday.",
-                'pilihan_a'     => "was", 'pilihan_b' => "were", 'pilihan_c' => "is", 'pilihan_d' => "are",
-                'kunci_jawaban' => 'B', 'pembahasan' => "Subjek jamak 'The keys'. 'to the drawer' adalah objek preposisi."
+                'pertanyaan'    => "The results of the study on environmental pollution __________ expected to be published next month.",
+                'pilihan_a'     => "is", 'pilihan_b' => "are", 'pilihan_c' => "was", 'pilihan_d' => "has been",
+                'kunci_jawaban' => 'B', 'pembahasan' => "Subjek utama adalah 'The results' (plural). Frasa 'of the study...' diabaikan."
             ],
-            // Soal Struct-4
+            [
+                'slug_bab'      => 'struct-1',
+                'pertanyaan'    => "Each of the candidates __________ given ten minutes to present their program.",
+                'pilihan_a'     => "are", 'pilihan_b' => "is", 'pilihan_c' => "were", 'pilihan_d' => "have been",
+                'kunci_jawaban' => 'B', 'pembahasan' => "'Each' selalu dianggap tunggal (singular)."
+            ],
+            // Soal Struct-4 (Passive)
             [
                 'slug_bab'      => 'struct-4',
-                'pertanyaan'    => "The new bridge __________ by the local government next year.",
-                'pilihan_a'     => "will build", 'pilihan_b' => "is built", 'pilihan_c' => "will be built", 'pilihan_d' => "has built",
-                'kunci_jawaban' => 'C', 'pembahasan' => "Kalimat pasif masa depan: will + be + V3."
+                'pertanyaan'    => "Rare artifacts from the sunken ship __________ by archaeologists for over a year.",
+                'pilihan_a'     => "have studied", 'pilihan_b' => "have been studied", 'pilihan_c' => "were studying", 'pilihan_d' => "studying",
+                'kunci_jawaban' => 'B', 'pembahasan' => "Kalimat pasif present perfect: have been + V3."
             ],
-            // Soal Struct-6
             [
-                'slug_bab'      => 'struct-6',
-                'pertanyaan'    => "She likes to sing, to dance, and __________.",
-                'pilihan_a'     => "swimming", 'pilihan_b' => "to swim", 'pilihan_c' => "swims", 'pilihan_d' => "swim",
-                'kunci_jawaban' => 'B', 'pembahasan' => "Parallel structure menggunakan to-infinitive."
+                'slug_bab'      => 'struct-4',
+                'pertanyaan'    => "Which of the following sentences is grammatically <strong>INCORRECT</strong>?",
+                'pilihan_a'     => "The news was reported by the media.", 
+                'pilihan_b'     => "The sun was risen at 6 AM.", 
+                'pilihan_c'     => "The letters were sent yesterday.", 
+                'pilihan_d'     => "The problem has been solved.",
+                'kunci_jawaban' => 'B', 'pembahasan' => "'Rise' adalah kata kerja intransitif, tidak bisa dipasifkan."
             ],
-            // ... Soal lainnya akan ditambahkan secara bertahap ...
+            // Soal Read-1 (Main Idea)
+            [
+                'slug_bab'      => 'read-1',
+                'pertanyaan'    => "<strong>Passage:</strong> 'The Industrial Revolution marked a major turning point in history. Almost every aspect of daily life was influenced in some way. In particular, average income and population began to exhibit unprecedented sustained growth.' <br><br> What is the main idea of this passage?",
+                'pilihan_a'     => "Daily life was very hard before the revolution.", 
+                'pilihan_b'     => "The Industrial Revolution caused significant historical changes.", 
+                'pilihan_c'     => "Population growth is a bad sign for history.", 
+                'pilihan_d'     => "Income levels are the only way to measure success.",
+                'kunci_jawaban' => 'B', 'pembahasan' => "Kalimat pertama menyatakan Revolusi Industri adalah titik balik sejarah (major turning point)."
+            ],
         ];
         $this->db->table('skill_soal')->insertBatch($soalData);
     }
