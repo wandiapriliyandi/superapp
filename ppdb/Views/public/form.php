@@ -10,7 +10,15 @@
                     Pendaftaran sedang dibuka untuk <strong><?= $wave['gelombang'] ?></strong> sampai tanggal <strong><?= date('d M Y', strtotime($wave['tgl_tutup'])) ?></strong>.
                 </div>
 
-                <form action="<?= base_url('ppdb/daftar/submit') ?>" method="POST">
+                <form id="publicDaftarForm" action="" method="POST">
+                    <script>
+                        // Menjamin form action secara presisi menggunakan protokol HTTPS dan host riil sesuai address bar browser saat ini
+                        // Menghindari terhapusnya data POST akibat pengalihan HTTP ke HTTPS dan pemblokiran "Insecure Form Submission"
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let currentUrl = window.location.href.split('#')[0].split('?')[0].replace(/\/$/, '');
+                            document.getElementById('publicDaftarForm').action = currentUrl + '/submit';
+                        });
+                    </script>
                     <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">Data Diri Calon Santri</h5>
                     
                     <div class="mb-3">

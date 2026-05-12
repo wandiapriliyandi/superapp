@@ -8,7 +8,14 @@
                 <h5 class="fw-bold mb-0">Form Input Calon Santri Manual</h5>
             </div>
             <div class="card-body p-4">
-                <form action="<?= base_url('ppdb/pendaftar/save') ?>" method="POST">
+                <form id="adminPendaftarForm" action="" method="POST">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let baseHref = window.location.href.split('#')[0].split('?')[0].replace(/\/$/, '');
+                            let lastSlash = baseHref.lastIndexOf('/');
+                            document.getElementById('adminPendaftarForm').action = baseHref.substring(0, lastSlash) + '/save';
+                        });
+                    </script>
                     <div class="row g-3 mb-3">
                         <div class="col-md-12">
                             <label class="form-label fw-bold">Nama Lengkap</label>

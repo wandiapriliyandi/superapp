@@ -8,7 +8,13 @@
                 <h5 class="fw-bold mb-0">Form Pembayaran</h5>
             </div>
             <div class="card-body p-4">
-                <form action="<?= base_url('ppdb/pendaftar/save-pembayaran') ?>" method="POST">
+                <form id="pembayaranForm" action="" method="POST">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let baseHref = window.location.href.split('#')[0].split('?')[0].replace(/\/$/, '');
+                            document.getElementById('pembayaranForm').action = baseHref.replace(/\/pembayaran\/\d+$/, '/save-pembayaran');
+                        });
+                    </script>
                     <input type="hidden" name="id_pendaftar" value="<?= $p['id'] ?>">
                     
                     <div class="mb-3">
