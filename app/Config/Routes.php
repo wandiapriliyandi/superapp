@@ -27,6 +27,14 @@ $routes->get('setting/theme', 'Setting::theme');
 $routes->post('setting/update', 'Setting::update');
 $routes->get('activity', 'Activity::index');
 
+// Rute Migrasi Paksa Database
+$routes->get('migrate', 'Migrate::index');
+$routes->get('migrate/latest', 'Migrate::latest');
+$routes->get('migrate/refresh', 'Migrate::refresh');
+$routes->get('migrate/rollback', 'Migrate::rollback');
+$routes->get('migrate/force-reset', 'Migrate::forceReset');
+$routes->post('migrate/force-run-single', 'Migrate::forceRunSingle');
+
 $routes->group('kepegawaian', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('karyawan', 'Karyawan::index');
     $routes->get('karyawan/add', 'Karyawan::add');

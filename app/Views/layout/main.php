@@ -284,6 +284,9 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting/theme') ?>">
                 <span class="nav-icon">🎨</span> <span class="nav-text">Tema Aplikasi</span>
             </a>
+            <a class="nav-link <?= url_is('migrate*') ? 'active' : '' ?>" href="<?= base_url('migrate') ?>">
+                <span class="nav-icon">⚡</span> <span class="nav-text">Migrasi & Database</span>
+            </a>
         <?php endif; ?>
     </div>
     <?php endif; ?>
