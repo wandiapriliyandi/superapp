@@ -140,46 +140,108 @@ class CreateSkillMateriTables extends Migration
                 'color'          => 'primary',
                 'ringkasan'      => 'Panduan mendalam 12 Tenses: Logika penggunaan Simple, Continuous, Perfect, dan Perfect Continuous.',
                 'materi_lengkap' => "
-<h4 class='fw-bold text-primary mb-4'>Panduan Lengkap Logika 12 Tenses</h4>
-<p>Kunci menguasai Tenses di TOEFL bukan hanya menghafal rumus, tapi memahami <strong>garis waktu (timeline)</strong> kejadian.</p>
+<h4 class='fw-bold text-primary mb-4'>The Ultimate Guide to 12 English Tenses</h4>
+<p>Dalam tes TOEFL, penguasaan 12 tenses adalah pondasi utama untuk memahami struktur kalimat yang kompleks. Berikut adalah rincian setiap tenses:</p>
 
-<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-1-circle-fill me-2 text-primary'></i>Kelompok SIMPLE (Kebenaran & Kepastian)</h5>
-<p>Digunakan untuk menyatakan aksi yang dianggap sebagai satu kesatuan fakta atau kejadian yang selesai tepat waktu.</p>
-<ul>
-    <li><strong>Simple Present:</strong> Menyatakan kebenaran umum atau kebiasaan. <br><em>Contoh: The sun rises in the east.</em></li>
-    <li><strong>Simple Past:</strong> Menyatakan aksi yang <strong>benar-benar selesai</strong> di masa lalu. Harus ada keterangan waktu spesifik (yesterday, last year).</li>
-    <li><strong>Simple Future:</strong> Rencana atau prediksi masa depan.</li>
-</ul>
+<h5 class='fw-bold mt-5 text-primary'><i class='bi bi-calendar-check me-2'></i>A. PRESENT TENSES (Masa Kini)</h5>
+<div class='row g-3 mb-4'>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>1. Simple Present</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + V1(s/es)</p>
+            <p class='small mb-0'>Digunakan untuk fakta ilmiah atau kebiasaan. <br><em>Ex: The Earth <strong>revolves</strong> around the sun.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>2. Present Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + am/is/are + V-ing</p>
+            <p class='small mb-0'>Aksi yang sedang berlangsung sekarang. <br><em>Ex: Scientists <strong>are conducting</strong> a new experiment.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>3. Present Perfect</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + have/has + V3</p>
+            <p class='small mb-0'>Aksi yang baru saja selesai atau berulang. <br><em>Ex: Many authors <strong>have written</strong> about this issue.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>4. Present Perfect Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + have/has + been + V-ing</p>
+            <p class='small mb-0'>Aksi yang dimulai di masa lalu dan masih berlangsung. <br><em>Ex: They <strong>have been researching</strong> cancer for decades.</em></p>
+        </div>
+    </div>
+</div>
 
-<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-2-circle-fill me-2 text-primary'></i>Kelompok CONTINUOUS (Sedang Berlangsung)</h5>
-<p>Menekankan pada <strong>proses</strong> atau durasi yang sedang terjadi pada titik waktu tertentu.</p>
-<ul>
-    <li><strong>Present Continuous:</strong> Sedang terjadi saat kita bicara.</li>
-    <li><strong>Past Continuous:</strong> Digunakan untuk aksi yang sedang berlangsung di masa lalu ketika aksi lain menyela (interupsi). <br><em>Rumus: S + was/were + V-ing. Contoh: I <strong>was sleeping</strong> when you called.</em></li>
-</ul>
+<h5 class='fw-bold mt-5 text-danger'><i class='bi bi-clock-history me-2'></i>B. PAST TENSES (Masa Lampau)</h5>
+<div class='row g-3 mb-4'>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>5. Simple Past</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + V2</p>
+            <p class='small mb-0'>Kejadian selesai di waktu lampau yang jelas. <br><em>Ex: The company <strong>launched</strong> its product last year.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>6. Past Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + was/were + V-ing</p>
+            <p class='small mb-0'>Aksi yang sedang berlangsung di masa lalu saat aksi lain terjadi. <br><em>Ex: I <strong>was reading</strong> when the light went out.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>7. Past Perfect</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + had + V3</p>
+            <p class='small mb-0'>Aksi yang sudah selesai sebelum aksi lampau lainnya. <br><em>Ex: The train <strong>had left</strong> before I arrived.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>8. Past Perfect Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + had + been + V-ing</p>
+            <p class='small mb-0'>Durasi aksi masa lalu yang terjadi sebelum aksi lampau lain. <br><em>Ex: We <strong>had been waiting</strong> for hours before the bus came.</em></p>
+        </div>
+    </div>
+</div>
 
-<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-3-circle-fill me-2 text-primary'></i>Kelompok PERFECT (Sudah Selesai Sebelum...)</h5>
-<p>Tense ini paling sering muncul di TOEFL. Logikanya adalah aksi yang selesai <strong>sebelum</strong> titik waktu lain.</p>
-<ul>
-    <li><strong>Present Perfect (has/have + V3):</strong> Aksi masa lalu yang waktunya tidak penting, tapi hasilnya masih terasa sekarang. <br>⚠️ <em>Tip: Jangan gunakan tenses ini jika ada keterangan waktu 'yesterday'.</em></li>
-    <li><strong>Past Perfect (had + V3):</strong> Digunakan jika ada DUA kejadian di masa lalu. Kejadian yang <strong>lebih awal</strong> menggunakan Past Perfect. <br><em>Contoh: He <strong>had left</strong> before I arrived.</em></li>
-</ul>
+<h5 class='fw-bold mt-5 text-success'><i class='bi bi-arrow-right-circle me-2'></i>C. FUTURE TENSES (Masa Depan)</h5>
+<div class='row g-3 mb-4'>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>9. Simple Future</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will + V1</p>
+            <p class='small mb-0'>Rencana atau prediksi masa depan. <br><em>Ex: The team <strong>will complete</strong> the project next week.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>10. Future Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will be + V-ing</p>
+            <p class='small mb-0'>Aksi yang akan sedang berlangsung di masa depan. <br><em>Ex: At 9 AM tomorrow, I <strong>will be taking</strong> the exam.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>11. Future Perfect</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will have + V3</p>
+            <p class='small mb-0'>Aksi yang akan sudah selesai di waktu tertentu di masa depan. <br><em>Ex: By 2030, scientists <strong>will have discovered</strong> a cure.</em></p>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='p-3 border rounded shadow-sm bg-white h-100'>
+            <h6 class='fw-bold text-dark'>12. Future Perfect Continuous</h6>
+            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will have been + V-ing</p>
+            <p class='small mb-0'>Durasi aksi yang akan sudah berjalan di masa depan. <br><em>Ex: By December, she <strong>will have been living</strong> here for 5 years.</em></p>
+        </div>
+    </div>
+</div>
 
-<h5 class='fw-bold mt-4 text-dark'><i class='bi bi-4-circle-fill me-2 text-primary'></i>Kelompok PERFECT CONTINUOUS (Durasi yang Telah Berjalan)</h5>
-<p>Menekankan pada <strong>berapa lama</strong> suatu aksi telah berlangsung hingga titik waktu tertentu.</p>
-<ul>
-    <li><strong>Present Perfect Cont. (has/have + been + V-ing):</strong> <em>I have been waiting for two hours.</em> (Masih menunggu sampai sekarang).</li>
-    <li><strong>Past Perfect Cont. (had + been + V-ing):</strong> <em>He had been working there for ten years before he retired.</em></li>
-</ul>
-
-<div class='alert alert-info mt-4'>
-    <h6 class='fw-bold'>Tabel Rumus Cepat:</h6>
-    <table class='table table-sm table-borderless mb-0 small'>
-        <tr><td><strong>Simple</strong></td><td>V1 / V2 / will V1</td></tr>
-        <tr><td><strong>Continuous</strong></td><td>be + V-ing</td></tr>
-        <tr><td><strong>Perfect</strong></td><td>have/has/had + V3</td></tr>
-        <tr><td><strong>Perfect Cont.</strong></td><td>have/has/had + been + V-ing</td></tr>
-    </table>
+<div class='mt-5 alert alert-warning border-0 rounded-4'>
+    <h6 class='fw-bold'><i class='bi bi-exclamation-triangle-fill me-2'></i>Catatan Penting TOEFL:</h6>
+    <p class='small mb-0'>Hati-hati dengan <strong>Stative Verbs</strong> (kata kerja statis seperti: <em>know, believe, belong, see, hear</em>). Kata-kata ini biasanya tidak digunakan dalam bentuk Continuous (-ing).<br>❌ <em>I am knowing the answer.</em><br>✔️ <strong>I know the answer.</strong></p>
 </div>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
