@@ -277,19 +277,44 @@ class Migrate extends BaseController
     public function pullGit()
     {
         try {
-            $output = [];
+            $command = 'cd ' . escapeshellarg(ROOTPATH) . ' && git pull origin main 2>&1';
+            $resultText = '';
             $returnVar = 0;
-            // Eksekusi git pull pada direktori root proyek
-            exec('cd ' . escapeshellarg(ROOTPATH) . ' && git pull origin main 2>&1', $output, $returnVar);
-            
-            $resultText = implode("\n", $output);
-            
-            if ($returnVar === 0) {
+
+            // Memeriksa ketersediaan fungsi shell pada PHP (menghindari error undefined function jika di-disable)
+            if (\function_exists('exec') && \is_callable('exec')) {
+                $output = [];
+                \exec($command, $output, $returnVar);
+                $resultText = \implode("\n", $output);
+            } elseif (\function_exists('shell_exec') && \is_callable('shell_exec')) {
+                $resultText = \shell_exec($command) ?? '';
+            } elseif (\function_exists('proc_open') && \is_callable('proc_open')) {
+                $descriptors = [
+                    0 => ["pipe", "r"],
+                    1 => ["pipe", "w"],
+                    2 => ["pipe", "w"]
+                ];
+                $process = \proc_open($command, $descriptors, $pipes);
+                if (\is_resource($process)) {
+                    $resultText = \stream_get_contents($pipes[1]) . \stream_get_contents($pipes[2]);
+                    \fclose($pipes[0]);
+                    \fclose($pipes[1]);
+                    \fclose($pipes[2]);
+                    $returnVar = \proc_close($process);
+                }
+            } else {
+                throw new \Exception('Fungsi eksekusi sistem (exec, shell_exec, proc_open) dinonaktifkan oleh pengaturan server (php.ini disable_functions).');
+            }
+
+            // Memeriksa apakah output mengandung indikasi error/fatal
+            $isError = ($returnVar !== 0 || \strpos(\strtolower($resultText), 'fatal:') !== false || \strpos(\strtolower($resultText), 'error:') !== false);
+
+            if (!$isError) {
                 log_activity('Melakukan Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
                 return redirect()->to('migrate')->with('success', 'Git Pull berhasil ditarik dengan sukses! Output: ' . esc($resultText));
             } else {
                 log_activity('Gagal Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
-                return redirect()->to('migrate')->with('error', 'Git Pull mendapati kendala (kode ' . $returnVar . '): ' . esc($resultText));
+                return redirect()->to('migrate')->with('error', 'Git Pull mendapati kendala: ' . esc($resultText));
             }
         } catch (\Throwable $e) {
             return redirect()->to('migrate')->with('error', 'Gagal memicu perintah git pull: ' . $e->getMessage());
