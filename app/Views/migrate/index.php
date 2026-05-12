@@ -338,8 +338,19 @@ $(document).ready(function() {
         const spinnerIcon = $('#refreshSpinnerIcon');
         spinnerIcon.addClass('spinner-border spinner-border-sm').removeClass('bi-arrow-clockwise');
         
+        // Bentuk URL secara dinamis dari alamat browser aktif agar terhindar dari kendala base_url localhost di server hosting live
+        let currentUrl = window.location.href.split('#')[0].split('?')[0].replace(/\/$/, '');
+        const targetAjaxUrl = currentUrl + '/table-data';
+
+        // Tulis ulang atribut data-href pada seluruh tombol aksi agar selalu menggunakan host/path yang sesuai di server live
+        $('.btn[data-href]').each(function() {
+            let oldHref = $(this).attr('data-href');
+            let routePart = oldHref.substring(oldHref.lastIndexOf('/') + 1);
+            $(this).attr('data-href', currentUrl + '/' + routePart);
+        });
+
         $.ajax({
-            url: '<?= base_url('migrate/table-data') ?>',
+            url: targetAjaxUrl,
             type: 'GET',
             dataType: 'text', // Menggunakan text untuk mencegah error parse otomatis jika server menyisipkan kode HTML/JS tambahan
             success: function(rawText) {
