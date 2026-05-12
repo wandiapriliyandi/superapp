@@ -133,6 +133,58 @@ class CreateSkillMateriTables extends Migration
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
             [
+                'slug_bab'       => 'struct-2',
+                'judul'          => 'Structure 2: Verb Tenses & Forms',
+                'kategori'       => 'Structure & Written Expression',
+                'icon'           => 'bi-clock',
+                'color'          => 'primary',
+                'ringkasan'      => 'Penggunaan kata kerja berdasarkan waktu: Simple, Continuous, dan Perfect serta penanda waktunya.',
+                'materi_lengkap' => "
+<h4 class='fw-bold text-primary mb-3'>Menguasai Verb Tenses dalam TOEFL</h4>
+<p>Dalam tes TOEFL, ketepatan waktu (tenses) sangat krusial. Anda harus bisa menentukan bentuk kata kerja berdasarkan penanda waktu (time markers) yang ada dalam kalimat.</p>
+
+<h5 class='fw-bold mt-4'>1. Simple Tenses (Fakta & Kejadian Selesai)</h5>
+<table class='table table-bordered table-sm small'>
+    <thead class='bg-light text-center'>
+        <tr><th>Tense</th><th>Rumus Dasar</th><th>Penanda Waktu (Time Markers)</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Simple Present</strong></td><td>S + V1 (s/es)</td><td>Always, usually, often, every day, general truths.</td></tr>
+        <tr><td><strong>Simple Past</strong></td><td>S + V2 (ed/irr)</td><td>Yesterday, ago, last week, in 1990, specifically finished.</td></tr>
+        <tr><td><strong>Simple Future</strong></td><td>S + will + V1</td><td>Tomorrow, next year, soon, predictions.</td></tr>
+    </tbody>
+</table>
+
+<h5 class='fw-bold mt-4'>2. Continuous / Progressive (Sedang Berlangsung)</h5>
+<p>Menekankan bahwa aksi sedang terjadi pada titik waktu tertentu.</p>
+<ul>
+    <li><strong>Present Continuous:</strong> <code>am/is/are + V-ing</code> (Terjadi sekarang).</li>
+    <li><strong>Past Continuous:</strong> <code>was/were + V-ing</code> (Sedang terjadi saat kejadian lain muncul). <br><em>Contoh: I was studying when the phone rang.</em></li>
+</ul>
+
+<h5 class='fw-bold mt-4'>3. Perfect Tenses (Keterhubungan Waktu)</h5>
+<p>Perfect tenses menunjukkan aksi yang sudah selesai sebelum titik waktu tertentu.</p>
+<ul>
+    <li><strong>Present Perfect (have/has + V3):</strong> Aksi masa lalu yang efeknya masih ada atau waktunya tidak spesifik. <br>⚠️ <strong>Jebakan:</strong> Jangan gunakan penanda waktu spesifik (yesterday) dengan Present Perfect.</li>
+    <li><strong>Past Perfect (had + V3):</strong> Menunjukkan aksi yang terjadi <strong>SEBELUM</strong> aksi lampau lainnya. <br><em>Contoh: The film <strong>had started</strong> before we arrived.</em></li>
+    <li><strong>Future Perfect (will have + V3):</strong> Aksi yang akan selesai sebelum waktu tertentu di masa depan. <br><em>Contoh: By next year, I <strong>will have graduated</strong>.</em></li>
+</ul>
+
+<h5 class='fw-bold mt-4 text-danger'>⚠️ TOEFL Trap: Time Clauses</h5>
+<p>Dalam klausa waktu yang menggunakan <em>When, While, Until, As soon as, Before, After,</em> Anda <strong>TIDAK BOLEH</strong> menggunakan 'will' untuk masa depan. Gunakan Simple Present.</p>
+<div class='alert alert-warning'>
+    ❌ <em>I will call you when I <strong>will</strong> arrive.</em> (SALAH)<br>
+    ✔️ <strong>I will call you when I arrive.</strong> (BENAR)
+</div>
+
+<h5 class='fw-bold mt-4'>4. Perbedaan SINCE vs FOR</h5>
+<ul>
+    <li><strong>Since + Titik Waktu:</strong> Menunjukkan kapan aksi dimulai (since 2010, since Monday).</li>
+    <li><strong>For + Durasi:</strong> Menunjukkan berapa lama aksi berlangsung (for 2 hours, for 5 years).</li>
+</ul>",
+                'created_at'     => date('Y-m-d H:i:s'),
+            ],
+            [
                 'slug_bab'       => 'struct-4',
                 'judul'          => 'Structure 4: Passive Voice',
                 'kategori'       => 'Structure & Written Expression',
