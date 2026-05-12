@@ -23,4 +23,13 @@ $routes->group('e-learning', ['namespace' => 'ELearning\Controllers'], function 
     $routes->get('ujian/export-excel', 'Ujian::export_excel');
     $routes->get('ujian/export-word', 'Ujian::export_word');
     $routes->get('ujian/export-pdf', 'Ujian::export_pdf');
+
+    // Kelola Pelatihan Mandiri / Skill (Non-Kurikulum, e.g. TOEFL)
+    $routes->get('skill', 'Skill::index');
+    $routes->get('skill/materi/(:segment)', 'Skill::materi/$1');
+    $routes->get('skill/kuis/(:segment)', 'Skill::kuis/$1');
+    $routes->post('skill/submit-kuis', 'Skill::submitKuis');
+    $routes->get('skill/simulasi', 'Skill::simulasi');
+    $routes->post('skill/submit-simulasi', 'Skill::submitSimulasi');
+    $routes->get('skill/riwayat', 'Skill::riwayat');
 });

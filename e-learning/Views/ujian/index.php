@@ -3,13 +3,26 @@
 <?= $this->section('content') ?>
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
             <div>
                 <h3 class="fw-bold mb-1 text-indigo"><i class="bi bi-pencil-square me-2"></i>Ujian & Tugas Online E-Learning</h3>
                 <p class="text-muted small mb-0">Atur jadwal pelaksanaan ujian, kuis interaktif, serta penugasan mandiri secara daring untuk para santri.</p>
             </div>
             <a href="<?= base_url('e-learning/ujian/add') ?>" class="btn btn-indigo px-4 py-2 fw-semibold rounded-pill shadow-sm text-white" style="background-color: #6610f2; border-color: #6610f2;">
                 <i class="bi bi-plus-circle me-2"></i>Buat Jadwal Ujian Baru
+            </a>
+        </div>
+        
+        <!-- Navigasi Cepat Submodul E-Learning -->
+        <div class="d-flex gap-2 pb-2 border-bottom overflow-auto">
+            <a href="<?= base_url('e-learning/materi') ?>" class="btn btn-sm btn-outline-primary rounded-pill fw-medium px-3">
+                <i class="bi bi-book me-1"></i>Materi Belajar
+            </a>
+            <a href="<?= base_url('e-learning/ujian') ?>" class="btn btn-sm text-white rounded-pill fw-bold px-3" style="background-color: #6610f2;">
+                <i class="bi bi-pencil-square me-1"></i>Ujian Online
+            </a>
+            <a href="<?= base_url('e-learning/skill') ?>" class="btn btn-sm btn-outline-warning text-dark border-warning rounded-pill fw-medium px-3 bg-warning bg-opacity-10">
+                <i class="bi bi-award-fill text-warning me-1"></i>Pelatihan Skill & TOEFL
             </a>
         </div>
     </div>

@@ -281,6 +281,9 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('e-learning/ujian*') ? 'active' : '' ?>" href="<?= base_url('e-learning/ujian') ?>">
                 <span class="nav-icon">📝</span> <span class="nav-text">Ujian Online</span>
             </a>
+            <a class="nav-link <?= url_is('e-learning/skill*') ? 'active' : '' ?>" href="<?= base_url('e-learning/skill') ?>">
+                <span class="nav-icon">🌟</span> <span class="nav-text">Skill & TOEFL</span>
+            </a>
 
         <!-- MENU SYSTEM / DEFAULT -->
         <?php else: ?>

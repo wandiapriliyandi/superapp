@@ -3,13 +3,26 @@
 <?= $this->section('content') ?>
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
             <div>
                 <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-book-half me-2"></i>Materi Pembelajaran E-Learning</h3>
                 <p class="text-muted small mb-0">Kelola dan distribusikan bahan ajar, modul, serta video pembelajaran interaktif kepada santri.</p>
             </div>
             <a href="<?= base_url('e-learning/materi/add') ?>" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill shadow-sm">
                 <i class="bi bi-cloud-upload me-2"></i>Unggah Materi Baru
+            </a>
+        </div>
+        
+        <!-- Navigasi Cepat Submodul E-Learning -->
+        <div class="d-flex gap-2 pb-2 border-bottom overflow-auto">
+            <a href="<?= base_url('e-learning/materi') ?>" class="btn btn-sm btn-primary rounded-pill fw-bold px-3">
+                <i class="bi bi-book me-1"></i>Materi Belajar
+            </a>
+            <a href="<?= base_url('e-learning/ujian') ?>" class="btn btn-sm btn-outline-secondary rounded-pill fw-medium px-3">
+                <i class="bi bi-pencil-square me-1"></i>Ujian Online
+            </a>
+            <a href="<?= base_url('e-learning/skill') ?>" class="btn btn-sm btn-outline-warning text-dark border-warning rounded-pill fw-medium px-3 bg-warning bg-opacity-10">
+                <i class="bi bi-award-fill text-warning me-1"></i>Pelatihan Skill & TOEFL
             </a>
         </div>
     </div>
