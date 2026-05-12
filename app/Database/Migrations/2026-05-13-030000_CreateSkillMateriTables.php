@@ -141,36 +141,39 @@ class CreateSkillMateriTables extends Migration
                 'ringkasan'      => 'Panduan mendalam 12 Tenses: Logika penggunaan Simple, Continuous, Perfect, dan Perfect Continuous.',
                 'materi_lengkap' => "
 <h4 class='fw-bold text-primary mb-4'>The Ultimate Guide to 12 English Tenses</h4>
-<p>Dalam tes TOEFL, penguasaan 12 tenses adalah pondasi utama untuk memahami struktur kalimat yang kompleks. Berikut adalah rincian setiap tenses:</p>
+<p>Dalam TOEFL, Anda harus menguasai dua bentuk kalimat: <strong>Verbal</strong> (menggunakan Kata Kerja) dan <strong>Nominal</strong> (menggunakan Kata Benda/Sifat/Keterangan).</p>
 
 <h5 class='fw-bold mt-5 text-primary'><i class='bi bi-calendar-check me-2'></i>A. PRESENT TENSES (Masa Kini)</h5>
 <div class='row g-3 mb-4'>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>1. Simple Present</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + V1(s/es)</p>
-            <p class='small mb-0'>Digunakan untuk fakta ilmiah atau kebiasaan. <br><em>Ex: The Earth <strong>revolves</strong> around the sun.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + V1(s/es)</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + am/is/are + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: She <strong>is</strong> a teacher.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>2. Present Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + am/is/are + V-ing</p>
-            <p class='small mb-0'>Aksi yang sedang berlangsung sekarang. <br><em>Ex: Scientists <strong>are conducting</strong> a new experiment.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + am/is/are + V-ing</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + am/is/are + being + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: He <strong>is being</strong> helpful today.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>3. Present Perfect</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + have/has + V3</p>
-            <p class='small mb-0'>Aksi yang baru saja selesai atau berulang. <br><em>Ex: Many authors <strong>have written</strong> about this issue.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + have/has + V3</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + have/has + been + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: I <strong>have been</strong> a member since 2010.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>4. Present Perfect Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + have/has + been + V-ing</p>
-            <p class='small mb-0'>Aksi yang dimulai di masa lalu dan masih berlangsung. <br><em>Ex: They <strong>have been researching</strong> cancer for decades.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + have/has + been + V-ing</p>
+            <p class='small mb-0 text-success'><em>Ex: It <strong>has been raining</strong> all day.</em></p>
         </div>
     </div>
 </div>
@@ -180,29 +183,32 @@ class CreateSkillMateriTables extends Migration
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>5. Simple Past</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + V2</p>
-            <p class='small mb-0'>Kejadian selesai di waktu lampau yang jelas. <br><em>Ex: The company <strong>launched</strong> its product last year.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + V2</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + was/were + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: They <strong>were</strong> students ten years ago.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>6. Past Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + was/were + V-ing</p>
-            <p class='small mb-0'>Aksi yang sedang berlangsung di masa lalu saat aksi lain terjadi. <br><em>Ex: I <strong>was reading</strong> when the light went out.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + was/were + V-ing</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + was/were + being + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: You <strong>were being</strong> very loud last night.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>7. Past Perfect</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + had + V3</p>
-            <p class='small mb-0'>Aksi yang sudah selesai sebelum aksi lampau lainnya. <br><em>Ex: The train <strong>had left</strong> before I arrived.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + had + V3</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + had + been + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: She <strong>had been</strong> a manager before she quit.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>8. Past Perfect Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + had + been + V-ing</p>
-            <p class='small mb-0'>Durasi aksi masa lalu yang terjadi sebelum aksi lampau lain. <br><em>Ex: We <strong>had been waiting</strong> for hours before the bus came.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + had + been + V-ing</p>
+            <p class='small mb-0 text-success'><em>Ex: We <strong>had been waiting</strong> for an hour.</em></p>
         </div>
     </div>
 </div>
@@ -212,36 +218,38 @@ class CreateSkillMateriTables extends Migration
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>9. Simple Future</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will + V1</p>
-            <p class='small mb-0'>Rencana atau prediksi masa depan. <br><em>Ex: The team <strong>will complete</strong> the project next week.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + will + V1</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + will be + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: He <strong>will be</strong> a doctor someday.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>10. Future Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will be + V-ing</p>
-            <p class='small mb-0'>Aksi yang akan sedang berlangsung di masa depan. <br><em>Ex: At 9 AM tomorrow, I <strong>will be taking</strong> the exam.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + will be + V-ing</p>
+            <p class='small mb-0 text-success'><em>Ex: I <strong>will be working</strong> at 8 PM.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>11. Future Perfect</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will have + V3</p>
-            <p class='small mb-0'>Aksi yang akan sudah selesai di waktu tertentu di masa depan. <br><em>Ex: By 2030, scientists <strong>will have discovered</strong> a cure.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + will have + V3</p>
+            <p class='small text-muted mb-2'><strong>Nominal:</strong> S + will have been + Noun/Adj</p>
+            <p class='small mb-0 text-success'><em>Ex: By next month, she <strong>will have been</strong> here for a year.</em></p>
         </div>
     </div>
     <div class='col-md-6'>
         <div class='p-3 border rounded shadow-sm bg-white h-100'>
             <h6 class='fw-bold text-dark'>12. Future Perfect Continuous</h6>
-            <p class='small text-muted mb-2'><strong>Rumus:</strong> S + will have been + V-ing</p>
-            <p class='small mb-0'>Durasi aksi yang akan sudah berjalan di masa depan. <br><em>Ex: By December, she <strong>will have been living</strong> here for 5 years.</em></p>
+            <p class='small text-muted mb-1'><strong>Verbal:</strong> S + will have been + V-ing</p>
+            <p class='small mb-0 text-success'><em>Ex: I <strong>will have been studying</strong> for three hours.</em></p>
         </div>
     </div>
 </div>
 
-<div class='mt-5 alert alert-warning border-0 rounded-4'>
-    <h6 class='fw-bold'><i class='bi bi-exclamation-triangle-fill me-2'></i>Catatan Penting TOEFL:</h6>
-    <p class='small mb-0'>Hati-hati dengan <strong>Stative Verbs</strong> (kata kerja statis seperti: <em>know, believe, belong, see, hear</em>). Kata-kata ini biasanya tidak digunakan dalam bentuk Continuous (-ing).<br>❌ <em>I am knowing the answer.</em><br>✔️ <strong>I know the answer.</strong></p>
+<div class='mt-5 alert alert-warning border-0 rounded-4 shadow-sm'>
+    <h6 class='fw-bold text-dark'><i class='bi bi-lightbulb-fill me-2'></i>Kunci Perbedaan:</h6>
+    <p class='small mb-0'>Gunakan <strong>Verbal</strong> jika ada <strong>Aksi/Tindakan</strong> (eat, run, study). <br>Gunakan <strong>Nominal</strong> jika menyatakan <strong>Status/Kondisi/Profesi</strong> (doctor, happy, here).</p>
 </div>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
