@@ -200,6 +200,32 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Action 5: Git Pull -->
+                    <div class="col-12 pt-2">
+                        <div class="card border-info border-opacity-25 bg-info bg-opacity-10 hover-elevate transition-all" style="border-radius: 16px;">
+                            <div class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                <div class="max-w-75">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <h6 class="fw-bold text-info-emphasis mb-0"><i class="bi bi-cloud-arrow-down-fill fs-5 me-1"></i> Tarik Pembaruan Repositori (Git Pull)</h6>
+                                        <span class="badge bg-info text-dark">Sinkronisasi</span>
+                                    </div>
+                                    <p class="small text-muted mb-0">
+                                        Mengambil file skema migrasi atau kode aplikasi terbaru dari server repositori Git (remote <code>origin main</code>) untuk memastikan file migrasi baru terunduh.
+                                    </p>
+                                </div>
+                                <button type="button" class="btn btn-info fw-bold text-dark px-4 py-2 shadow-sm text-nowrap" style="border-radius: 12px;"
+                                        data-bs-toggle="modal" data-bs-target="#statusModal"
+                                        data-href="<?= base_url('migrate/pull-git') ?>"
+                                        data-title="Tarik Pembaruan Git (Pull)"
+                                        data-message="Sistem akan menjalankan perintah 'git pull origin main' di latar belakang untuk mengunduh kode/skema terbaru dari GitHub. Lanjutkan?"
+                                        data-color="info"
+                                        data-icon="bi-cloud-arrow-down-fill">
+                                    <i class="bi bi-git me-1"></i> Eksekusi Git Pull
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

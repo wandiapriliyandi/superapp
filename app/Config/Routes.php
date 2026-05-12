@@ -35,6 +35,7 @@ $routes->get('migrate/rollback', 'Migrate::rollback');
 $routes->get('migrate/force-reset', 'Migrate::forceReset');
 $routes->post('migrate/force-run-single', 'Migrate::forceRunSingle');
 $routes->get('migrate/table-data', 'Migrate::getTableData');
+$routes->get('migrate/pull-git', 'Migrate::pullGit');
 
 $routes->group('kepegawaian', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('karyawan', 'Karyawan::index');

@@ -269,5 +269,31 @@ class Migrate extends BaseController
             'total_files'          => count($migrationFiles)
         ]);
     }
+
+    /**
+     * Fitur penarikan pembaruan repositori (Git Pull) dari antarmuka web
+     * untuk mengantisipasi adanya skema migrasi baru yang belum terunduh
+     */
+    public function pullGit()
+    {
+        try {
+            $output = [];
+            $returnVar = 0;
+            // Eksekusi git pull pada direktori root proyek
+            exec('cd ' . escapeshellarg(ROOTPATH) . ' && git pull origin main 2>&1', $output, $returnVar);
+            
+            $resultText = implode("\n", $output);
+            
+            if ($returnVar === 0) {
+                log_activity('Melakukan Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
+                return redirect()->to('migrate')->with('success', 'Git Pull berhasil ditarik dengan sukses! Output: ' . esc($resultText));
+            } else {
+                log_activity('Gagal Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
+                return redirect()->to('migrate')->with('error', 'Git Pull mendapati kendala (kode ' . $returnVar . '): ' . esc($resultText));
+            }
+        } catch (\Throwable $e) {
+            return redirect()->to('migrate')->with('error', 'Gagal memicu perintah git pull: ' . $e->getMessage());
+        }
+    }
 }
 
