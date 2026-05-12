@@ -333,7 +333,7 @@
 <?= $this->section('scripts') ?>
 <script>
 $(document).ready(function() {
-    // Fungsi memuat tabel migrasi menggunakan AJAX
+    // Fungsi memuat tabel migrasi menggunakan AJAX yang kebal terhadap injeksi naskah hosting
     function loadMigrationTable() {
         const spinnerIcon = $('#refreshSpinnerIcon');
         spinnerIcon.addClass('spinner-border spinner-border-sm').removeClass('bi-arrow-clockwise');
@@ -341,61 +341,84 @@ $(document).ready(function() {
         $.ajax({
             url: '<?= base_url('migrate/table-data') ?>',
             type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    $('#totalFilesBadge').html(`Total: ${response.total_files} File Skema`);
-                    const tbody = $('#migrationTableBody');
-                    tbody.empty();
+            dataType: 'text', // Menggunakan text untuk mencegah error parse otomatis jika server menyisipkan kode HTML/JS tambahan
+            success: function(rawText) {
+                try {
+                    // Ekstrak blok JSON murni dari respon (mencari tanda kurung kurawal pertama dan terakhir)
+                    const startIdx = rawText.indexOf('{');
+                    const endIdx = rawText.lastIndexOf('}');
                     
-                    if (response.migration_files.length === 0) {
-                        tbody.append(`
-                            <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2 text-opacity-50"></i>
-                                    Tidak ada file migrasi ditemukan di direktori.
-                                </td>
-                            </tr>
-                        `);
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        const pureJsonStr = rawText.substring(startIdx, endIdx + 1);
+                        const response = JSON.parse(pureJsonStr);
+                        
+                        if (response.status === 'success') {
+                            $('#totalFilesBadge').html(`Total: ${response.total_files} File Skema`);
+                            const tbody = $('#migrationTableBody');
+                            tbody.empty();
+                            
+                            if (response.migration_files.length === 0) {
+                                tbody.append(`
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="bi bi-inbox fs-1 d-block mb-2 text-opacity-50"></i>
+                                            Tidak ada file migrasi ditemukan di direktori.
+                                        </td>
+                                    </tr>
+                                `);
+                            } else {
+                                let no = 1;
+                                response.migration_files.forEach(function(item) {
+                                    let statusBadge = item.is_executed ? 
+                                        `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Selesai
+                                        </span>` : 
+                                        `<span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 px-2 py-1 rounded-pill">
+                                            <i class="bi bi-clock-fill me-1"></i> Belum Dieksekusi
+                                        </span>`;
+                                        
+                                    let rowHtml = `
+                                        <tr style="animation: fadeIn 0.4s ease-out;">
+                                            <td class="fw-bold text-muted">${no++}</td>
+                                            <td>
+                                                <div class="fw-bold text-primary font-monospace small">
+                                                    <i class="bi bi-filetype-php me-1 text-secondary"></i>${item.file}
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.75rem;">Class/Versi: ${item.name}</div>
+                                            </td>
+                                            <td>${statusBadge}</td>
+                                            <td>
+                                                <span class="badge bg-body-secondary text-body fw-bold">
+                                                    ${item.batch}
+                                                </span>
+                                            </td>
+                                            <td class="text-muted small">${item.executed_time}</td>
+                                        </tr>
+                                    `;
+                                    tbody.append(rowHtml);
+                                });
+                            }
+                        }
                     } else {
-                        let no = 1;
-                        response.migration_files.forEach(function(item) {
-                            let statusBadge = item.is_executed ? 
-                                `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Selesai
-                                </span>` : 
-                                `<span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 px-2 py-1 rounded-pill">
-                                    <i class="bi bi-clock-fill me-1"></i> Belum Dieksekusi
-                                </span>`;
-                                
-                            let rowHtml = `
-                                <tr style="animation: fadeIn 0.4s ease-out;">
-                                    <td class="fw-bold text-muted">${no++}</td>
-                                    <td>
-                                        <div class="fw-bold text-primary font-monospace small">
-                                            <i class="bi bi-filetype-php me-1 text-secondary"></i>${item.file}
-                                        </div>
-                                        <div class="text-muted small" style="font-size: 0.75rem;">Class/Versi: ${item.name}</div>
-                                    </td>
-                                    <td>${statusBadge}</td>
-                                    <td>
-                                        <span class="badge bg-body-secondary text-body fw-bold">
-                                            ${item.batch}
-                                        </span>
-                                    </td>
-                                    <td class="text-muted small">${item.executed_time}</td>
-                                </tr>
-                            `;
-                            tbody.append(rowHtml);
-                        });
+                        throw new Error("Pola JSON tidak ditemukan dalam respon teks server.");
                     }
+                } catch (err) {
+                    console.error("Gagal mengurai JSON AJAX:", err, rawText);
+                    $('#migrationTableBody').html(`
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Gagal memproses data JSON dari server. (Respon terhalang oleh naskah hosting/keamanan).
+                            </td>
+                        </tr>
+                    `);
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", status, error);
                 $('#migrationTableBody').html(`
                     <tr>
                         <td colspan="5" class="text-center py-4 text-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Gagal mengambil data secara real-time via AJAX. Silakan coba muat ulang.
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Koneksi ke server untuk mengambil data riwayat terputus. Silakan coba muat ulang.
                         </td>
                     </tr>
                 `);
