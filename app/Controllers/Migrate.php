@@ -204,4 +204,70 @@ class Migrate extends BaseController
             return redirect()->to('migrate')->with('error', 'Gagal mengeksekusi migrasi spesifik: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Endpoint AJAX untuk memuat ulang tabel migrasi secara dinamis tanpa me-reload halaman
+     */
+    public function getTableData()
+    {
+        $db = \Config\Database::connect();
+        $dbConnected = false;
+        try {
+            $db->initialize();
+            $dbConnected = true;
+        } catch (\Throwable $e) {
+            // abaikan error untuk JSON
+        }
+
+        $history = [];
+        $hasMigrationsTable = false;
+        if ($dbConnected && $db->tableExists('migrations')) {
+            $hasMigrationsTable = true;
+            $history = $db->table('migrations')->orderBy('id', 'DESC')->get()->getResultArray();
+        }
+
+        $migrationFiles = [];
+        $path = APPPATH . 'Database/Migrations/';
+        if (is_dir($path)) {
+            $files = scandir($path);
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..' && $file !== '.gitkeep' && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                    $isExecuted = false;
+                    $batch = '-';
+                    $executedTime = '-';
+                    
+                    $fileNameWithoutExt = pathinfo($file, PATHINFO_FILENAME);
+                    
+                    foreach ($history as $row) {
+                        if (strpos($fileNameWithoutExt, $row['version']) !== false || 
+                            strpos(strtolower($row['class']), strtolower(substr($fileNameWithoutExt, 16))) !== false) {
+                            $isExecuted = true;
+                            $batch = $row['batch'] ?? '-';
+                            if (isset($row['time'])) {
+                                $executedTime = date('Y-m-d H:i:s', $row['time']);
+                            }
+                            break;
+                        }
+                    }
+
+                    $migrationFiles[] = [
+                        'file'          => esc($file),
+                        'name'          => esc($fileNameWithoutExt),
+                        'is_executed'   => $isExecuted,
+                        'batch'         => esc($batch),
+                        'executed_time' => esc($executedTime)
+                    ];
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'status'               => 'success',
+            'migration_files'      => $migrationFiles,
+            'history'              => $history,
+            'has_migrations_table' => $hasMigrationsTable,
+            'total_files'          => count($migrationFiles)
+        ]);
+    }
 }
+

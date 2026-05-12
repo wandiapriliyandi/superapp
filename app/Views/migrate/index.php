@@ -206,20 +206,26 @@
         </div>
     </div>
 
-    <!-- Daftar File Skema Migrasi -->
+    <!-- Daftar File Skema Migrasi (AJAX Powered) -->
     <div class="col-12">
         <div class="card border-0 shadow-sm" style="border-radius: 20px;">
             <div class="card-body p-4">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-3 mb-4 gap-2">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-3 mb-4 gap-3">
                     <div>
-                        <h5 class="fw-bold mb-1">
+                        <h5 class="fw-bold mb-1 d-flex align-items-center">
                             <i class="bi bi-file-earmark-code-fill text-primary me-2"></i> Daftar File Skema Migrasi
+                            <span class="badge bg-primary bg-opacity-10 text-primary ms-2 small" style="font-size: 0.7rem;">Live AJAX</span>
                         </h5>
-                        <p class="small text-muted mb-0">File-file skema PHP yang ditemukan di dalam direktori <code>app/Database/Migrations/</code></p>
+                        <p class="small text-muted mb-0">File-file skema PHP yang ditemukan di dalam direktori <code>app/Database/Migrations/</code> dimuat secara asinkron</p>
                     </div>
-                    <span class="badge bg-body-tertiary text-body border px-3 py-2 rounded-pill fw-semibold">
-                        Total: <?= count($migration_files) ?> File Skema
-                    </span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" id="refreshAjaxBtn" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm d-flex align-items-center">
+                            <i class="bi bi-arrow-clockwise me-1" id="refreshSpinnerIcon"></i> Muat Ulang Data
+                        </button>
+                        <span id="totalFilesBadge" class="badge bg-body-tertiary text-body border px-3 py-2 rounded-pill fw-semibold">
+                            Total: memuat...
+                        </span>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -233,46 +239,15 @@
                                 <th class="border-0 rounded-end-3" style="width: 20%;">Waktu Dieksekusi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php if (empty($migration_files)): ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="bi bi-inbox fs-1 d-block mb-2 text-opacity-50"></i>
-                                        Tidak ada file migrasi ditemukan di direktori.
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <?php $no = 1; foreach ($migration_files as $item): ?>
-                                    <tr>
-                                        <td class="fw-bold text-muted"><?= $no++ ?></td>
-                                        <td>
-                                            <div class="fw-bold text-primary font-monospace small">
-                                                <i class="bi bi-filetype-php me-1 text-secondary"></i><?= esc($item['file']) ?>
-                                            </div>
-                                            <div class="text-muted small" style="font-size: 0.75rem;">Class/Versi: <?= esc($item['name']) ?></div>
-                                        </td>
-                                        <td>
-                                            <?php if ($item['is_executed']): ?>
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill">
-                                                    <i class="bi bi-check-circle-fill me-1"></i> Selesai
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 px-2 py-1 rounded-pill">
-                                                    <i class="bi bi-clock-fill me-1"></i> Belum Dieksekusi
-                                                </span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-body-secondary text-body fw-bold">
-                                                <?= esc($item['batch']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="text-muted small">
-                                            <?= esc($item['executed_time']) ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                        <tbody id="migrationTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="spinner-border text-primary mb-2" role="status">
+                                        <span class="visually-hidden">Memuat...</span>
+                                    </div>
+                                    <div class="text-muted small fw-semibold">Mengambil data skema migrasi secara real-time via AJAX...</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -327,4 +302,93 @@
     </div>
     <?php endif; ?>
 </div>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(document).ready(function() {
+    // Fungsi memuat tabel migrasi menggunakan AJAX
+    function loadMigrationTable() {
+        const spinnerIcon = $('#refreshSpinnerIcon');
+        spinnerIcon.addClass('spinner-border spinner-border-sm').removeClass('bi-arrow-clockwise');
+        
+        $.ajax({
+            url: '<?= base_url('migrate/table-data') ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#totalFilesBadge').html(`Total: ${response.total_files} File Skema`);
+                    const tbody = $('#migrationTableBody');
+                    tbody.empty();
+                    
+                    if (response.migration_files.length === 0) {
+                        tbody.append(`
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2 text-opacity-50"></i>
+                                    Tidak ada file migrasi ditemukan di direktori.
+                                </td>
+                            </tr>
+                        `);
+                    } else {
+                        let no = 1;
+                        response.migration_files.forEach(function(item) {
+                            let statusBadge = item.is_executed ? 
+                                `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Selesai
+                                </span>` : 
+                                `<span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 px-2 py-1 rounded-pill">
+                                    <i class="bi bi-clock-fill me-1"></i> Belum Dieksekusi
+                                </span>`;
+                                
+                            let rowHtml = `
+                                <tr style="animation: fadeIn 0.4s ease-out;">
+                                    <td class="fw-bold text-muted">${no++}</td>
+                                    <td>
+                                        <div class="fw-bold text-primary font-monospace small">
+                                            <i class="bi bi-filetype-php me-1 text-secondary"></i>${item.file}
+                                        </div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">Class/Versi: ${item.name}</div>
+                                    </td>
+                                    <td>${statusBadge}</td>
+                                    <td>
+                                        <span class="badge bg-body-secondary text-body fw-bold">
+                                            ${item.batch}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">${item.executed_time}</td>
+                                </tr>
+                            `;
+                            tbody.append(rowHtml);
+                        });
+                    }
+                }
+            },
+            error: function() {
+                $('#migrationTableBody').html(`
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Gagal mengambil data secara real-time via AJAX. Silakan coba muat ulang.
+                        </td>
+                    </tr>
+                `);
+            },
+            complete: function() {
+                setTimeout(() => {
+                    spinnerIcon.removeClass('spinner-border spinner-border-sm').addClass('bi-arrow-clockwise');
+                }, 300);
+            }
+        });
+    }
+
+    // Eksekusi otomatis saat halaman selesai dimuat
+    loadMigrationTable();
+
+    // Event tombol muat ulang data manual
+    $('#refreshAjaxBtn').on('click', function() {
+        loadMigrationTable();
+    });
+});
+</script>
 <?= $this->endSection() ?>
