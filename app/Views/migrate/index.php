@@ -22,6 +22,27 @@
         </div>
     </div>
 
+    <!-- Pemberitahuan Hasil Migrasi Otomatis Saat Halaman Dibuka -->
+    <?php if (!empty($auto_migrate_status)): ?>
+    <div class="col-12">
+        <div class="alert <?= $auto_migrate_status === 'success' ? 'alert-success bg-success bg-opacity-10 border-success' : 'alert-danger bg-danger bg-opacity-10 border-danger' ?> border border-opacity-25 p-4 shadow-sm d-flex align-items-center" style="border-radius: 16px;">
+            <div class="fs-1 me-4 <?= $auto_migrate_status === 'success' ? 'text-success' : 'text-danger' ?>">
+                <i class="bi <?= $auto_migrate_status === 'success' ? 'bi-check2-circle' : 'bi-exclamation-triangle-fill' ?>"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-1 <?= $auto_migrate_status === 'success' ? 'text-success' : 'text-danger' ?>">
+                    <?= $auto_migrate_status === 'success' ? 'Eksekusi Migrasi Otomatis Berhasil!' : 'Eksekusi Migrasi Otomatis Mendapati Informasi' ?>
+                </h5>
+                <p class="mb-0 text-body-secondary">
+                    <?= esc($auto_migrate_message) ?>
+                </p>
+                <hr class="opacity-10 my-2">
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Sistem dirancang untuk otomatis memverifikasi dan menjalankan skema terbaru saat halaman ini diakses untuk pertama kalinya.</small>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Status Koneksi & Informasi Singkat -->
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 20px;">

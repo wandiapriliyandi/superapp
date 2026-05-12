@@ -11,14 +11,24 @@ class Migrate extends BaseController
         $db = \Config\Database::connect();
         $migrationsService = \Config\Services::migrations();
 
-        // Cek status koneksi database
+        // Cek status koneksi database dan Jalankan Migrasi Otomatis (karena baru awal)
         $dbConnected = false;
         $dbError = '';
+        $autoMigrateStatus = '';
+        $autoMigrateMessage = '';
+
         try {
             $db->initialize();
             $dbConnected = true;
+
+            // Langsung otomatis jalankan migrasi terbaru saat halaman dibuka
+            $migrationsService->latest();
+            $autoMigrateStatus = 'success';
+            $autoMigrateMessage = 'Pemeriksaan dan eksekusi skema migrasi otomatis berjalan sukses saat memuat halaman.';
         } catch (\Throwable $e) {
             $dbError = $e->getMessage();
+            $autoMigrateStatus = 'error';
+            $autoMigrateMessage = 'Migrasi otomatis mendapati kendala: ' . $e->getMessage();
         }
 
         // Ambil riwayat eksekusi dari tabel migrations jika ada
@@ -73,6 +83,8 @@ class Migrate extends BaseController
             'title'                => 'Kelola Migrasi Database (Paksa)',
             'db_connected'         => $dbConnected,
             'db_error'             => $dbError,
+            'auto_migrate_status'  => $autoMigrateStatus,
+            'auto_migrate_message' => $autoMigrateMessage,
             'has_migrations_table' => $hasMigrationsTable,
             'history'              => $history,
             'migration_files'      => $migrationFiles
