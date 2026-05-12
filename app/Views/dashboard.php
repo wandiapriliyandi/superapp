@@ -29,7 +29,7 @@
     <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-teal', '#', 'Coming Soon') ?>
 
     <!-- 8. E-Learning -->
-    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', '#', 'Coming Soon') ?>
+    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', base_url('e-learning/materi')) ?>
 
     <!-- 9. Keuangan -->
     <?= dashboard_card('Keuangan', 'SPP & Tagihan Santri', 'bi-wallet2', 'bg-success bg-gradient', '#', 'Coming Soon') ?>

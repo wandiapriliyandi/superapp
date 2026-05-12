@@ -272,6 +272,16 @@ function hexToRgb($hex) {
                 <span class="nav-icon">💎</span> <span class="nav-text">Data Pegawai</span>
             </a>
 
+        <!-- MENU E-LEARNING -->
+        <?php elseif (url_is('e-learning*')): ?>
+            <div class="sidebar-heading fw-bold" style="color: #6610f2;">E-LEARNING</div>
+            <a class="nav-link <?= url_is('e-learning/materi*') ? 'active' : '' ?>" href="<?= base_url('e-learning/materi') ?>">
+                <span class="nav-icon">📚</span> <span class="nav-text">Materi Belajar</span>
+            </a>
+            <a class="nav-link <?= url_is('e-learning/ujian*') ? 'active' : '' ?>" href="<?= base_url('e-learning/ujian') ?>">
+                <span class="nav-icon">📝</span> <span class="nav-text">Ujian Online</span>
+            </a>
+
         <!-- MENU SYSTEM / DEFAULT -->
         <?php else: ?>
             <div class="sidebar-heading text-secondary fw-bold">SYSTEM ADMIN</div>
