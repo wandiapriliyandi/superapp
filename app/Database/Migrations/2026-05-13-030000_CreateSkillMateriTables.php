@@ -140,47 +140,53 @@ class CreateSkillMateriTables extends Migration
                 'color'          => 'primary',
                 'ringkasan'      => 'Penggunaan kata kerja berdasarkan waktu: Simple, Continuous, dan Perfect serta penanda waktunya.',
                 'materi_lengkap' => "
-<h4 class='fw-bold text-primary mb-3'>Menguasai Verb Tenses dalam TOEFL</h4>
-<p>Dalam tes TOEFL, ketepatan waktu (tenses) sangat krusial. Anda harus bisa menentukan bentuk kata kerja berdasarkan penanda waktu (time markers) yang ada dalam kalimat.</p>
+<h4 class='fw-bold text-primary mb-3'>Mastering the 12 English Tenses</h4>
+<p>Dalam tes TOEFL, pemahaman tentang kapan sebuah aksi dimulai dan berakhir sangat menentukan pilihan kata kerja Anda. Berikut adalah panduan lengkap 12 tenses.</p>
 
-<h5 class='fw-bold mt-4'>1. Simple Tenses (Fakta & Kejadian Selesai)</h5>
+<h5 class='fw-bold mt-4'>1. Present Tenses (Masa Kini)</h5>
 <table class='table table-bordered table-sm small'>
     <thead class='bg-light text-center'>
-        <tr><th>Tense</th><th>Rumus Dasar</th><th>Penanda Waktu (Time Markers)</th></tr>
+        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
     </thead>
     <tbody>
-        <tr><td><strong>Simple Present</strong></td><td>S + V1 (s/es)</td><td>Always, usually, often, every day, general truths.</td></tr>
-        <tr><td><strong>Simple Past</strong></td><td>S + V2 (ed/irr)</td><td>Yesterday, ago, last week, in 1990, specifically finished.</td></tr>
-        <tr><td><strong>Simple Future</strong></td><td>S + will + V1</td><td>Tomorrow, next year, soon, predictions.</td></tr>
+        <tr><td><strong>Simple Present</strong></td><td>S + V1 (s/es)</td><td>Fakta umum, kebiasaan (Every day).</td></tr>
+        <tr><td><strong>Present Continuous</strong></td><td>S + am/is/are + V-ing</td><td>Aksi yang sedang berlangsung sekarang.</td></tr>
+        <tr><td><strong>Present Perfect</strong></td><td>S + have/has + V3</td><td>Aksi masa lalu yang efeknya masih ada.</td></tr>
+        <tr><td><strong>Present Perfect Cont.</strong></td><td>S + have/has + been + V-ing</td><td>Aksi yang dimulai di masa lalu dan masih berlanjut.</td></tr>
     </tbody>
 </table>
 
-<h5 class='fw-bold mt-4'>2. Continuous / Progressive (Sedang Berlangsung)</h5>
-<p>Menekankan bahwa aksi sedang terjadi pada titik waktu tertentu.</p>
-<ul>
-    <li><strong>Present Continuous:</strong> <code>am/is/are + V-ing</code> (Terjadi sekarang).</li>
-    <li><strong>Past Continuous:</strong> <code>was/were + V-ing</code> (Sedang terjadi saat kejadian lain muncul). <br><em>Contoh: I was studying when the phone rang.</em></li>
-</ul>
+<h5 class='fw-bold mt-4'>2. Past Tenses (Masa Lampau)</h5>
+<table class='table table-bordered table-sm small'>
+    <thead class='bg-light text-center'>
+        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Simple Past</strong></td><td>S + V2</td><td>Aksi selesai di waktu spesifik (Yesterday).</td></tr>
+        <tr><td><strong>Past Continuous</strong></td><td>S + was/were + V-ing</td><td>Aksi yang sedang berlangsung di masa lalu.</td></tr>
+        <tr><td><strong>Past Perfect</strong></td><td>S + had + V3</td><td>Aksi yang selesai SEBELUM aksi lampau lain.</td></tr>
+        <tr><td><strong>Past Perfect Cont.</strong></td><td>S + had + been + V-ing</td><td>Durasi aksi sebelum aksi lampau lain terjadi.</td></tr>
+    </tbody>
+</table>
 
-<h5 class='fw-bold mt-4'>3. Perfect Tenses (Keterhubungan Waktu)</h5>
-<p>Perfect tenses menunjukkan aksi yang sudah selesai sebelum titik waktu tertentu.</p>
-<ul>
-    <li><strong>Present Perfect (have/has + V3):</strong> Aksi masa lalu yang efeknya masih ada atau waktunya tidak spesifik. <br>⚠️ <strong>Jebakan:</strong> Jangan gunakan penanda waktu spesifik (yesterday) dengan Present Perfect.</li>
-    <li><strong>Past Perfect (had + V3):</strong> Menunjukkan aksi yang terjadi <strong>SEBELUM</strong> aksi lampau lainnya. <br><em>Contoh: The film <strong>had started</strong> before we arrived.</em></li>
-    <li><strong>Future Perfect (will have + V3):</strong> Aksi yang akan selesai sebelum waktu tertentu di masa depan. <br><em>Contoh: By next year, I <strong>will have graduated</strong>.</em></li>
-</ul>
+<h5 class='fw-bold mt-4'>3. Future Tenses (Masa Depan)</h5>
+<table class='table table-bordered table-sm small'>
+    <thead class='bg-light text-center'>
+        <tr><th>Tense</th><th>Rumus Dasar</th><th>Kegunaan Utama</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Simple Future</strong></td><td>S + will + V1</td><td>Prediksi atau rencana masa depan.</td></tr>
+        <tr><td><strong>Future Continuous</strong></td><td>S + will be + V-ing</td><td>Aksi yang akan sedang berlangsung di masa depan.</td></tr>
+        <tr><td><strong>Future Perfect</strong></td><td>S + will have + V3</td><td>Aksi yang akan sudah selesai di masa depan.</td></tr>
+        <tr><td><strong>Future Perfect Cont.</strong></td><td>S + will have been + V-ing</td><td>Durasi aksi yang akan sudah berjalan di masa depan.</td></tr>
+    </tbody>
+</table>
 
-<h5 class='fw-bold mt-4 text-danger'>⚠️ TOEFL Trap: Time Clauses</h5>
-<p>Dalam klausa waktu yang menggunakan <em>When, While, Until, As soon as, Before, After,</em> Anda <strong>TIDAK BOLEH</strong> menggunakan 'will' untuk masa depan. Gunakan Simple Present.</p>
-<div class='alert alert-warning'>
-    ❌ <em>I will call you when I <strong>will</strong> arrive.</em> (SALAH)<br>
-    ✔️ <strong>I will call you when I arrive.</strong> (BENAR)
-</div>
-
-<h5 class='fw-bold mt-4'>4. Perbedaan SINCE vs FOR</h5>
+<h5 class='fw-bold mt-4 text-danger'>⚠️ Tips TOEFL: Fokus pada Penanda Waktu</h5>
 <ul>
-    <li><strong>Since + Titik Waktu:</strong> Menunjukkan kapan aksi dimulai (since 2010, since Monday).</li>
-    <li><strong>For + Durasi:</strong> Menunjukkan berapa lama aksi berlangsung (for 2 hours, for 5 years).</li>
+    <li><strong>Since / For:</strong> Biasanya merujuk pada Perfect atau Perfect Continuous.</li>
+    <li><strong>By the time:</strong> Sering memicu penggunaan Past Perfect atau Future Perfect.</li>
+    <li><strong>While:</strong> Menandakan penggunaan Continuous (sedang berlangsung).</li>
 </ul>",
                 'created_at'     => date('Y-m-d H:i:s'),
             ],
