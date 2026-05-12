@@ -40,93 +40,44 @@
     </div>
 </div>
 
-<div class="row g-4 mb-5">
-    <div class="col-12">
-        <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-journal-bookmark-fill text-primary fs-4"></i>
-            <h4 class="fw-bold mb-0">Modul Pembelajaran & Kuis Per Bab</h4>
+<?php foreach ($materiPerKategori as $kategori => $daftarMateri): ?>
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-journal-bookmark-fill text-primary fs-4"></i>
+                <h4 class="fw-bold mb-0"><?= esc($kategori) ?></h4>
+            </div>
+            <p class="text-muted small">Kuasai intisari materi <?= strtolower(esc($kategori)) ?> secara mendalam sebelum mengambil ujian evaluasi.</p>
         </div>
-        <p class="text-muted small">Kuasai intisari materi secara mendalam pada setiap seksi sebelum mengambil ujian simulasi akhir.</p>
-    </div>
 
-    <!-- Bab 1 -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column hover-card">
-            <div class="p-4 bg-primary bg-opacity-10 text-primary d-flex justify-content-between align-items-center">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 45px; height: 45px;">
-                    <i class="bi bi-headphones fs-5"></i>
+        <?php foreach ($daftarMateri as $m): ?>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column hover-card">
+                    <div class="p-4 bg-<?= $m['color'] ?> bg-opacity-10 text-<?= $m['color'] ?> d-flex justify-content-between align-items-center">
+                        <div class="bg-<?= $m['color'] ?> text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 45px; height: 45px;">
+                            <i class="bi <?= esc($m['icon']) ?> fs-5"></i>
+                        </div>
+                        <span class="badge bg-<?= $m['color'] ?> rounded-pill text-uppercase" style="font-size: 0.7rem;">Modul</span>
+                    </div>
+                    <div class="card-body p-4 flex-grow-1">
+                        <h5 class="fw-bold text-dark mb-2"><?= esc($m['judul']) ?></h5>
+                        <p class="text-muted small mb-4">
+                            <?= esc($m['ringkasan']) ?>
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex gap-2">
+                        <a href="<?= base_url('e-learning/skill/materi/' . $m['slug_bab']) ?>" class="btn btn-<?= $m['color'] ?> w-50 py-2 fw-semibold rounded-pill small text-white">
+                            <i class="bi bi-book me-1"></i>Materi
+                        </a>
+                        <a href="<?= base_url('e-learning/skill/kuis/' . $m['slug_bab']) ?>" class="btn btn-outline-<?= $m['color'] ?> w-50 py-2 fw-semibold rounded-pill small">
+                            <i class="bi bi-patch-question me-1"></i>Kuis Bab
+                        </a>
+                    </div>
                 </div>
-                <span class="badge bg-primary rounded-pill">Seksi 1</span>
             </div>
-            <div class="card-body p-4 flex-grow-1">
-                <h5 class="fw-bold text-dark mb-2">Listening Comprehension</h5>
-                <p class="text-muted small mb-4">
-                    Strategi memahami dialog lisan, berfokus pada pembicara kedua, sinonim, dan menghindari jebakan suara serupa.
-                </p>
-            </div>
-            <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex gap-2">
-                <a href="<?= base_url('e-learning/skill/materi/bab-1') ?>" class="btn btn-primary w-50 py-2 fw-semibold rounded-pill small">
-                    <i class="bi bi-book me-1"></i>Materi
-                </a>
-                <a href="<?= base_url('e-learning/skill/kuis/bab-1') ?>" class="btn btn-outline-primary w-50 py-2 fw-semibold rounded-pill small">
-                    <i class="bi bi-patch-question me-1"></i>Kuis Bab
-                </a>
-            </div>
-        </div>
+        <?php endforeach; ?>
     </div>
-
-    <!-- Bab 2 -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column hover-card">
-            <div class="p-4 bg-success bg-opacity-10 text-success d-flex justify-content-between align-items-center">
-                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 45px; height: 45px;">
-                    <i class="bi bi-vector-pen fs-5"></i>
-                </div>
-                <span class="badge bg-success rounded-pill">Seksi 2</span>
-            </div>
-            <div class="card-body p-4 flex-grow-1">
-                <h5 class="fw-bold text-dark mb-2">Structure & Written Expression</h5>
-                <p class="text-muted small mb-4">
-                    Kaidah kesesuaian subjek dan kata kerja utama, memecahkan jebakan frasa preposisional, serta pengenalan klausa.
-                </p>
-            </div>
-            <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex gap-2">
-                <a href="<?= base_url('e-learning/skill/materi/bab-2') ?>" class="btn btn-success w-50 py-2 fw-semibold rounded-pill small text-white">
-                    <i class="bi bi-book me-1"></i>Materi
-                </a>
-                <a href="<?= base_url('e-learning/skill/kuis/bab-2') ?>" class="btn btn-outline-success w-50 py-2 fw-semibold rounded-pill small">
-                    <i class="bi bi-patch-question me-1"></i>Kuis Bab
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bab 3 -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column hover-card">
-            <div class="p-4 bg-indigo bg-opacity-10 text-indigo d-flex justify-content-between align-items-center" style="color: #6610f2;">
-                <div class="text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 45px; height: 45px; background-color: #6610f2;">
-                    <i class="bi bi-book fs-5"></i>
-                </div>
-                <span class="badge rounded-pill" style="background-color: #6610f2;">Seksi 3</span>
-            </div>
-            <div class="card-body p-4 flex-grow-1">
-                <h5 class="fw-bold text-dark mb-2">Reading Comprehension</h5>
-                <p class="text-muted small mb-4">
-                    Penerapan teknik *Skimming* dan *Scanning*, mengidentifikasi gagasan utama, serta menebak makna kosakata lewat konteks.
-                </p>
-            </div>
-            <div class="card-footer bg-transparent border-0 p-4 pt-0 d-flex gap-2">
-                <a href="<?= base_url('e-learning/skill/materi/bab-3') ?>" class="btn w-50 py-2 fw-semibold rounded-pill small text-white" style="background-color: #6610f2;">
-                    <i class="bi bi-book me-1"></i>Materi
-                </a>
-                <a href="<?= base_url('e-learning/skill/kuis/bab-3') ?>" class="btn w-50 py-2 fw-semibold rounded-pill small" style="color: #6610f2; border-color: #6610f2;">
-                    <i class="bi bi-patch-question me-1"></i>Kuis Bab
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<?php endforeach; ?>
 
 <!-- Banner Ujian Akhir Terpadu -->
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-body-tertiary">
