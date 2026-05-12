@@ -34,6 +34,11 @@ class PublicPendaftaran extends BaseController
 
     public function submit()
     {
+        // Jika diakses langsung lewat tautan browser (GET), alihkan kembali ke halaman pendaftaran
+        if (strtolower($this->request->getMethod()) === 'get' || empty($this->request->getPost('nama_lengkap'))) {
+            return redirect()->to('ppdb/daftar');
+        }
+
         $taModel = new TahunAjaranModel();
         $activeTA = $taModel->where('status', 'Aktif')->first();
 

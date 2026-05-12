@@ -52,6 +52,11 @@ class Pendaftar extends BaseController
 
     public function save()
     {
+        // Pencegahan jika halaman dimuat ulang atau diakses langsung lewat tautan GET
+        if (strtolower($this->request->getMethod()) === 'get' || empty($this->request->getPost('nama_lengkap'))) {
+            return redirect()->to('ppdb/pendaftar');
+        }
+
         $data = [
             'nomor_pendaftaran' => $this->pendaftarModel->generateNomor(),
             'nama_lengkap'      => $this->request->getPost('nama_lengkap'),
