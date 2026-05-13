@@ -229,6 +229,10 @@ function hexToRgb($hex) {
                 <div class="small text-muted opacity-75" style="font-size: 10px;"><?= $setting['pesantren_name'] ?? 'Pesantren Digital' ?></div>
             </a>
         </div>
+        
+        <a class="nav-link <?= url_is('/') ? 'active' : '' ?>" href="<?= base_url() ?>">
+            <span class="nav-icon">🏠</span> <span class="nav-text">Beranda Utama</span>
+        </a>
 
         <!-- MENU PPDB -->
         <?php if (url_is('ppdb*')): ?>
@@ -263,6 +267,22 @@ function hexToRgb($hex) {
             </a>
             <a class="nav-link <?= url_is('akademik/tahun-ajaran*') ? 'active' : '' ?>" href="<?= base_url('akademik/tahun-ajaran') ?>">
                 <span class="nav-icon">📅</span> <span class="nav-text">Tahun Ajaran</span>
+            </a>
+
+        <!-- MENU KEUANGAN -->
+        <?php elseif (url_is('keuangan*')): ?>
+            <div class="sidebar-heading text-warning fw-bold">MANAJEMEN KEUANGAN</div>
+            <a class="nav-link <?= url_is('keuangan') || url_is('keuangan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('keuangan') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/tarif*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tarif') ?>">
+                <span class="nav-icon">🏷️</span> <span class="nav-text">Tarif SPP</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/tagihan*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tagihan') ?>">
+                <span class="nav-icon">📄</span> <span class="nav-text">Data Tagihan</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/pembayaran*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran') ?>">
+                <span class="nav-icon">💸</span> <span class="nav-text">Riwayat Bayar</span>
             </a>
 
         <!-- MENU KEPEGAWAIAN -->

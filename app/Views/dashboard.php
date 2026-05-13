@@ -32,7 +32,7 @@
     <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', base_url('e-learning/materi')) ?>
 
     <!-- 9. Keuangan -->
-    <?= dashboard_card('Keuangan', 'SPP & Tagihan Santri', 'bi-wallet2', 'bg-success bg-gradient', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Keuangan', 'SPP & Tagihan Santri', 'bi-wallet2', 'bg-success bg-gradient', base_url('keuangan')) ?>
 
     <!-- 9. OSIS -->
     <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-primary bg-gradient', '#', 'Coming Soon') ?>
