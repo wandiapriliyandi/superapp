@@ -39,6 +39,7 @@ $routes->group('keuangan', ['namespace' => 'Keuangan\Controllers'], function ($r
         $routes->get('/', 'Pembayaran::index');
         $routes->get('cari', 'Pembayaran::cari');
         $routes->get('transaksi', 'Pembayaran::transaksi');
+        $routes->get('detail/(:any)', 'Pembayaran::detail/$1');
         $routes->get('bayar/(:num)', 'Pembayaran::bayar/$1');
         $routes->get('kwitansi/(:any)', 'Pembayaran::kwitansi/$1');
         $routes->post('bayar-massal', 'Pembayaran::bayarMassal');

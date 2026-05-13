@@ -192,6 +192,22 @@ class Pembayaran extends BaseController
         return view('Keuangan\Views\pembayaran\kwitansi', $data);
     }
 
+    public function detail($no_transaksi)
+    {
+        $pembayaranModel = new \Keuangan\Models\SppPembayaranModel();
+        $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.bulan, spp_tagihan.tahun, santri.nama_lengkap, santri.nisn')
+                                   ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
+                                   ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
+                                   ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                                   ->where('spp_pembayaran.nomor_transaksi', $no_transaksi)
+                                   ->findAll();
+
+        return $this->response->setJSON([
+            'success' => !empty($details),
+            'data'    => $details
+        ]);
+    }
+
     public function save()
     {
         helper('activity');
