@@ -18,8 +18,8 @@
                         <div class="col-7 fw-bold text-end"><?= $santri['nama_lengkap'] ?></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-5 text-muted">NIS / NISN</div>
-                        <div class="col-7 fw-bold text-end"><?= $santri['nis'] ?> / <?= $santri['nisn'] ?></div>
+                        <div class="col-5 text-muted">NISN</div>
+                        <div class="col-7 fw-bold text-end"><?= $santri['nisn'] ?: '-' ?></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-5 text-muted">Status</div>

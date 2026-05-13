@@ -45,9 +45,9 @@ class Verify extends BaseController
             return "<h3>Data santri tidak ditemukan.</h3>";
         }
 
-        $mapping = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nama_tarif, spp_tarif.tipe')
-            ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.id_tarif')
-            ->where('id_santri', $id_santri)
+        $mapping = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nama_tarif, spp_tarif.tipe, spp_tarif.nominal')
+            ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
+            ->where('spp_santri_tarif.santri_id', $id_santri)
             ->findAll();
 
         $data = [
