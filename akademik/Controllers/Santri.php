@@ -32,7 +32,11 @@ class Santri extends BaseController
 
     public function show($id)
     {
-        $santri = $this->santriModel->find($id);
+        $santri = $this->santriModel
+                       ->select('santri.*, tahun_ajaran.tahun_ajaran as nama_tahun_ajaran')
+                       ->join('tahun_ajaran', 'tahun_ajaran.id = santri.id_tahun_ajaran', 'left')
+                       ->find($id);
+
         if (!$santri) return redirect()->back()->with('error', 'Data santri tidak ditemukan.');
 
         log_activity('Melihat Profil Santri', 'Akademik', 'Nama: ' . $santri['nama_lengkap']);
@@ -77,8 +81,10 @@ class Santri extends BaseController
 
     public function add()
     {
+        $taModel = new \App\Models\TahunAjaranModel();
         return view('Akademik\Views\santri\add', [
-            'title' => 'Tambah Santri Baru'
+            'title' => 'Tambah Santri Baru',
+            'ta'    => $taModel->orderBy('tahun_ajaran', 'DESC')->findAll()
         ]);
     }
 

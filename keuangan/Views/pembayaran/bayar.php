@@ -52,6 +52,23 @@
                         <button type="submit" class="btn btn-success rounded-pill px-4">Konfirmasi Pembayaran</button>
                     </div>
                 </form>
+
+                <?php if (!empty($history)): ?>
+                <div class="mt-5 pt-3 border-top">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i> Riwayat Cicilan</h6>
+                    <div class="list-group list-group-flush small">
+                        <?php foreach ($history as $h): ?>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="fw-bold"><?= date('d/m/Y', strtotime($h['tanggal_bayar'])) ?></div>
+                                <small class="text-muted"><?= $h['metode_pembayaran'] ?> - <?= $h['keterangan'] ?></small>
+                            </div>
+                            <span class="text-success fw-bold">+ Rp <?= number_format($h['nominal_bayar'], 0, ',', '.') ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -29,4 +29,15 @@ class SppTagihanModel extends Model
                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
                     ->findAll();
     }
+
+    public function getUnpaidBySantri($santri_id)
+    {
+        return $this->select('spp_tagihan.*, spp_tarif.nama_tarif, spp_tarif.tipe')
+                    ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
+                    ->where('spp_tagihan.santri_id', $santri_id)
+                    ->where('spp_tagihan.status !=', 'Lunas')
+                    ->orderBy('spp_tagihan.tahun', 'DESC')
+                    ->orderBy('spp_tagihan.bulan', 'DESC')
+                    ->findAll();
+    }
 }

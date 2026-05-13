@@ -47,7 +47,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="text-muted small text-uppercase fw-bold">Tahun Terdaftar</label>
-                        <p class="fs-5 fw-semibold">ID TA: <?= $santri['id_tahun_ajaran'] ?></p>
+                        <p class="fs-5 fw-semibold"><?= $santri['nama_tahun_ajaran'] ?? ($santri['id_tahun_ajaran'] ?? '-') ?></p>
                     </div>
                 </div>
 

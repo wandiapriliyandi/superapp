@@ -72,6 +72,17 @@
                                 <option value="Lulus">Lulus</option>
                             </select>
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold small">Tahun Ajaran Masuk / Terdaftar</label>
+                            <select name="id_tahun_ajaran" class="form-select border-0 shadow-sm">
+                                <option value="">-- Pilih Tahun Ajaran --</option>
+                                <?php foreach($ta as $item): ?>
+                                    <option value="<?= $item['id'] ?>" <?= $item['status'] == 'Aktif' ? 'selected' : '' ?>>
+                                        <?= $item['tahun_ajaran'] ?> (<?= $item['semester'] ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-center gap-2">

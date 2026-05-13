@@ -15,7 +15,7 @@ class SantriModel extends Model
     // Field yang boleh diisi
     protected $allowedFields    = [
         'nisn', 'nis', 'nik', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir', 
-        'jenis_kelamin', 'alamat', 'telepon', 'email', 'foto', 'status_santri'
+        'jenis_kelamin', 'alamat', 'no_hp', 'email', 'foto', 'status_santri', 'id_tahun_ajaran'
     ];
 
     // Dates

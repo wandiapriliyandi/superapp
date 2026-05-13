@@ -11,7 +11,7 @@ class SppTarifModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['nama_tarif', 'nominal', 'keterangan'];
+    protected $allowedFields    = ['id_tahun_akademik', 'nama_tarif', 'tipe', 'nominal', 'keterangan'];
 
     // Dates
     protected $useTimestamps = true;

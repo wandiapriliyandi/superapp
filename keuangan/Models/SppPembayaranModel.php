@@ -12,7 +12,7 @@ class SppPembayaranModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $allowedFields    = [
-        'tagihan_id', 'tanggal_bayar', 'nominal_bayar', 
+        'tagihan_id', 'nomor_transaksi', 'tanggal_bayar', 'nominal_bayar', 
         'metode_pembayaran', 'keterangan', 'recorded_by'
     ];
 

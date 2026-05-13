@@ -275,11 +275,20 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('keuangan') || url_is('keuangan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('keuangan') ?>">
                 <span class="nav-icon">📊</span> <span class="nav-text">Dashboard</span>
             </a>
+            <a class="nav-link <?= url_is('keuangan/pembayaran/cari*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/cari') ?>">
+                <span class="nav-icon">🏧</span> <span class="nav-text">Bayar SPP</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/transaksi') ?>">
+                <span class="nav-icon">✂️</span> <span class="nav-text">Riwayat Transaksi</span>
+            </a>
             <a class="nav-link <?= url_is('keuangan/tarif*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tarif') ?>">
                 <span class="nav-icon">🏷️</span> <span class="nav-text">Tarif SPP</span>
             </a>
             <a class="nav-link <?= url_is('keuangan/tagihan*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tagihan') ?>">
                 <span class="nav-icon">📄</span> <span class="nav-text">Data Tagihan</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/mapping*') ? 'active' : '' ?>" href="<?= base_url('keuangan/mapping') ?>">
+                <span class="nav-icon">🤝</span> <span class="nav-text">Pemetaan Tarif</span>
             </a>
             <a class="nav-link <?= url_is('keuangan/pembayaran*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran') ?>">
                 <span class="nav-icon">💸</span> <span class="nav-text">Riwayat Bayar</span>
@@ -358,6 +367,15 @@ function hexToRgb($hex) {
             <?php if(session()->getFlashdata('error')): ?>
                 <div class="alert alert-danger border-0 shadow-sm mb-4"><?= session()->getFlashdata('error') ?></div>
             <?php endif; ?>
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb bg-white p-3 rounded-4 shadow-sm">
+                    <li class="breadcrumb-item"><a href="<?= base_url() ?>" class="text-decoration-none">Beranda</a></li>
+                    <?= $this->renderSection('breadcrumb') ?>
+                    <li class="breadcrumb-item active" aria-current="page"><?= $title ?? 'Dashboard' ?></li>
+                </ol>
+            </nav>
 
             <?= $this->renderSection('content') ?>
 

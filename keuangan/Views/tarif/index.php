@@ -16,7 +16,9 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4">No</th>
+                                <th>Tahun Ajaran</th>
                                 <th>Nama Tarif</th>
+                                <th>Tipe</th>
                                 <th>Nominal</th>
                                 <th>Keterangan</th>
                                 <th class="text-end pe-4">Aksi</th>
@@ -26,13 +28,24 @@
                             <?php foreach ($tarif as $index => $t): ?>
                             <tr>
                                 <td class="ps-4"><?= $index + 1 ?></td>
+                                <td><?= $t['nama_tahun'] ?: '<span class="text-muted">-</span>' ?></td>
                                 <td class="fw-bold"><?= $t['nama_tarif'] ?></td>
+                                <td>
+                                    <span class="badge rounded-pill <?= $t['tipe'] == 'Bulanan' ? 'bg-info text-dark' : 'bg-warning text-dark' ?>">
+                                        <?= $t['tipe'] ?>
+                                    </span>
+                                </td>
                                 <td>Rp <?= number_format($t['nominal'], 0, ',', '.') ?></td>
                                 <td><?= $t['keterangan'] ?></td>
                                 <td class="text-end pe-4">
-                                    <a href="<?= base_url('keuangan/tarif/delete/' . $t['id']) ?>" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Hapus tarif ini?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <div class="btn-group">
+                                        <a href="<?= base_url('keuangan/tarif/edit/' . $t['id']) ?>" class="btn btn-sm btn-outline-primary rounded-circle me-1" title="Edit Tarif">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="<?= base_url('keuangan/tarif/delete/' . $t['id']) ?>" class="btn btn-sm btn-outline-danger rounded-circle" onclick="return confirm('Hapus tarif ini?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -84,13 +84,26 @@ class TahunAjaran extends BaseController
 
     public function save()
     {
+        $tahun_ajaran_str = $this->request->getPost('tahun_ajaran');
+
+        // 1. Simpan ke tabel Akademik (Semester)
         $this->taModel->save([
-            'tahun_ajaran' => $this->request->getPost('tahun_ajaran'),
+            'tahun_ajaran' => $tahun_ajaran_str,
             'semester'     => $this->request->getPost('semester'),
             'tgl_mulai'    => $this->request->getPost('tgl_mulai'),
             'tgl_selesai'  => $this->request->getPost('tgl_selesai'),
             'status'       => 'Tidak Aktif', // Default tidak aktif saat baru dibuat
         ]);
+
+        // 2. Otomatis buat/sinkronkan ke Master Keuangan (Tahun Akademik)
+        $akademikModel = new \App\Models\TahunAkademikModel();
+        $exists = $akademikModel->where('nama_tahun', $tahun_ajaran_str)->first();
+        if (!$exists) {
+            $akademikModel->save([
+                'nama_tahun' => $tahun_ajaran_str,
+                'status'     => 'Aktif'
+            ]);
+        }
 
         return redirect()->to(base_url('akademik/tahun-ajaran'))->with('success', 'Tahun Ajaran baru berhasil ditambah!');
     }
