@@ -102,8 +102,14 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
     const months = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const baseDetailUrl = '<?= base_url('keuangan/pembayaran/detail/') ?>';
+    const baseKwitansiUrl = '<?= base_url('keuangan/pembayaran/kwitansi/') ?>';
 
     $(document).ready(function() {
         $('#table-transaksi').DataTable({
@@ -112,59 +118,75 @@
                 "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
             }
         });
+    });
 
-        // Handle Detail Modal
-        $(document).on('click', '.btn-detail', function() {
-            const noTrx = $(this).data('no-trx');
-            $('#btn-cetak-kwitansi').attr('href', '<?= base_url('keuangan/pembayaran/kwitansi/') ?>' + noTrx);
-            $('#detail-body').html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3 text-muted">Memuat data...</p></div>');
+    // Handle Detail Modal — pakai event delegation pada document agar kompatibel dengan DataTable
+    $(document).on('click', '.btn-detail', function(e) {
+        e.preventDefault();
+        const noTrx = $(this).attr('data-no-trx');
+        const detailUrl = baseDetailUrl + noTrx;
 
-            $.getJSON('<?= base_url('keuangan/pembayaran/detail/') ?>' + noTrx, function(res) {
-                if (!res.success || !res.data.length) {
-                    $('#detail-body').html('<div class="text-center py-4 text-muted">Data tidak ditemukan.</div>');
+        $('#btn-cetak-kwitansi').attr('href', baseKwitansiUrl + noTrx);
+        $('#detail-body').html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3 text-muted">Memuat data...</p></div>');
+        $('#modalDetail').modal('show');
+
+        $.ajax({
+            url: detailUrl,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (!res.success || !res.data || !res.data.length) {
+                    var msg = res.message ? '<code class="d-block mt-2 text-danger small">' + res.message + '</code>' : '';
+                    $('#detail-body').html('<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Data tidak ditemukan.' + msg + '</div>');
                     return;
                 }
                 const d = res.data;
                 let total = 0;
                 let rows = '';
-                d.forEach((item, i) => {
+                d.forEach(function(item, i) {
                     total += parseFloat(item.nominal_bayar);
-                    rows += `<tr>
-                        <td>${i+1}</td>
-                        <td><b>${item.nama_tarif}</b><br><small class="text-muted">${months[item.bulan] || 'Tahunan'} ${item.tahun}</small></td>
-                        <td class="text-end fw-bold">Rp ${parseInt(item.nominal_bayar).toLocaleString('id-ID')}</td>
-                    </tr>`;
+                    rows += '<tr>' +
+                        '<td>' + (i+1) + '</td>' +
+                        '<td><b>' + item.nama_tarif + '</b><br><small class="text-muted">' + (months[item.bulan] || 'Tahunan') + ' ' + item.tahun + '</small></td>' +
+                        '<td class="text-end fw-bold">Rp ' + parseInt(item.nominal_bayar).toLocaleString('id-ID') + '</td>' +
+                        '</tr>';
                 });
 
-                $('#detail-body').html(`
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <h5 class="fw-bold mb-1">${d[0].nama_lengkap}</h5>
-                            <small class="text-muted">NISN: ${d[0].nisn || '-'}</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-primary rounded-pill px-3">${noTrx}</span><br>
-                            <small class="text-muted">${new Date(d[0].created_at).toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'})}</small><br>
-                            <span class="badge bg-light text-dark border mt-1">${d[0].metode_pembayaran}</span>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm align-middle">
-                            <thead class="table-light">
-                                <tr><th>#</th><th>Item Tagihan</th><th class="text-end">Jumlah</th></tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                            <tfoot>
-                                <tr class="table-primary fw-bold">
-                                    <td colspan="2" class="text-end">TOTAL BAYAR</td>
-                                    <td class="text-end">Rp ${total.toLocaleString('id-ID')}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                `);
-            });
+                $('#detail-body').html(
+                    '<div class="d-flex justify-content-between align-items-start mb-4">' +
+                        '<div>' +
+                            '<h5 class="fw-bold mb-1">' + d[0].nama_lengkap + '</h5>' +
+                            '<small class="text-muted">NISN: ' + (d[0].nisn || '-') + '</small>' +
+                        '</div>' +
+                        '<div class="text-end">' +
+                            '<span class="badge bg-primary rounded-pill px-3">' + noTrx + '</span><br>' +
+                            '<small class="text-muted">' + d[0].tanggal_bayar + '</small><br>' +
+                            '<span class="badge bg-light text-dark border mt-1">' + d[0].metode_pembayaran + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="table-responsive">' +
+                        '<table class="table table-bordered table-sm align-middle">' +
+                            '<thead class="table-light"><tr><th>#</th><th>Item Tagihan</th><th class="text-end">Jumlah</th></tr></thead>' +
+                            '<tbody>' + rows + '</tbody>' +
+                            '<tfoot><tr class="table-primary fw-bold">' +
+                                '<td colspan="2" class="text-end">TOTAL BAYAR</td>' +
+                                '<td class="text-end">Rp ' + total.toLocaleString('id-ID') + '</td>' +
+                            '</tr></tfoot>' +
+                        '</table>' +
+                    '</div>'
+                );
+            },
+            error: function(xhr, status, error) {
+                $('#detail-body').html(
+                    '<div class="alert alert-danger">' +
+                        '<b>Gagal memuat data.</b><br>' +
+                        '<small>HTTP ' + xhr.status + ' — ' + error + '</small><br>' +
+                        '<small class="text-muted">URL: ' + detailUrl + '</small>' +
+                    '</div>'
+                );
+            }
         });
     });
 </script>
 <?= $this->endSection() ?>
+
