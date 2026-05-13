@@ -36,6 +36,16 @@ trait Indexable
             }
         }
 
+        // 3. Terapkan Pencarian Global (Keyword 'q')
+        if ($q = $request->getGet('q')) {
+            $allowedFields = $model->allowedFields;
+            $query->groupStart();
+            foreach ($allowedFields as $field) {
+                $query->orLike($field, $q);
+            }
+            $query->groupEnd();
+        }
+
         // 2. Ambil data
         $result = $query->orderBy($model->primaryKey, 'DESC')->findAll();
 

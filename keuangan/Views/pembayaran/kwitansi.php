@@ -58,9 +58,16 @@
                 <p>Jl. Raya Pesantren No. 123, Jakarta</p>
             </div>
             <div class="trx-info">
-                <h4>KWITANSI</h4>
-                <p><b><?= $no_trx ?></b></p>
-                <p><?= date('d/m/Y', strtotime($details[0]['created_at'])) ?></p>
+                <div style="display: flex; gap: 10px; align-items: start; justify-content: flex-end;">
+                    <div style="text-align: right;">
+                        <h4>KWITANSI</h4>
+                        <p><b><?= $no_trx ?></b></p>
+                        <p><?= date('d/m/Y', strtotime($details[0]['created_at'])) ?></p>
+                    </div>
+                    <div>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=<?= base_url('verify/receipt/' . $no_trx) ?>" width="60" height="60" style="border: 1px solid #eee; padding: 2px;">
+                    </div>
+                </div>
             </div>
         </div>
 

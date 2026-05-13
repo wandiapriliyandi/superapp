@@ -41,6 +41,7 @@ $routes->group('ppdb', ['namespace' => 'Ppdb\Controllers'], function ($routes) {
     $routes->match(['get', 'post'], 'jadwal/add-peserta', 'JadwalTes::add_peserta');
     $routes->get('jadwal/remove-peserta/(:num)', 'JadwalTes::remove_peserta/$1');
     $routes->match(['get', 'post'], 'jadwal/update-kehadiran', 'JadwalTes::update_kehadiran');
+    $routes->get('workflow', 'Workflow::index');
 
     // Public Side (Front-end)
     $routes->get('daftar', 'PublicPendaftaran::index');

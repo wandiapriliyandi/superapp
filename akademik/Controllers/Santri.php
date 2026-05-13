@@ -88,6 +88,19 @@ class Santri extends BaseController
         ]);
     }
 
+    public function edit($id)
+    {
+        $santri = $this->santriModel->find($id);
+        if (!$santri) return redirect()->back()->with('error', 'Data santri tidak ditemukan.');
+
+        $taModel = new \App\Models\TahunAjaranModel();
+        return view('Akademik\Views\santri\edit', [
+            'title'  => 'Edit Biodata Santri',
+            'santri' => $santri,
+            'ta'     => $taModel->orderBy('tahun_ajaran', 'DESC')->findAll()
+        ]);
+    }
+
     public function save()
     {
         $data = $this->request->getPost();
@@ -100,10 +113,16 @@ class Santri extends BaseController
             $data['foto'] = $newName;
         }
 
+        $isUpdate = !empty($data['id']);
         $this->santriModel->save($data);
-        log_activity('Menambah Santri Baru', 'Akademik', 'Nama: ' . $data['nama_lengkap']);
 
-        return redirect()->to(base_url('akademik/santri'))->with('success', 'Data santri berhasil disimpan.');
+        if ($isUpdate) {
+            log_activity('Mengubah Data Santri', 'Akademik', 'Nama: ' . $data['nama_lengkap']);
+            return redirect()->to(base_url('akademik/santri'))->with('success', 'Data santri berhasil diperbarui.');
+        } else {
+            log_activity('Menambah Santri Baru', 'Akademik', 'Nama: ' . $data['nama_lengkap']);
+            return redirect()->to(base_url('akademik/santri'))->with('success', 'Data santri berhasil disimpan.');
+        }
     }
 
     private function prepare_export_data()

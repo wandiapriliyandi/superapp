@@ -8,12 +8,28 @@
                 <h5 class="fw-bold mb-0"><i class="bi bi-search me-2"></i> Cari Santri</h5>
             </div>
             <div class="card-body">
-                <form action="<?= base_url('keuangan/pembayaran/cari') ?>" method="get" class="mb-4">
+                <form action="<?= base_url('keuangan/pembayaran/cari') ?>" method="get" class="mb-4" id="search-form">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control rounded-start-pill ps-4" placeholder="Ketik Nama atau NISN..." value="<?= esc($q) ?>" autofocus>
+                        <input type="text" name="q" id="search-q" class="form-control rounded-start-pill ps-4" placeholder="Ketik Nama atau NISN..." value="<?= esc($q) ?>" autofocus>
+                        <button class="btn btn-outline-secondary" type="button" id="btn-scan-qr" title="Scan QR Code NISN">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </button>
                         <button class="btn btn-primary rounded-end-pill px-4" type="submit">Cari</button>
                     </div>
                 </form>
+
+                <!-- Container untuk Kamera QR Scan -->
+                <div id="qr-reader-container" style="display: none;" class="mb-4">
+                    <div class="card border-primary shadow-sm">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <span class="small fw-bold">📷 SCAN QR NISN</span>
+                            <button type="button" class="btn-close btn-close-white" id="btn-stop-qr"></button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="qr-reader" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
 
                 <?php if (!empty($results)): ?>
                     <div class="list-group list-group-flush border rounded-4 overflow-hidden">
@@ -222,10 +238,50 @@
         </div>
     </div>
 </div>
+<?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
     $(document).ready(function() {
+        let html5QrCode;
+
+        $('#btn-scan-qr').on('click', function() {
+            $('#qr-reader-container').slideDown();
+            $(this).prop('disabled', true);
+            
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrCode.start({ facingMode: "environment" }, config, (decodedText, decodedResult) => {
+                // Success: Fill search input and submit
+                $('#search-q').val(decodedText);
+                stopScanner();
+                $('#search-form').submit();
+            }).catch((err) => {
+                console.error("Gagal memulai kamera: ", err);
+                alert("Kamera tidak dapat diakses atau diblokir.");
+                stopScanner();
+            });
+        });
+
+        $('#btn-stop-qr').on('click', function() {
+            stopScanner();
+        });
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then((ignore) => {
+                    $('#qr-reader-container').slideUp();
+                    $('#btn-scan-qr').prop('disabled', false);
+                }).catch((err) => {
+                    console.error("Gagal stop kamera: ", err);
+                    $('#qr-reader-container').slideUp();
+                    $('#btn-scan-qr').prop('disabled', false);
+                });
+            }
+        }
+
         function calculateTotal() {
             let total = 0;
             let checkedCount = 0;
@@ -303,4 +359,3 @@
     .list-group-item.active small { color: rgba(255,255,255,0.7) !important; }
     .tagihan-row td { transition: background 0.2s; }
 </style>
-<?= $this->endSection() ?>

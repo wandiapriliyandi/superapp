@@ -210,6 +210,26 @@ function hexToRgb($hex) {
             to { opacity: 1; transform: translateY(0); }
         }
         .main-content .container-fluid { animation: fadeIn 0.4s ease-out; }
+
+        /* Print Styling */
+        @media print {
+            .sidebar, .topbar, nav[aria-label="breadcrumb"], footer, .no-print, #sidebarToggle, .dropdown {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #eee !important;
+                break-inside: avoid;
+            }
+            body {
+                background-color: white !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -219,13 +239,12 @@ function hexToRgb($hex) {
         <div class="px-4 mb-3 text-center border-bottom pb-3">
             <a href="<?= base_url() ?>" class="text-decoration-none">
                 <?php 
-                    $logo = base_url('assets/img/logo.png');
                     if($setting && $setting['app_logo'] && file_exists(FCPATH . 'uploads/img/' . $setting['app_logo'])) {
                         $logo = base_url('uploads/img/' . $setting['app_logo']);
+                        echo '<img src="'.$logo.'" class="img-fluid rounded mb-2 mt-3" style="max-height: 50px;" alt="Logo">';
                     }
                 ?>
-                <img src="<?= $logo ?>" class="img-fluid rounded mb-2 mt-3" style="max-height: 50px;" alt="Logo">
-                <h5 class="fw-bold text-primary mb-0"><?= $setting['app_name'] ?? 'SuperApp' ?></h5>
+                <h5 class="fw-bold text-primary mb-0 mt-2"><?= $setting['app_name'] ?? 'SuperApp' ?></h5>
                 <div class="small text-muted opacity-75" style="font-size: 10px;"><?= $setting['pesantren_name'] ?? 'Pesantren Digital' ?></div>
             </a>
         </div>
@@ -258,6 +277,9 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('ppdb/pengaturan*') ? 'active' : '' ?>" href="<?= base_url('ppdb/pengaturan') ?>">
                 <span class="nav-icon">⚙️</span> <span class="nav-text">Gelombang</span>
             </a>
+            <a class="nav-link <?= url_is('ppdb/workflow*') ? 'active' : '' ?>" href="<?= base_url('ppdb/workflow') ?>">
+                <span class="nav-icon">📖</span> <span class="nav-text">Petunjuk PPDB</span>
+            </a>
 
         <!-- MENU AKADEMIK -->
         <?php elseif (url_is('akademik*')): ?>
@@ -275,7 +297,10 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('keuangan') || url_is('keuangan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('keuangan') ?>">
                 <span class="nav-icon">📊</span> <span class="nav-text">Dashboard</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/pembayaran/cari*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/cari') ?>">
+            <a class="nav-link <?= url_is('keuangan/workflow*') ? 'active' : '' ?>" href="<?= base_url('keuangan/workflow') ?>">
+                <span class="nav-icon">📖</span> <span class="nav-text">Petunjuk SPP</span>
+            </a>
+            <a class="nav-link <?= (url_is('keuangan/pembayaran/cari*') || url_is('keuangan/pembayaran/bayar*')) ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/cari') ?>">
                 <span class="nav-icon">🏧</span> <span class="nav-text">Bayar SPP</span>
             </a>
             <a class="nav-link <?= url_is('keuangan/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/transaksi') ?>">
@@ -290,7 +315,7 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('keuangan/mapping*') ? 'active' : '' ?>" href="<?= base_url('keuangan/mapping') ?>">
                 <span class="nav-icon">🤝</span> <span class="nav-text">Pemetaan Tarif</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/pembayaran*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran') ?>">
+            <a class="nav-link <?= url_is('keuangan/pembayaran*') && !url_is('keuangan/pembayaran/cari*') && !url_is('keuangan/pembayaran/bayar*') && !url_is('keuangan/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran') ?>">
                 <span class="nav-icon">💸</span> <span class="nav-text">Riwayat Bayar</span>
             </a>
 

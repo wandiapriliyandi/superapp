@@ -45,4 +45,6 @@ $routes->group('keuangan', ['namespace' => 'Keuangan\Controllers'], function ($r
         $routes->post('save', 'Pembayaran::save');
         $routes->post('save-massal', 'Pembayaran::saveMassal');
     });
+
+    $routes->get('workflow', 'Workflow::index');
 });

@@ -21,7 +21,14 @@
                             <p class="mb-0 opacity-75">NISN: <?= $santri['nisn'] ?: '-' ?></p>
                         </div>
                     </div>
-                    <span class="badge bg-white text-primary px-3 py-2 fs-6 rounded-pill"><?= $santri['status_santri'] ?></span>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-white text-primary px-3 py-2 fs-6 rounded-pill"><?= $santri['status_santri'] ?></span>
+                        <?php $qrData = $santri['nisn'] ?: ($santri['nis'] ?: 'ID-'.$santri['id']); ?>
+                        <div class="bg-white p-1 rounded shadow-sm text-center" title="Scan QR: <?= esc($qrData) ?>">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=<?= urlencode($qrData) ?>" width="60" height="60" alt="QR Code">
+                            <div style="font-size: 9px; color: #666; margin-top: 2px; line-height: 1;" class="fw-bold">QR NISN</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-body p-5">

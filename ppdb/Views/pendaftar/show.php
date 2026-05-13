@@ -30,10 +30,15 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-            <div class="bg-primary p-5 text-center text-white">
+            <div class="bg-primary p-5 text-center text-white position-relative">
                 <img src="https://ui-avatars.com/api/?name=<?= urlencode($p['nama_lengkap']) ?>&background=random&size=100" class="rounded-circle border border-4 border-white mb-3 shadow" alt="Avatar">
                 <h5 class="fw-bold mb-0"><?= $p['nama_lengkap'] ?></h5>
                 <p class="small opacity-75 mb-0"><?= $p['nomor_pendaftaran'] ?></p>
+                <?php $qrPendaftar = $p['nisn'] ?: $p['nomor_pendaftaran']; ?>
+                <div class="position-absolute top-0 end-0 m-3 p-1 bg-white rounded shadow-sm text-center" title="Scan QR: <?= esc($qrPendaftar) ?>">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=<?= urlencode($qrPendaftar) ?>" width="50" height="50" alt="QR Code">
+                    <div style="font-size: 8px; color: #666; margin-top: 1px; line-height: 1;" class="fw-bold text-dark">QR DATA</div>
+                </div>
             </div>
             <div class="card-body p-4">
                 <div class="mb-3">

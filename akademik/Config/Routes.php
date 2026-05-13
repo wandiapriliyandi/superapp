@@ -8,6 +8,8 @@ $routes->group('akademik', ['namespace' => 'Akademik\Controllers'], function ($r
     $routes->get('santri/export-word', 'Santri::export_word');
     $routes->get('santri/export-pdf', 'Santri::export_pdf');
     $routes->get('santri/show/(:num)', 'Santri::show/$1');
+    $routes->get('santri/edit/(:num)', 'Santri::edit/$1');
+    $routes->post('santri/save', 'Santri::save');
     $routes->get('santri/delete/(:num)', 'Santri::delete/$1');
     
     // Tahun Ajaran

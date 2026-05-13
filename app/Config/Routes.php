@@ -46,3 +46,7 @@ $routes->group('kepegawaian', ['namespace' => 'App\Controllers'], function ($rou
     $routes->get('karyawan/show/(:num)', 'Karyawan::show/$1');
     $routes->get('karyawan/delete/(:num)', 'Karyawan::delete/$1');
 });
+
+// Rute Verifikasi Publik (QR Code)
+$routes->get('verify/receipt/(:any)', 'Verify::receipt/$1');
+$routes->get('verify/agreement/(:any)', 'Verify::agreement/$1');
