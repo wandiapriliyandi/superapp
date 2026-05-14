@@ -399,6 +399,22 @@ function hexToRgb($hex) {
                 <span class="nav-icon">🌟</span> <span class="nav-text">Skill & TOEFL</span>
             </a>
 
+        <!-- MENU PERPUSTAKAAN -->
+        <?php elseif (url_is('perpustakaan*')): ?>
+            <div class="sidebar-heading text-info fw-bold">PERPUSTAKAAN</div>
+            <a class="nav-link <?= url_is('perpustakaan') || url_is('perpustakaan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('perpustakaan') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard Perpus</span>
+            </a>
+            <a class="nav-link <?= url_is('perpustakaan/list/putra*') ? 'active' : '' ?>" href="<?= base_url('perpustakaan/list/putra') ?>">
+                <span class="nav-icon">👦</span> <span class="nav-text">Perpus Putra</span>
+            </a>
+            <a class="nav-link <?= url_is('perpustakaan/list/putri*') ? 'active' : '' ?>" href="<?= base_url('perpustakaan/list/putri') ?>">
+                <span class="nav-icon">👧</span> <span class="nav-text">Perpus Putri</span>
+            </a>
+            <a class="nav-link <?= url_is('perpustakaan/list/digital*') ? 'active' : '' ?>" href="<?= base_url('perpustakaan/list/digital') ?>">
+                <span class="nav-icon">📱</span> <span class="nav-text">Perpus Digital</span>
+            </a>
+
         <!-- MENU SYSTEM / DEFAULT -->
         <?php else: ?>
             <div class="sidebar-heading text-secondary fw-bold">SYSTEM ADMIN</div>
@@ -464,6 +480,7 @@ function hexToRgb($hex) {
                         elseif (url_is('akademik*')) $moduleHome = base_url('akademik');
                         elseif (url_is('kepegawaian*')) $moduleHome = base_url('kepegawaian/karyawan');
                         elseif (url_is('e-learning*')) $moduleHome = base_url('e-learning/materi');
+                        elseif (url_is('perpustakaan*')) $moduleHome = base_url('perpustakaan');
                     ?>
                     <li class="breadcrumb-item"><a href="<?= $moduleHome ?>" class="text-decoration-none">Beranda</a></li>
                     <?= $this->renderSection('breadcrumb') ?>

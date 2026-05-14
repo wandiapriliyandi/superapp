@@ -41,7 +41,7 @@
     <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-primary bg-gradient', '#', 'Coming Soon') ?>
 
     <!-- 10. Perpustakaan -->
-    <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-info bg-gradient', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-info bg-gradient', base_url('perpustakaan')) ?>
 
     <!-- 11. Inventory -->
     <?= dashboard_card('Inventory', 'Sarana & Infrastruktur', 'bi-box-seam', 'bg-secondary bg-gradient', '#', 'Coming Soon') ?>
