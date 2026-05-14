@@ -23,4 +23,39 @@ $routes->group('akademik', ['namespace' => 'Akademik\Controllers'], function ($r
     $routes->get('tahun-ajaran/export-pdf', 'TahunAjaran::export_pdf');
     $routes->get('tahun-ajaran/set-active/(:num)', 'TahunAjaran::set_active/$1');
     $routes->get('tahun-ajaran/delete/(:num)', 'TahunAjaran::delete/$1');
+
+    // Kelas
+    $routes->get('kelas', 'Kelas::index');
+    $routes->get('kelas/create', 'Kelas::create');
+    $routes->post('kelas/store', 'Kelas::store');
+    $routes->get('kelas/edit/(:num)', 'Kelas::edit/$1');
+    $routes->post('kelas/update/(:num)', 'Kelas::update/$1');
+    $routes->get('kelas/delete/(:num)', 'Kelas::delete/$1');
+
+    // Mata Pelajaran
+    $routes->get('mapel', 'Mapel::index');
+    $routes->get('mapel/create', 'Mapel::create');
+    $routes->post('mapel/store', 'Mapel::store');
+    $routes->get('mapel/edit/(:num)', 'Mapel::edit/$1');
+    $routes->post('mapel/update/(:num)', 'Mapel::update/$1');
+    $routes->get('mapel/delete/(:num)', 'Mapel::delete/$1');
+
+    // Jadwal
+    $routes->get('jadwal', 'Jadwal::index');
+    $routes->get('jadwal/create', 'Jadwal::create');
+    $routes->post('jadwal/store', 'Jadwal::store');
+    $routes->get('jadwal/delete/(:num)', 'Jadwal::delete/$1');
+
+    // Presensi
+    $routes->get('presensi', 'Presensi::index');
+    $routes->get('presensi/input/(:num)', 'Presensi::input/$1');
+    $routes->post('presensi/store', 'Presensi::store');
+    $routes->get('presensi/rekap', 'Presensi::rekap');
+
+
+    // Nilai
+    $routes->get('nilai', 'Nilai::index');
+    $routes->post('nilai/store', 'Nilai::store');
+    $routes->get('nilai/rapor/(:num)', 'Nilai::rapor/$1');
 });
+

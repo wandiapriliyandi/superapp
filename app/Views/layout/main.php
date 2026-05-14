@@ -284,11 +284,29 @@ function hexToRgb($hex) {
         <!-- MENU AKADEMIK -->
         <?php elseif (url_is('akademik*')): ?>
             <div class="sidebar-heading text-success fw-bold">MODUL AKADEMIK</div>
+            <a class="nav-link <?= url_is('akademik') || url_is('akademik/dashboard*') ? 'active' : '' ?>" href="<?= base_url('akademik') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard Akademik</span>
+            </a>
             <a class="nav-link <?= url_is('akademik/santri*') ? 'active' : '' ?>" href="<?= base_url('akademik/santri') ?>">
                 <span class="nav-icon">🎓</span> <span class="nav-text">Data Santri</span>
             </a>
+            <a class="nav-link <?= url_is('akademik/kelas*') ? 'active' : '' ?>" href="<?= base_url('akademik/kelas') ?>">
+                <span class="nav-icon">🏫</span> <span class="nav-text">Manajemen Kelas</span>
+            </a>
+            <a class="nav-link <?= url_is('akademik/mapel*') ? 'active' : '' ?>" href="<?= base_url('akademik/mapel') ?>">
+                <span class="nav-icon">📖</span> <span class="nav-text">Mata Pelajaran</span>
+            </a>
+            <a class="nav-link <?= url_is('akademik/jadwal*') ? 'active' : '' ?>" href="<?= base_url('akademik/jadwal') ?>">
+                <span class="nav-icon">📅</span> <span class="nav-text">Jadwal Pelajaran</span>
+            </a>
+            <a class="nav-link <?= url_is('akademik/presensi*') ? 'active' : '' ?>" href="<?= base_url('akademik/presensi') ?>">
+                <span class="nav-icon">✅</span> <span class="nav-text">Presensi Santri</span>
+            </a>
+            <a class="nav-link <?= url_is('akademik/nilai*') ? 'active' : '' ?>" href="<?= base_url('akademik/nilai') ?>">
+                <span class="nav-icon">🏆</span> <span class="nav-text">Nilai & Rapor</span>
+            </a>
             <a class="nav-link <?= url_is('akademik/tahun-ajaran*') ? 'active' : '' ?>" href="<?= base_url('akademik/tahun-ajaran') ?>">
-                <span class="nav-icon">📅</span> <span class="nav-text">Tahun Ajaran</span>
+                <span class="nav-icon">⚙️</span> <span class="nav-text">Tahun Ajaran</span>
             </a>
 
         <!-- MENU SPP -->
@@ -443,7 +461,7 @@ function hexToRgb($hex) {
                         if (url_is('ppdb*')) $moduleHome = base_url('ppdb/dashboard');
                         elseif (url_is('spp*')) $moduleHome = base_url('spp');
                         elseif (url_is('keuangan*')) $moduleHome = base_url('keuangan');
-                        elseif (url_is('akademik*')) $moduleHome = base_url('akademik/santri');
+                        elseif (url_is('akademik*')) $moduleHome = base_url('akademik');
                         elseif (url_is('kepegawaian*')) $moduleHome = base_url('kepegawaian/karyawan');
                         elseif (url_is('e-learning*')) $moduleHome = base_url('e-learning/materi');
                     ?>

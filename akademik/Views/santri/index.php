@@ -102,6 +102,9 @@
                                         <a href="<?= base_url('akademik/santri/show/'.$s['id']) ?>" class="btn btn-sm btn-info text-white rounded shadow-sm">
                                             <i class="bi bi-eye"></i> Detail
                                         </a>
+                                        <a href="<?= base_url('akademik/nilai/rapor/'.$s['id']) ?>" class="btn btn-sm btn-warning text-dark rounded shadow-sm">
+                                            <i class="bi bi-file-earmark-bar-graph"></i> Rapor
+                                        </a>
                                         <a href="<?= base_url('akademik/santri/edit/'.$s['id']) ?>" class="btn btn-sm btn-outline-primary rounded shadow-sm">Edit</a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-outline-danger rounded shadow-sm" 
