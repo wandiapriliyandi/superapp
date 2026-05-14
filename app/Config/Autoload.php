@@ -51,6 +51,7 @@ class Autoload extends AutoloadConfig
         'Sarpras'      => ROOTPATH . 'sarpras',
         'Perijinan'    => ROOTPATH . 'perijinan',
         'Poskestren'   => ROOTPATH . 'poskestren',
+        'Monitoring'   => ROOTPATH . 'monitoring',
     ];
 
     /**

@@ -7,6 +7,9 @@
         <p class="text-muted">Pusat kendali manajemen pesantren terintegrasi.</p>
     </div>
 
+    <!-- 0. Monitoring Eksekutif -->
+    <?= dashboard_card('Monitoring', 'Laporan & Analisis Pimpinan', 'bi-speedometer2', 'bg-custom-indigo-dark', base_url('monitoring')) ?>
+
     <!-- 1. PPDB -->
     <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-custom-blue', base_url('ppdb/dashboard')) ?>
  
@@ -94,6 +97,7 @@ function dashboard_card($title, $desc, $icon, $bg, $link, $status = '') {
     .bg-custom-sky { background-color: #0ea5e9; }
     .bg-custom-gray { background-color: #64748b; }
     .bg-custom-crimson { background-color: #e11d48; }
+    .bg-custom-indigo-dark { background-color: #312e81; }
 
     .dashboard-card {
         transition: all 0.3s cubic-bezier(.25,.8,.25,1);

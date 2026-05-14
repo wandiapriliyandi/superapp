@@ -13,7 +13,7 @@ $routes->get('/', 'Home::index');
  * --------------------------------------------------------------------
  */
 $modulesPath = ROOTPATH;
-$modules = ['akademik', 'e-learning', 'kepegawaian', 'keuangan', 'osis', 'pembayaran', 'perpustakaan', 'ppdb', 'sarpras', 'spp', 'perijinan', 'poskestren'];
+$modules = ['akademik', 'e-learning', 'kepegawaian', 'keuangan', 'osis', 'pembayaran', 'perpustakaan', 'ppdb', 'sarpras', 'spp', 'perijinan', 'poskestren', 'monitoring'];
 
 foreach ($modules as $module) {
     $routesFile = $modulesPath . $module . '/Config/Routes.php';
