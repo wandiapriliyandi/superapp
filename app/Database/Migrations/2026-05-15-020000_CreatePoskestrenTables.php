@@ -1,6 +1,6 @@
 <?php
 
-namespace Poskestren\Database\Migrations;
+namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
