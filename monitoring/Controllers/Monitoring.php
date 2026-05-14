@@ -33,8 +33,8 @@ class Monitoring extends BaseController
 
     private function getTotalKas()
     {
-        // Contoh logika ambil saldo kas dari modul keuangan
-        $res = $this->db->table('keuangan_jurnal_detail')
+        // Ambil saldo kas dari modul keuangan (keu_jurnal_detail)
+        $res = $this->db->table('keu_jurnal_detail')
                         ->selectSum('debit')
                         ->selectSum('kredit')
                         ->get()->getRow();
@@ -70,16 +70,16 @@ class Monitoring extends BaseController
 
     private function getKeuanganTrend()
     {
-        // Ambil data pemasukan vs pengeluaran 6 bulan terakhir
+        // Ambil data pemasukan vs pengeluaran 6 bulan terakhir (keu_jurnal)
         $query = $this->db->query("
             SELECT MONTHNAME(tanggal) as bulan, 
                    SUM(debit) as masuk, 
                    SUM(kredit) as keluar
-            FROM keuangan_jurnal_detail
-            JOIN keuangan_jurnal ON keuangan_jurnal.id = keuangan_jurnal_detail.jurnal_id
+            FROM keu_jurnal_detail
+            JOIN keu_jurnal ON keu_jurnal.id = keu_jurnal_detail.jurnal_id
             WHERE tanggal >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY MONTH(tanggal)
-            ORDER BY tanggal ASC
+            ORDER BY MIN(tanggal) ASC
         ");
         return $query->getResultArray();
     }
