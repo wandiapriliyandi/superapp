@@ -49,6 +49,7 @@ class Autoload extends AutoloadConfig
         'Perpustakaan' => ROOTPATH . 'perpustakaan',
         'Ppdb'         => ROOTPATH . 'ppdb',
         'Sarpras'      => ROOTPATH . 'sarpras',
+        'Perijinan'    => ROOTPATH . 'perijinan',
     ];
 
     /**

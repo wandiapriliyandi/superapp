@@ -385,6 +385,22 @@ function hexToRgb($hex) {
             <a class="nav-link <?= url_is('kepegawaian/payroll*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/payroll') ?>">
                 <span class="nav-icon">💰</span> <span class="nav-text">Payroll / Gaji</span>
             </a>
+            
+        <!-- MENU PERIJINAN -->
+        <?php elseif (url_is('perijinan*')): ?>
+            <div class="sidebar-heading text-warning fw-bold">PERIZINAN SANTRI</div>
+            <a class="nav-link <?= url_is('perijinan') && !url_is('perijinan/tambah*') ? 'active' : '' ?>" href="<?= base_url('perijinan') ?>">
+                <span class="nav-icon">📋</span> <span class="nav-text">Daftar Perijinan</span>
+            </a>
+            <a class="nav-link <?= url_is('perijinan/tambah*') ? 'active' : '' ?>" href="<?= base_url('perijinan/tambah') ?>">
+                <span class="nav-icon">➕</span> <span class="nav-text">Tambah Pengajuan</span>
+            </a>
+            <a class="nav-link <?= url_is('perijinan/rekap*') ? 'active' : '' ?>" href="<?= base_url('perijinan/rekap') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Rekapitulasi Izin</span>
+            </a>
+            <a class="nav-link <?= url_is('perijinan/pengaturan*') ? 'active' : '' ?>" href="<?= base_url('perijinan/pengaturan') ?>">
+                <span class="nav-icon">⚙️</span> <span class="nav-text">Pengaturan Modul</span>
+            </a>
 
         <!-- MENU E-LEARNING -->
         <?php elseif (url_is('e-learning*')): ?>
@@ -481,6 +497,7 @@ function hexToRgb($hex) {
                         elseif (url_is('kepegawaian*')) $moduleHome = base_url('kepegawaian/karyawan');
                         elseif (url_is('e-learning*')) $moduleHome = base_url('e-learning/materi');
                         elseif (url_is('perpustakaan*')) $moduleHome = base_url('perpustakaan');
+                        elseif (url_is('perijinan*')) $moduleHome = base_url('perijinan');
                     ?>
                     <li class="breadcrumb-item"><a href="<?= $moduleHome ?>" class="text-decoration-none">Beranda</a></li>
                     <?= $this->renderSection('breadcrumb') ?>

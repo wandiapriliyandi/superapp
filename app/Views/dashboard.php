@@ -20,7 +20,7 @@
     <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-danger', '#', 'Coming Soon') ?>
  
     <!-- 5. Perizinan -->
-    <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-warning text-dark', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-warning text-dark', base_url('perijinan')) ?>
  
     <!-- 6. Keasramaan -->
     <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-secondary', '#', 'Coming Soon') ?>
