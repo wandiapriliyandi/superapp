@@ -431,6 +431,19 @@ function hexToRgb($hex) {
                 <span class="nav-icon">📱</span> <span class="nav-text">Perpus Digital</span>
             </a>
 
+        <!-- MENU POSKESTREN -->
+        <?php elseif (url_is('poskestren*')): ?>
+            <div class="sidebar-heading text-danger fw-bold">POSKESTREN</div>
+            <a class="nav-link <?= url_is('poskestren') || url_is('poskestren/dashboard*') ? 'active' : '' ?>" href="<?= base_url('poskestren') ?>">
+                <span class="nav-icon">🏥</span> <span class="nav-text">Dashboard</span>
+            </a>
+            <a class="nav-link <?= url_is('poskestren/kunjungan*') ? 'active' : '' ?>" href="<?= base_url('poskestren/kunjungan') ?>">
+                <span class="nav-icon">📋</span> <span class="nav-text">Rekam Medis</span>
+            </a>
+            <a class="nav-link <?= url_is('poskestren/obat*') ? 'active' : '' ?>" href="<?= base_url('poskestren/obat') ?>">
+                <span class="nav-icon">💊</span> <span class="nav-text">Stok Obat</span>
+            </a>
+
         <!-- MENU SYSTEM / DEFAULT -->
         <?php else: ?>
             <div class="sidebar-heading text-secondary fw-bold">SYSTEM ADMIN</div>
@@ -498,6 +511,7 @@ function hexToRgb($hex) {
                         elseif (url_is('e-learning*')) $moduleHome = base_url('e-learning/materi');
                         elseif (url_is('perpustakaan*')) $moduleHome = base_url('perpustakaan');
                         elseif (url_is('perijinan*')) $moduleHome = base_url('perijinan');
+                        elseif (url_is('poskestren*')) $moduleHome = base_url('poskestren');
                     ?>
                     <li class="breadcrumb-item"><a href="<?= $moduleHome ?>" class="text-decoration-none">Beranda</a></li>
                     <?= $this->renderSection('breadcrumb') ?>

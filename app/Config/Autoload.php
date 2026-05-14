@@ -50,6 +50,7 @@ class Autoload extends AutoloadConfig
         'Ppdb'         => ROOTPATH . 'ppdb',
         'Sarpras'      => ROOTPATH . 'sarpras',
         'Perijinan'    => ROOTPATH . 'perijinan',
+        'Poskestren'   => ROOTPATH . 'poskestren',
     ];
 
     /**

@@ -8,52 +8,52 @@
     </div>
 
     <!-- 1. PPDB -->
-    <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-primary', base_url('ppdb/dashboard')) ?>
+    <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-custom-blue', base_url('ppdb/dashboard')) ?>
  
     <!-- 2. Siakad -->
-    <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-success', base_url('akademik/dashboard')) ?>
+    <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-custom-emerald', base_url('akademik/dashboard')) ?>
  
     <!-- 3. HR (Kepegawaian) -->
-    <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-info', base_url('kepegawaian/dashboard')) ?>
+    <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-custom-cyan', base_url('kepegawaian/dashboard')) ?>
  
     <!-- 4. Kedisiplinan -->
-    <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-danger', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-custom-rose', '#', 'Coming Soon') ?>
  
     <!-- 5. Perizinan -->
-    <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-warning text-dark', base_url('perijinan')) ?>
+    <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-custom-orange', base_url('perijinan')) ?>
  
     <!-- 6. Keasramaan -->
-    <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-secondary', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-custom-indigo', '#', 'Coming Soon') ?>
  
     <!-- 7. Kurikulum Spesialis -->
-    <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-teal', '#', 'Coming Soon') ?>
+    <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-custom-teal', '#', 'Coming Soon') ?>
  
     <!-- 8. E-Learning -->
-    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', base_url('e-learning/dashboard')) ?>
+    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-custom-violet', base_url('e-learning/dashboard')) ?>
  
     <!-- 9. SPP -->
-    <?= dashboard_card('Manajemen SPP', 'Pembayaran & Tagihan Santri', 'bi-wallet2', 'bg-warning text-dark bg-gradient', base_url('spp')) ?>
+    <?= dashboard_card('Manajemen SPP', 'Pembayaran & Tagihan Santri', 'bi-wallet2', 'bg-custom-amber', base_url('spp')) ?>
  
     <!-- 10. Keuangan -->
-    <?= dashboard_card('Keuangan', 'Akuntansi, Jurnal & Buku Besar', 'bi-calculator', 'bg-primary bg-gradient', base_url('keuangan')) ?>
+    <?= dashboard_card('Keuangan', 'Akuntansi, Jurnal & Buku Besar', 'bi-calculator', 'bg-custom-slate', base_url('keuangan')) ?>
 
-    <!-- 9. OSIS -->
-    <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-primary bg-gradient', '#', 'Coming Soon') ?>
+    <!-- 11. OSIS -->
+    <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-custom-purple', '#', 'Coming Soon') ?>
 
-    <!-- 10. Perpustakaan -->
-    <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-info bg-gradient', base_url('perpustakaan')) ?>
+    <!-- 12. Perpustakaan -->
+    <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-custom-sky', base_url('perpustakaan')) ?>
 
-    <!-- 11. Inventory -->
-    <?= dashboard_card('Inventory', 'Sarana & Infrastruktur', 'bi-box-seam', 'bg-secondary bg-gradient', '#', 'Coming Soon') ?>
+    <!-- 13. Inventory -->
+    <?= dashboard_card('Inventory', 'Sarana & Infrastruktur', 'bi-box-seam', 'bg-custom-gray', '#', 'Coming Soon') ?>
 
-    <!-- 12. Poskestren -->
-    <?= dashboard_card('Poskestren', 'Kesehatan & Rekam Medis', 'bi-heart-pulse', 'bg-danger bg-gradient', '#', 'Coming Soon') ?>
+    <!-- 14. Poskestren -->
+    <?= dashboard_card('Poskestren', 'Kesehatan & Rekam Medis', 'bi-heart-pulse', 'bg-custom-crimson', base_url('poskestren')) ?>
 
-    <!-- 13. Portal Wali -->
+    <!-- 15. Portal Wali -->
     <?= dashboard_card('Portal Wali', 'Akses Orang Tua Santri', 'bi-phone-vibrate', 'bg-dark', '#', 'Coming Soon') ?>
 
     <!-- Additional: Activity Log -->
-    <?= dashboard_card('Log Aktivitas', 'Riwayat Audit Sistem', 'bi-clock-history', 'bg-light text-dark border', base_url('activity-log')) ?>
+    <?= dashboard_card('Log Aktivitas', 'Riwayat Audit Sistem', 'bi-clock-history', 'bg-light text-dark border', base_url('activity')) ?>
 </div>
 
 <?php
@@ -80,8 +80,21 @@ function dashboard_card($title, $desc, $icon, $bg, $link, $status = '') {
 ?>
 
 <style>
-    .bg-teal { background-color: #20c997; }
-    .bg-indigo { background-color: #6610f2; }
+    .bg-custom-blue { background-color: #3b82f6; }
+    .bg-custom-emerald { background-color: #10b981; }
+    .bg-custom-cyan { background-color: #06b6d4; }
+    .bg-custom-rose { background-color: #f43f5e; }
+    .bg-custom-orange { background-color: #f59e0b; }
+    .bg-custom-indigo { background-color: #6366f1; }
+    .bg-custom-teal { background-color: #14b8a6; }
+    .bg-custom-violet { background-color: #8b5cf6; }
+    .bg-custom-amber { background-color: #d97706; }
+    .bg-custom-slate { background-color: #334155; }
+    .bg-custom-purple { background-color: #a855f7; }
+    .bg-custom-sky { background-color: #0ea5e9; }
+    .bg-custom-gray { background-color: #64748b; }
+    .bg-custom-crimson { background-color: #e11d48; }
+
     .dashboard-card {
         transition: all 0.3s cubic-bezier(.25,.8,.25,1);
         min-height: 140px;
