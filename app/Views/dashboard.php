@@ -8,32 +8,32 @@
     </div>
 
     <!-- 1. PPDB -->
-    <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-primary', base_url('ppdb/pendaftar')) ?>
-
+    <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-primary', base_url('ppdb/dashboard')) ?>
+ 
     <!-- 2. Siakad -->
-    <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-success', base_url('akademik/santri')) ?>
-
+    <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-success', base_url('akademik/dashboard')) ?>
+ 
     <!-- 3. HR (Kepegawaian) -->
-    <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-info', base_url('kepegawaian/karyawan')) ?>
-
+    <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-info', base_url('kepegawaian/dashboard')) ?>
+ 
     <!-- 4. Kedisiplinan -->
     <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-danger', '#', 'Coming Soon') ?>
-
+ 
     <!-- 5. Perizinan -->
     <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-warning text-dark', '#', 'Coming Soon') ?>
-
+ 
     <!-- 6. Keasramaan -->
     <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-secondary', '#', 'Coming Soon') ?>
-
+ 
     <!-- 7. Kurikulum Spesialis -->
     <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-teal', '#', 'Coming Soon') ?>
-
+ 
     <!-- 8. E-Learning -->
-    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', base_url('e-learning/materi')) ?>
-
+    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-indigo', base_url('e-learning/dashboard')) ?>
+ 
     <!-- 9. SPP -->
     <?= dashboard_card('Manajemen SPP', 'Pembayaran & Tagihan Santri', 'bi-wallet2', 'bg-warning text-dark bg-gradient', base_url('spp')) ?>
-
+ 
     <!-- 10. Keuangan -->
     <?= dashboard_card('Keuangan', 'Akuntansi, Jurnal & Buku Besar', 'bi-calculator', 'bg-primary bg-gradient', base_url('keuangan')) ?>
 

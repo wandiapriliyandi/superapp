@@ -13,7 +13,7 @@ $routes->get('/', 'Home::index');
  * --------------------------------------------------------------------
  */
 $modulesPath = ROOTPATH;
-$modules = ['akademik', 'e-learning', 'keuangan', 'osis', 'pembayaran', 'perpustakaan', 'ppdb', 'sarpras', 'spp'];
+$modules = ['akademik', 'e-learning', 'kepegawaian', 'keuangan', 'osis', 'pembayaran', 'perpustakaan', 'ppdb', 'sarpras', 'spp'];
 
 foreach ($modules as $module) {
     $routesFile = $modulesPath . $module . '/Config/Routes.php';
@@ -37,15 +37,6 @@ $routes->post('migrate/force-run-single', 'Migrate::forceRunSingle');
 $routes->get('migrate/table-data', 'Migrate::getTableData');
 $routes->get('migrate/pull-git', 'Migrate::pullGit');
 
-$routes->group('kepegawaian', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->get('karyawan', 'Karyawan::index');
-    $routes->get('karyawan/add', 'Karyawan::add');
-    $routes->post('karyawan/save', 'Karyawan::save');
-    $routes->get('karyawan/selection', 'Karyawan::selection');
-    $routes->get('karyawan/export-excel', 'Karyawan::export_excel');
-    $routes->get('karyawan/show/(:num)', 'Karyawan::show/$1');
-    $routes->get('karyawan/delete/(:num)', 'Karyawan::delete/$1');
-});
 
 // Rute Verifikasi Publik (QR Code)
 $routes->get('verify/receipt/(:any)', 'Verify::receipt/$1');

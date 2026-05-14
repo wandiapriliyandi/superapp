@@ -338,11 +338,34 @@ function hexToRgb($hex) {
                 <span class="nav-icon">📉</span> <span class="nav-text">Laba Rugi</span>
             </a>
 
-        <!-- MENU KEPEGAWAIAN -->
+        <!-- MENU KEPEGAWAIAN PROFESIONAL -->
         <?php elseif (url_is('kepegawaian*')): ?>
             <div class="sidebar-heading text-info fw-bold">KEPEGAWAIAN</div>
-            <a class="nav-link <?= url_is('kepegawaian/karyawan*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/karyawan') ?>">
-                <span class="nav-icon">💎</span> <span class="nav-text">Data Pegawai</span>
+            <a class="nav-link <?= url_is('kepegawaian/dashboard*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/dashboard') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard HRM</span>
+            </a>
+            <a class="nav-link <?= url_is('kepegawaian/pegawai*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/pegawai') ?>">
+                <span class="nav-icon">👥</span> <span class="nav-text">Data Pegawai</span>
+            </a>
+            <div class="sidebar-heading small opacity-50">ORGANISASI</div>
+            <a class="nav-link <?= url_is('kepegawaian/departemen*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/departemen') ?>">
+                <span class="nav-icon">🏢</span> <span class="nav-text">Departemen</span>
+            </a>
+            <a class="nav-link <?= url_is('kepegawaian/jabatan*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/jabatan') ?>">
+                <span class="nav-icon">🎖️</span> <span class="nav-text">Jabatan</span>
+            </a>
+            <a class="nav-link <?= url_is('kepegawaian/jadwal*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/jadwal') ?>">
+                <span class="nav-icon">📅</span> <span class="nav-text">Penjadwalan</span>
+            </a>
+            <div class="sidebar-heading small opacity-50">OPERASIONAL</div>
+            <a class="nav-link <?= url_is('kepegawaian/absensi*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/absensi') ?>">
+                <span class="nav-icon">📅</span> <span class="nav-text">Presensi / Absen</span>
+            </a>
+            <a class="nav-link <?= url_is('kepegawaian/cuti*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/cuti') ?>">
+                <span class="nav-icon">⛱️</span> <span class="nav-text">Cuti & Izin</span>
+            </a>
+            <a class="nav-link <?= url_is('kepegawaian/payroll*') ? 'active' : '' ?>" href="<?= base_url('kepegawaian/payroll') ?>">
+                <span class="nav-icon">💰</span> <span class="nav-text">Payroll / Gaji</span>
             </a>
 
         <!-- MENU E-LEARNING -->

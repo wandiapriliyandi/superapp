@@ -2,7 +2,8 @@
 
 $routes->group('e-learning', ['namespace' => 'ELearning\Controllers'], function ($routes) {
     // Dashboard E-Learning
-    $routes->get('/', 'Materi::index');
+    $routes->get('/', 'Dashboard::index');
+    $routes->get('dashboard', 'Dashboard::index');
     
     // Kelola Materi Belajar
     $routes->get('materi', 'Materi::index');

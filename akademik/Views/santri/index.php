@@ -5,8 +5,10 @@
     <div class="col-md-12">
         <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">Daftar Santri</h4>
-                <a href="<?= base_url('akademik/santri/add') ?>" class="btn btn-primary">Tambah Santri</a>
+                <div>
+                    <h4 class="fw-bold mb-0">Daftar Santri</h4>
+                    <a href="<?= base_url('akademik/santri/add') ?>" class="text-decoration-none small text-muted"><i class="bi bi-plus-circle me-1"></i> Input Santri Lama (Sementara)</a>
+                </div>
             </div>
 
             <!-- Pencarian & QR Scan -->

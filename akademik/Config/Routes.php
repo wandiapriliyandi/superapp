@@ -1,6 +1,8 @@
 <?php
 
 $routes->group('akademik', ['namespace' => 'Akademik\Controllers'], function ($routes) {
+    $routes->get('/', 'Dashboard::index');
+    $routes->get('dashboard', 'Dashboard::index');
     $routes->get('santri', 'Santri::index');
     $routes->get('santri/add', 'Santri::add');
     $routes->get('santri/selection', 'Santri::selection');
