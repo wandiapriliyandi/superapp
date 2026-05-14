@@ -41,6 +41,7 @@ class Autoload extends AutoloadConfig
         APP_NAMESPACE => APPPATH,
         'Akademik'     => ROOTPATH . 'akademik',
         'ELearning'    => ROOTPATH . 'e-learning',
+        'Spp'          => ROOTPATH . 'spp',
         'Keuangan'     => ROOTPATH . 'keuangan',
         'Osis'         => ROOTPATH . 'osis',
         'Pembayaran'   => ROOTPATH . 'pembayaran',

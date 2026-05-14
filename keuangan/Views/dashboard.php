@@ -1,109 +1,133 @@
 <?= $this->extend('layout/main') ?>
 
 <?= $this->section('content') ?>
-<div class="row g-3">
-    <div class="col-12 mb-2">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="fw-bold">Manajemen Keuangan (SPP) 💰</h3>
-                <p class="text-muted">Kelola tarif, tagihan, dan pembayaran santri.</p>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 class="fw-bold text-primary">Financial Overview 📊</h3>
+            <p class="text-muted">Manajemen keuangan pesantren secara profesional dengan standar akuntansi.</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 opacity-75">Bagan Akun</h6>
+                            <h3 class="mb-0 fw-bold"><?= $total_akun ?></h3>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                            <i class="fas fa-list-ul fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <a href="<?= base_url('keuangan/tagihan/generate') ?>" class="btn btn-primary rounded-pill px-4">
-                    <i class="bi bi-magic me-2"></i>Generate Tagihan
-                </a>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 opacity-75">Jurnal Umum</h6>
+                            <h3 class="mb-0 fw-bold"><?= $total_jurnal ?></h3>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 opacity-75">Kas Masuk (Bln Ini)</h6>
+                            <h4 class="mb-0 fw-bold">Rp <?= number_format($kas_masuk_bulan_ini, 0, ',', '.') ?></h4>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                            <i class="fas fa-arrow-down fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 bg-danger text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 opacity-75">Kas Keluar (Bln Ini)</h6>
+                            <h4 class="mb-0 fw-bold">Rp <?= number_format($kas_keluar_bulan_ini, 0, ',', '.') ?></h4>
+                        </div>
+                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                            <i class="fas fa-arrow-up fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistik -->
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-primary text-white">
-            <div class="card-body">
-                <h6 class="opacity-75">Total Tagihan</h6>
-                <h4 class="fw-bold mb-0">Rp <?= number_format($total_tagihan, 0, ',', '.') ?></h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-success text-white">
-            <div class="card-body">
-                <h6 class="opacity-75">Total Terbayar</h6>
-                <h4 class="fw-bold mb-0">Rp <?= number_format($total_terbayar, 0, ',', '.') ?></h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-info text-white">
-            <div class="card-body">
-                <h6 class="opacity-75">Lunas</h6>
-                <h4 class="fw-bold mb-0"><?= $tagihan_lunas ?> Transaksi</h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-danger text-white">
-            <div class="card-body">
-                <h6 class="opacity-75">Belum Lunas</h6>
-                <h4 class="fw-bold mb-0"><?= $tagihan_belum ?> Transaksi</h4>
-            </div>
-        </div>
-    </div>
-
-    <!-- Menu Cepat -->
-    <div class="col-md-4 mt-4">
-        <a href="<?= base_url('keuangan/tarif') ?>" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-4 h-100 hover-up">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 me-3">
-                        <i class="bi bi-tags fs-3"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Tarif SPP</h6>
-                        <small class="text-muted">Atur nominal bulanan</small>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">Menu Cepat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="<?= base_url('keuangan/akun') ?>" class="btn btn-outline-primary w-100 py-3 rounded-3">
+                                <i class="fas fa-sitemap d-block mb-2 fa-2x"></i>
+                                Kelola Akun (COA)
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="<?= base_url('keuangan/jurnal/add') ?>" class="btn btn-outline-success w-100 py-3 rounded-3">
+                                <i class="fas fa-plus-circle d-block mb-2 fa-2x"></i>
+                                Buat Jurnal Baru
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="<?= base_url('keuangan/buku-besar') ?>" class="btn btn-outline-info w-100 py-3 rounded-3">
+                                <i class="fas fa-columns d-block mb-2 fa-2x"></i>
+                                Lihat Buku Besar
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="<?= base_url('keuangan/laporan/neraca') ?>" class="btn btn-outline-dark w-100 py-3 rounded-3">
+                                <i class="fas fa-file-invoice-dollar d-block mb-2 fa-2x"></i>
+                                Laporan Neraca
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="<?= base_url('keuangan/laporan/laba-rugi') ?>" class="btn btn-outline-warning w-100 py-3 rounded-3">
+                                <i class="fas fa-chart-line d-block mb-2 fa-2x"></i>
+                                Laba Rugi
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </a>
-    </div>
-    <div class="col-md-4 mt-4">
-        <a href="<?= base_url('keuangan/tagihan') ?>" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-4 h-100 hover-up">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 me-3">
-                        <i class="bi bi-receipt fs-3"></i>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">Status Akuntansi</h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle text-success fa-4x"></i>
                     </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Data Tagihan</h6>
-                        <small class="text-muted">Lihat semua tagihan santri</small>
-                    </div>
+                    <h5 class="fw-bold">Balanced</h5>
+                    <p class="text-muted">Total Debit dan Kredit dalam sistem saat ini seimbang.</p>
                 </div>
             </div>
-        </a>
-    </div>
-    <div class="col-md-4 mt-4">
-        <a href="<?= base_url('keuangan/pembayaran') ?>" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-4 h-100 hover-up">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 me-3">
-                        <i class="bi bi-cash-stack fs-3"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Pembayaran</h6>
-                        <small class="text-muted">Input transaksi bayar</small>
-                    </div>
-                </div>
-            </div>
-        </a>
+        </div>
     </div>
 </div>
-
-<style>
-    .hover-up {
-        transition: transform 0.2s;
-    }
-    .hover-up:hover {
-        transform: translateY(-5px);
-    }
-</style>
 <?= $this->endSection() ?>

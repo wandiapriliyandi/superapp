@@ -1,51 +1,37 @@
 <?php
 
 $routes->group('keuangan', ['namespace' => 'Keuangan\Controllers'], function ($routes) {
-    // Dashboard Keuangan
     $routes->get('/', 'Dashboard::index');
     
-    // Master Tarif SPP
-    $routes->group('tarif', function($routes) {
-        $routes->get('/', 'Tarif::index');
-        $routes->get('add', 'Tarif::add');
-        $routes->get('edit/(:num)', 'Tarif::edit/$1');
-        $routes->post('save', 'Tarif::save');
-        $routes->post('update/(:num)', 'Tarif::update/$1');
-        $routes->get('delete/(:num)', 'Tarif::delete/$1');
+    // Akun / COA
+    $routes->group('akun', function($routes) {
+        $routes->get('/', 'Akun::index');
+        $routes->get('add', 'Akun::add');
+        $routes->post('save', 'Akun::save');
+        $routes->get('edit/(:num)', 'Akun::edit/$1');
+        $routes->post('update/(:num)', 'Akun::update/$1');
+        $routes->get('delete/(:num)', 'Akun::delete/$1');
     });
 
-    // Tagihan SPP
-    $routes->group('tagihan', function($routes) {
-        $routes->get('/', 'Tagihan::index');
-        $routes->get('generate', 'Tagihan::generate');
-        $routes->get('generate-santri/(:num)', 'Tagihan::generateSantri/$1');
-        $routes->post('process-generate', 'Tagihan::processGenerate');
-        $routes->get('edit/(:num)', 'Tagihan::edit/$1');
-        $routes->post('update/(:num)', 'Tagihan::update/$1');
-        $routes->get('delete/(:num)', 'Tagihan::delete/$1');
+    // Jurnal Umum
+    $routes->group('jurnal', function($routes) {
+        $routes->get('/', 'Jurnal::index');
+        $routes->get('add', 'Jurnal::add');
+        $routes->get('pemasukan', 'Jurnal::pemasukan');
+        $routes->get('pengeluaran', 'Jurnal::pengeluaran');
+        $routes->post('save', 'Jurnal::save');
+        $routes->post('save_simple', 'Jurnal::save_simple');
+        $routes->get('delete/(:any)', 'Jurnal::delete/$1');
     });
 
-    // Pemetaan Tarif (Kesepakatan Bayaran)
-    $routes->group('mapping', function($routes) {
-        $routes->get('/', 'Mapping::index');
-        $routes->get('santri/(:num)', 'Mapping::santri/$1');
-        $routes->post('save', 'Mapping::save');
-        $routes->get('print/(:num)', 'Mapping::print/$1');
-        $routes->get('export-word/(:num)', 'Mapping::exportWord/$1');
-    });
+    // Buku Besar
+    $routes->get('buku-besar', 'BukuBesar::index');
+    $routes->get('buku-besar/filter', 'BukuBesar::filter');
 
-    // Pembayaran
-    $routes->group('pembayaran', function($routes) {
-        $routes->get('/', 'Pembayaran::index');
-        $routes->get('cari', 'Pembayaran::cari');
-        $routes->get('transaksi', 'Pembayaran::transaksi');
-        $routes->get('detail/(:any)', 'Pembayaran::detail/$1');
-        $routes->get('bayar/(:num)', 'Pembayaran::bayar/$1');
-        $routes->get('kwitansi/(:any)', 'Pembayaran::kwitansi/$1');
-        $routes->post('bayar-massal', 'Pembayaran::bayarMassal');
-        $routes->post('save', 'Pembayaran::save');
-        $routes->post('save-massal', 'Pembayaran::saveMassal');
+    // Laporan
+    $routes->group('laporan', function($routes) {
+        $routes->get('neraca', 'Laporan::neraca');
+        $routes->get('laba-rugi', 'Laporan::labaRugi');
+        $routes->get('arus-kas', 'Laporan::arusKas');
     });
-
-    $routes->get('workflow', 'Workflow::index');
 });

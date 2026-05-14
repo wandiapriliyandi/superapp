@@ -291,32 +291,51 @@ function hexToRgb($hex) {
                 <span class="nav-icon">📅</span> <span class="nav-text">Tahun Ajaran</span>
             </a>
 
-        <!-- MENU KEUANGAN -->
-        <?php elseif (url_is('keuangan*')): ?>
-            <div class="sidebar-heading text-warning fw-bold">MANAJEMEN KEUANGAN</div>
-            <a class="nav-link <?= url_is('keuangan') || url_is('keuangan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('keuangan') ?>">
-                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard</span>
+        <!-- MENU SPP -->
+        <?php elseif (url_is('spp*')): ?>
+            <div class="sidebar-heading text-warning fw-bold">MANAJEMEN SPP</div>
+            <a class="nav-link <?= url_is('spp') || url_is('spp/dashboard*') ? 'active' : '' ?>" href="<?= base_url('spp') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Dashboard SPP</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/workflow*') ? 'active' : '' ?>" href="<?= base_url('keuangan/workflow') ?>">
-                <span class="nav-icon">📖</span> <span class="nav-text">Petunjuk SPP</span>
-            </a>
-            <a class="nav-link <?= (url_is('keuangan/pembayaran/cari*') || url_is('keuangan/pembayaran/bayar*')) ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/cari') ?>">
+            <a class="nav-link <?= (url_is('spp/pembayaran/cari*') || url_is('spp/pembayaran/bayar*')) ? 'active' : '' ?>" href="<?= base_url('spp/pembayaran/cari') ?>">
                 <span class="nav-icon">🏧</span> <span class="nav-text">Bayar SPP</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran/transaksi') ?>">
+            <a class="nav-link <?= url_is('spp/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('spp/pembayaran/transaksi') ?>">
                 <span class="nav-icon">✂️</span> <span class="nav-text">Riwayat Transaksi</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/tarif*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tarif') ?>">
+            <a class="nav-link <?= url_is('spp/tarif*') ? 'active' : '' ?>" href="<?= base_url('spp/tarif') ?>">
                 <span class="nav-icon">🏷️</span> <span class="nav-text">Tarif SPP</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/tagihan*') ? 'active' : '' ?>" href="<?= base_url('keuangan/tagihan') ?>">
+            <a class="nav-link <?= url_is('spp/tagihan*') ? 'active' : '' ?>" href="<?= base_url('spp/tagihan') ?>">
                 <span class="nav-icon">📄</span> <span class="nav-text">Data Tagihan</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/mapping*') ? 'active' : '' ?>" href="<?= base_url('keuangan/mapping') ?>">
+            <a class="nav-link <?= url_is('spp/mapping*') ? 'active' : '' ?>" href="<?= base_url('spp/mapping') ?>">
                 <span class="nav-icon">🤝</span> <span class="nav-text">Pemetaan Tarif</span>
             </a>
-            <a class="nav-link <?= url_is('keuangan/pembayaran*') && !url_is('keuangan/pembayaran/cari*') && !url_is('keuangan/pembayaran/bayar*') && !url_is('keuangan/pembayaran/transaksi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/pembayaran') ?>">
-                <span class="nav-icon">💸</span> <span class="nav-text">Riwayat Bayar</span>
+            <a class="nav-link <?= url_is('spp/workflow*') ? 'active' : '' ?>" href="<?= base_url('spp/workflow') ?>">
+                <span class="nav-icon">📖</span> <span class="nav-text">Petunjuk SPP</span>
+            </a>
+
+        <!-- MENU KEUANGAN PROFESIONAL -->
+        <?php elseif (url_is('keuangan*')): ?>
+            <div class="sidebar-heading text-primary fw-bold">KEUANGAN PROFESIONAL</div>
+            <a class="nav-link <?= url_is('keuangan') || url_is('keuangan/dashboard*') ? 'active' : '' ?>" href="<?= base_url('keuangan') ?>">
+                <span class="nav-icon">📈</span> <span class="nav-text">Dashboard</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/akun*') ? 'active' : '' ?>" href="<?= base_url('keuangan/akun') ?>">
+                <span class="nav-icon">📑</span> <span class="nav-text">Bagan Akun (COA)</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/jurnal*') ? 'active' : '' ?>" href="<?= base_url('keuangan/jurnal') ?>">
+                <span class="nav-icon">📖</span> <span class="nav-text">Jurnal Umum</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/buku-besar*') ? 'active' : '' ?>" href="<?= base_url('keuangan/buku-besar') ?>">
+                <span class="nav-icon">📊</span> <span class="nav-text">Buku Besar</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/laporan/neraca*') ? 'active' : '' ?>" href="<?= base_url('keuangan/laporan/neraca') ?>">
+                <span class="nav-icon">⚖️</span> <span class="nav-text">Laporan Neraca</span>
+            </a>
+            <a class="nav-link <?= url_is('keuangan/laporan/laba-rugi*') ? 'active' : '' ?>" href="<?= base_url('keuangan/laporan/laba-rugi') ?>">
+                <span class="nav-icon">📉</span> <span class="nav-text">Laba Rugi</span>
             </a>
 
         <!-- MENU KEPEGAWAIAN -->
@@ -396,7 +415,16 @@ function hexToRgb($hex) {
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb bg-white p-3 rounded-4 shadow-sm">
-                    <li class="breadcrumb-item"><a href="<?= base_url() ?>" class="text-decoration-none">Beranda</a></li>
+                    <?php 
+                        $moduleHome = base_url();
+                        if (url_is('ppdb*')) $moduleHome = base_url('ppdb/dashboard');
+                        elseif (url_is('spp*')) $moduleHome = base_url('spp');
+                        elseif (url_is('keuangan*')) $moduleHome = base_url('keuangan');
+                        elseif (url_is('akademik*')) $moduleHome = base_url('akademik/santri');
+                        elseif (url_is('kepegawaian*')) $moduleHome = base_url('kepegawaian/karyawan');
+                        elseif (url_is('e-learning*')) $moduleHome = base_url('e-learning/materi');
+                    ?>
+                    <li class="breadcrumb-item"><a href="<?= $moduleHome ?>" class="text-decoration-none">Beranda</a></li>
                     <?= $this->renderSection('breadcrumb') ?>
                     <li class="breadcrumb-item active" aria-current="page"><?= $title ?? 'Dashboard' ?></li>
                 </ol>

@@ -3,22 +3,22 @@
 namespace Keuangan\Controllers;
 
 use App\Controllers\BaseController;
-use Keuangan\Models\SppTagihanModel;
-use Keuangan\Models\SppPembayaranModel;
+use Keuangan\Models\AkunModel;
+use Keuangan\Models\JurnalModel;
 
 class Dashboard extends BaseController
 {
     public function index()
     {
-        $tagihanModel = new SppTagihanModel();
-        $pembayaranModel = new SppPembayaranModel();
+        $akunModel = new AkunModel();
+        $jurnalModel = new JurnalModel();
 
         $data = [
-            'title' => 'Dashboard Keuangan',
-            'total_tagihan' => $tagihanModel->selectSum('nominal_tagihan')->first()['nominal_tagihan'] ?? 0,
-            'total_terbayar' => $tagihanModel->selectSum('total_terbayar')->first()['total_terbayar'] ?? 0,
-            'tagihan_lunas' => $tagihanModel->where('status', 'Lunas')->countAllResults(),
-            'tagihan_belum' => $tagihanModel->where('status', 'Belum Lunas')->countAllResults(),
+            'title' => 'Dashboard Keuangan Profesional',
+            'total_akun' => $akunModel->countAllResults(),
+            'total_jurnal' => $jurnalModel->countAllResults(),
+            'kas_masuk_bulan_ini' => 0, // Placeholder
+            'kas_keluar_bulan_ini' => 0, // Placeholder
         ];
 
         return view('Keuangan\Views\dashboard', $data);
