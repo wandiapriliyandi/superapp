@@ -3,6 +3,7 @@
 namespace Spp\Controllers;
 
 use App\Controllers\BaseController;
+use Spp\Models\SppPembayaranModel;
 use Spp\Models\SppTagihanModel;
 use Spp\Models\SppTarifModel;
 use App\Models\SantriModel;
@@ -290,6 +291,34 @@ class Tagihan extends BaseController
         ]);
 
         return redirect()->to(base_url('spp/tagihan'))->with('success', 'Tagihan berhasil diperbarui.');
+    }
+
+    public function delete($id)
+    {
+        helper('activity');
+
+        $tagihan = $this->tagihanModel
+                        ->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                        ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
+                        ->find($id);
+
+        if (!$tagihan) {
+            return redirect()->to(base_url('spp/tagihan'))->with('error', 'Tagihan tidak ditemukan.');
+        }
+
+        $pembayaranModel = new SppPembayaranModel();
+        $hasPayment = $pembayaranModel->where('tagihan_id', $id)->countAllResults() > 0;
+
+        if ($hasPayment || (float) $tagihan['total_terbayar'] > 0) {
+            return redirect()->to(base_url('spp/tagihan'))->with('error', 'Tagihan yang sudah memiliki pembayaran tidak dapat dihapus.');
+        }
+
+        $this->tagihanModel->delete($id);
+
+        log_activity('Menghapus Tagihan SPP', 'Spp', 'Santri: ' . $tagihan['nama_santri'] . ', Tagihan: ' . $tagihan['nama_tarif']);
+
+        return redirect()->to(base_url('spp/tagihan'))->with('success', 'Tagihan berhasil dihapus.');
     }
 
     public function export($format)
