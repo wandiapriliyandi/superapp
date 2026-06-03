@@ -13,7 +13,7 @@ class NilaiModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_santri', 
+        'nisn', 
         'id_mapel', 
         'id_tahun_ajaran', 
         'nilai_tugas', 
@@ -28,11 +28,11 @@ class NilaiModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public function getNilaiSantri($id_santri, $id_tahun_ajaran)
+    public function getNilaiSantri($nisn, $id_tahun_ajaran)
     {
         return $this->select('akademik_nilai.*, akademik_mapel.nama_mapel, akademik_mapel.kode_mapel')
                     ->join('akademik_mapel', 'akademik_mapel.id = akademik_nilai.id_mapel')
-                    ->where('id_santri', $id_santri)
+                    ->where('nisn', $nisn)
                     ->where('id_tahun_ajaran', $id_tahun_ajaran)
                     ->findAll();
     }

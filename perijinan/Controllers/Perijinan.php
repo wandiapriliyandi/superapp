@@ -41,7 +41,7 @@ class Perijinan extends BaseController
     public function simpan()
     {
         if (!$this->validate([
-            'santri_id' => 'required',
+            'nisn' => 'required',
             'jenis_izin' => 'required',
             'tanggal_mulai' => 'required',
             'tanggal_selesai' => 'required',
@@ -50,7 +50,7 @@ class Perijinan extends BaseController
         }
 
         $data = [
-            'santri_id'       => $this->request->getPost('santri_id'),
+            'nisn'            => $this->request->getPost('nisn'),
             'jenis_izin'      => $this->request->getPost('jenis_izin'),
             'alasan'          => $this->request->getPost('alasan'),
             'tanggal_mulai'   => $this->request->getPost('tanggal_mulai'),

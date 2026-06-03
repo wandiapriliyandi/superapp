@@ -127,13 +127,13 @@
             <td style="vertical-align: middle;">
                 <p style="font-size: 9px; color: #555; margin: 0;">
                     <b>Verifikasi Dokumen</b><br>
-                    Scan QR Code ini atau kunjungi:<br>
-                    <i><?= base_url('verify/agreement/' . $santri['id']) ?></i><br>
+                    Scan QR Code ini or kunjungi:<br>
+                    <i><?= base_url('verify/agreement/' . $santri['nisn']) ?></i><br>
                     untuk memverifikasi keaslian dokumen ini melalui sistem.
                 </p>
             </td>
             <td style="text-align: right; vertical-align: middle; width: 100px;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= base_url('verify/agreement/' . $santri['id']) ?>" width="80" height="80" style="border: 1px solid #ddd; padding: 3px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= base_url('verify/agreement/' . $santri['nisn']) ?>" width="80" height="80" style="border: 1px solid #ddd; padding: 3px;">
             </td>
         </tr>
     </table>

@@ -20,19 +20,19 @@ class Tagihan extends BaseController
 
     public function index()
     {
-        $santri_id = $this->request->getGet('santri_id');
+        $nisn = $this->request->getGet('nisn');
         $status    = $this->request->getGet('status');
         $bulan     = $this->request->getGet('bulan');
         $q         = $this->request->getGet('q');
 
         $query = $this->tagihanModel->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                                    ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                                    ->join('santri', 'santri.nisn = spp_tagihan.nisn')
                                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($santri_id) $query->where('spp_tagihan.santri_id', $santri_id);
-        if ($status)    $query->where('spp_tagihan.status', $status);
-        if ($bulan)     $query->where('spp_tagihan.bulan', $bulan);
-        if ($q)         $query->like('spp_tagihan.keterangan_diskon', $q);
+        if ($nisn)   $query->where('spp_tagihan.nisn', $nisn);
+        if ($status) $query->where('spp_tagihan.status', $status);
+        if ($bulan)  $query->where('spp_tagihan.bulan', $bulan);
+        if ($q)      $query->like('spp_tagihan.keterangan_diskon', $q);
 
         $tagihan = $query->orderBy('spp_tagihan.tahun', 'DESC')
                          ->orderBy('spp_tagihan.bulan', 'DESC')
@@ -45,10 +45,10 @@ class Tagihan extends BaseController
             'tagihan' => $tagihan,
             'santri'  => $santriModel->where('status_santri', 'Aktif')->findAll(),
             'filter'  => [
-                'santri_id' => $santri_id,
-                'status'    => $status,
-                'bulan'     => $bulan,
-                'q'         => $q
+                'nisn'   => $nisn,
+                'status' => $status,
+                'bulan'  => $bulan,
+                'q'      => $q
             ]
         ];
         return view('Spp\Views\tagihan\index', $data);
@@ -67,10 +67,17 @@ class Tagihan extends BaseController
     public function generateSantri($santri_id)
     {
         helper('activity');
+        $santriModel = new \App\Models\SantriModel();
+        $santri = $santriModel->find($santri_id);
+        if (!$santri) return redirect()->back()->with('error', 'Santri tidak ditemukan.');
+
+        $nisn = $santri['nisn'];
+        if (!$nisn) return redirect()->back()->with('error', 'Santri tidak memiliki NISN.');
+
         $mappingModel = new \Spp\Models\SppSantriTarifModel();
         $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe')
                                  ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
-                                 ->where('santri_id', $santri_id)
+                                 ->where('spp_santri_tarif.nisn', $nisn)
                                  ->findAll();
 
         if (empty($mappings)) return redirect()->back()->with('error', 'Santri ini belum memiliki pemetaan tarif.');
@@ -80,12 +87,12 @@ class Tagihan extends BaseController
         $count = 0;
 
         foreach ($mappings as $m) {
-            if ($this->createTagihanIfNotExist($santri_id, $m['tarif_id'], $bulan, $tahun, $m['nominal'], $m['tipe'], $m['nominal_diskon'], $m['keterangan_diskon'])) {
+            if ($this->createTagihanIfNotExist($nisn, $m['tarif_id'], $bulan, $tahun, $m['nominal'], $m['tipe'], $m['nominal_diskon'], $m['keterangan_diskon'])) {
                 $count++;
             }
         }
 
-        log_activity('Generate Tagihan Per Orang', 'Spp', 'Santri ID: ' . $santri_id . ', Total: ' . $count);
+        log_activity('Generate Tagihan Per Orang', 'Spp', 'Santri NISN: ' . $nisn . ', Total: ' . $count);
         return redirect()->back()->with('success', $count . ' Tagihan berhasil digenerate untuk bulan ini.');
     }
 
@@ -113,22 +120,24 @@ class Tagihan extends BaseController
 
             $santri = $santriModel->where('status_santri', 'Aktif')->findAll();
             foreach ($santri as $s) {
-                if ($this->createTagihanIfNotExist($s['id'], $tarif_id, $bulan, $tahun, $tarif['nominal'], $tarif['tipe'])) {
-                    $count++;
+                if ($s['nisn']) {
+                    if ($this->createTagihanIfNotExist($s['nisn'], $tarif_id, $bulan, $tahun, $tarif['nominal'], $tarif['tipe'])) {
+                        $count++;
+                    }
                 }
             }
         } else {
             // Mode Mapping: Ambil semua kesepakatan bayaran
             $mappingModel = new \Spp\Models\SppSantriTarifModel();
-            $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe')
+            $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe, santri.status_santri')
+                                     ->join('santri', 'santri.nisn = spp_santri_tarif.nisn')
                                      ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
                                      ->findAll();
             
             foreach ($mappings as $m) {
                 // Pastikan santri masih aktif
-                $s = $santriModel->find($m['santri_id']);
-                if ($s && $s['status_santri'] == 'Aktif') {
-                    if ($this->createTagihanIfNotExist($m['santri_id'], $m['tarif_id'], $bulan, $tahun, $m['nominal'], $m['tipe'], $m['nominal_diskon'], $m['keterangan_diskon'])) {
+                if ($m['status_santri'] == 'Aktif') {
+                    if ($this->createTagihanIfNotExist($m['nisn'], $m['tarif_id'], $bulan, $tahun, $m['nominal'], $m['tipe'], $m['nominal_diskon'], $m['keterangan_diskon'])) {
                         $count++;
                     }
                 }
@@ -168,19 +177,19 @@ class Tagihan extends BaseController
                 // Generate 12 bulan (Juli thn_awal s/d Juni thn_akhir)
                 // Juli (7) s/d Desember (12)
                 for ($bln = 7; $bln <= 12; $bln++) {
-                    if ($this->createTagihanIfNotExist($m['santri_id'], $m['tarif_id'], $bln, $startYear, $m['nominal'], 'Bulanan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
+                    if ($this->createTagihanIfNotExist($m['nisn'], $m['tarif_id'], $bln, $startYear, $m['nominal'], 'Bulanan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
                         $count++;
                     }
                 }
                 // Januari (1) s/d Juni (6)
                 for ($bln = 1; $bln <= 6; $bln++) {
-                    if ($this->createTagihanIfNotExist($m['santri_id'], $m['tarif_id'], $bln, $endYear, $m['nominal'], 'Bulanan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
+                    if ($this->createTagihanIfNotExist($m['nisn'], $m['tarif_id'], $bln, $endYear, $m['nominal'], 'Bulanan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
                         $count++;
                     }
                 }
             } else {
                 // Jika tahunan, cukup 1 kali (bulan 0)
-                if ($this->createTagihanIfNotExist($m['santri_id'], $m['tarif_id'], 0, $startYear, $m['nominal'], 'Tahunan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
+                if ($this->createTagihanIfNotExist($m['nisn'], $m['tarif_id'], 0, $startYear, $m['nominal'], 'Tahunan', $m['nominal_diskon'], $m['keterangan_diskon'])) {
                     $count++;
                 }
             }
@@ -189,12 +198,12 @@ class Tagihan extends BaseController
         return redirect()->to(base_url('spp/tagihan'))->with('success', "Berhasil men-generate $count tagihan untuk satu tahun ajaran.");
     }
 
-    private function createTagihanIfNotExist($santri_id, $tarif_id, $bulan, $tahun, $nominal, $tipe = 'Bulanan', $diskon = 0, $ket_diskon = null)
+    private function createTagihanIfNotExist($nisn, $tarif_id, $bulan, $tahun, $nominal, $tipe = 'Bulanan', $diskon = 0, $ket_diskon = null)
     {
         $query = $this->tagihanModel->where([
-            'santri_id' => $santri_id,
-            'tarif_id'  => $tarif_id,
-            'tahun'     => $tahun
+            'nisn'     => $nisn,
+            'tarif_id' => $tarif_id,
+            'tahun'    => $tahun
         ]);
 
         // Jika bulanan, cek bulannya juga. Jika tahunan, cukup cek tahunnya saja.
@@ -209,7 +218,7 @@ class Tagihan extends BaseController
             $status = (($nominal - $diskon) <= 0) ? 'Lunas' : 'Belum Lunas';
 
             $this->tagihanModel->save([
-                'santri_id'       => $santri_id,
+                'nisn'            => $nisn,
                 'tarif_id'        => $tarif_id,
                 'bulan'           => ($tipe == 'Tahunan') ? 0 : $bulan, // 0 menandakan tagihan tahunan
                 'tahun'           => $tahun,
@@ -237,7 +246,7 @@ class Tagihan extends BaseController
     {
         $tagihan = $this->tagihanModel
                         ->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                        ->join('santri', 'santri.nisn = spp_tagihan.nisn')
                         ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
                         ->find($id);
 
@@ -278,19 +287,19 @@ class Tagihan extends BaseController
 
     public function export($format)
     {
-        $santri_id = $this->request->getGet('santri_id');
-        $status    = $this->request->getGet('status');
-        $bulan     = $this->request->getGet('bulan');
-        $q         = $this->request->getGet('q');
+        $nisn   = $this->request->getGet('nisn');
+        $status = $this->request->getGet('status');
+        $bulan  = $this->request->getGet('bulan');
+        $q      = $this->request->getGet('q');
 
         $query = $this->tagihanModel->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                                    ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                                    ->join('santri', 'santri.nisn = spp_tagihan.nisn')
                                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($santri_id) $query->where('spp_tagihan.santri_id', $santri_id);
-        if ($status)    $query->where('spp_tagihan.status', $status);
-        if ($bulan)     $query->where('spp_tagihan.bulan', $bulan);
-        if ($q)         $query->like('spp_tagihan.keterangan_diskon', $q);
+        if ($nisn)   $query->where('spp_tagihan.nisn', $nisn);
+        if ($status) $query->where('spp_tagihan.status', $status);
+        if ($bulan)  $query->where('spp_tagihan.bulan', $bulan);
+        if ($q)      $query->like('spp_tagihan.keterangan_diskon', $q);
 
         $data = $query->orderBy('spp_tagihan.tahun', 'DESC')
                       ->orderBy('spp_tagihan.bulan', 'DESC')

@@ -30,10 +30,10 @@
             <div class="card-body bg-light border-bottom py-2 px-3 overflow-auto">
                 <form action="<?= base_url('spp/tagihan') ?>" method="GET" class="d-flex flex-nowrap gap-2 align-items-center">
                     <div style="min-width: 250px;">
-                        <select name="santri_id" class="form-select form-select-sm rounded-pill">
+                        <select name="nisn" class="form-select form-select-sm rounded-pill">
                             <option value="">-- Semua Santri --</option>
                             <?php foreach($santri as $s): ?>
-                                <option value="<?= $s['id'] ?>" <?= $filter['santri_id'] == $s['id'] ? 'selected' : '' ?>><?= $s['nama_lengkap'] ?></option>
+                                <option value="<?= $s['nisn'] ?>" <?= ($filter['nisn'] ?? '') == $s['nisn'] ? 'selected' : '' ?>><?= $s['nama_lengkap'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -104,7 +104,7 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold"><?= $t['nama_santri'] ?></div>
-                                        <small class="text-muted">ID: <?= $t['santri_id'] ?></small>
+                                        <small class="text-muted">NISN: <?= $t['nisn'] ?></small>
                                     </td>
                                     <td><?= $t['bulan'] == 0 ? '<span class="badge bg-secondary">Tahunan</span>' : $months[$t['bulan']] ?> <?= $t['tahun'] ?></td>
                                     <td><?= $t['nama_tarif'] ?></td>

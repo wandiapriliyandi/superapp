@@ -3,8 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\SantriModel;
-use Keuangan\Models\SppPembayaranModel;
-use Keuangan\Models\SppSantriTarifModel;
+use Spp\Models\SppPembayaranModel;
+use Spp\Models\SppSantriTarifModel;
 
 class Verify extends BaseController
 {
@@ -13,16 +13,17 @@ class Verify extends BaseController
         $pembayaranModel = new SppPembayaranModel();
         $santriModel = new SantriModel();
 
-        $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif')
-            ->join('spp_tarif', 'spp_tarif.id = spp_pembayaran.id_tarif')
-            ->where('no_trx', $no_trx)
+        $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.nisn')
+            ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
+            ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
+            ->where('spp_pembayaran.nomor_transaksi', $no_trx)
             ->findAll();
 
         if (empty($details)) {
             return "<h3>Data transaksi tidak ditemukan atau tidak valid.</h3>";
         }
 
-        $santri = $santriModel->find($details[0]['id_santri']);
+        $santri = $santriModel->where('nisn', $details[0]['nisn'])->first();
 
         $data = [
             'title' => 'Verifikasi Kwitansi',
@@ -35,19 +36,19 @@ class Verify extends BaseController
         return view('verify/receipt', $data);
     }
 
-    public function agreement($id_santri)
+    public function agreement($nisn)
     {
         $santriModel = new SantriModel();
         $mappingModel = new SppSantriTarifModel();
 
-        $santri = $santriModel->find($id_santri);
+        $santri = $santriModel->where('nisn', $nisn)->first();
         if (!$santri) {
             return "<h3>Data santri tidak ditemukan.</h3>";
         }
 
         $mapping = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nama_tarif, spp_tarif.tipe, spp_tarif.nominal')
             ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
-            ->where('spp_santri_tarif.santri_id', $id_santri)
+            ->where('spp_santri_tarif.nisn', $nisn)
             ->findAll();
 
         $data = [

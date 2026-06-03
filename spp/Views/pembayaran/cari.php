@@ -34,8 +34,8 @@
                 <?php if (!empty($results)): ?>
                     <div class="list-group list-group-flush border rounded-4 overflow-hidden">
                         <?php foreach ($results as $s): ?>
-                            <a href="<?= base_url('spp/pembayaran/cari?santri_id=' . $s['id'] . '&q=' . $q) ?>" 
-                               class="list-group-item list-group-item-action py-3 <?= (isset($selected_santri) && $selected_santri['id'] == $s['id']) ? 'active bg-primary border-primary' : '' ?>">
+                            <a href="<?= base_url('spp/pembayaran/cari?nisn=' . $s['nisn'] . '&q=' . $q) ?>" 
+                               class="list-group-item list-group-item-action py-3 <?= (isset($selected_santri) && $selected_santri['nisn'] == $s['nisn']) ? 'active bg-primary border-primary' : '' ?>">
                                 <div class="fw-bold"><?= $s['nama_lengkap'] ?></div>
                                 <small class="<?= (isset($selected_santri) && $selected_santri['id'] == $s['id']) ? 'text-white-50' : 'text-muted' ?>">
                                     NISN: <?= $s['nisn'] ?>
@@ -82,7 +82,7 @@
                     <?php if (!empty($tagihan)): ?>
                         <form action="<?= base_url('spp/pembayaran/bayar-massal') ?>" method="post" id="form-keranjang">
                             <?= csrf_field() ?>
-                            <input type="hidden" name="santri_id" value="<?= $selected_santri['id'] ?>">
+                            <input type="hidden" name="nisn" value="<?= $selected_santri['nisn'] ?>">
                             
                             <div class="table-responsive mb-4">
                                 <table class="table table-hover align-middle" id="table-tagihan">

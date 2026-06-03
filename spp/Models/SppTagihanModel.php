@@ -12,7 +12,7 @@ class SppTagihanModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $allowedFields    = [
-        'santri_id', 'tarif_id', 'bulan', 'tahun', 
+        'nisn', 'tarif_id', 'bulan', 'tahun', 
         'nominal_tagihan', 'diskon', 'keterangan_diskon', 'total_terbayar', 'status'
     ];
 
@@ -25,16 +25,16 @@ class SppTagihanModel extends Model
     public function getTagihanWithSantri()
     {
         return $this->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                    ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                    ->join('santri', 'santri.nisn = spp_tagihan.nisn')
                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
                     ->findAll();
     }
 
-    public function getUnpaidBySantri($santri_id)
+    public function getUnpaidBySantri($nisn)
     {
         return $this->select('spp_tagihan.*, spp_tarif.nama_tarif, spp_tarif.tipe')
                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
-                    ->where('spp_tagihan.santri_id', $santri_id)
+                    ->where('spp_tagihan.nisn', $nisn)
                     ->where('spp_tagihan.status !=', 'Lunas')
                     ->orderBy('spp_tagihan.tahun', 'DESC')
                     ->orderBy('spp_tagihan.bulan', 'DESC')

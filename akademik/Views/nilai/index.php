@@ -63,16 +63,16 @@
                                 <small class="text-muted"><?= $s['nis'] ?></small>
                             </td>
                             <td>
-                                <input type="number" step="0.01" name="nilai[<?= $s['id'] ?>][tugas]" class="form-control form-control-sm rounded-3 text-center" value="0">
+                                <input type="number" step="0.01" name="nilai[<?= $s['nisn'] ?>][tugas]" class="form-control form-control-sm rounded-3 text-center" value="0">
                             </td>
                             <td>
-                                <input type="number" step="0.01" name="nilai[<?= $s['id'] ?>][uts]" class="form-control form-control-sm rounded-3 text-center" value="0">
+                                <input type="number" step="0.01" name="nilai[<?= $s['nisn'] ?>][uts]" class="form-control form-control-sm rounded-3 text-center" value="0">
                             </td>
                             <td>
-                                <input type="number" step="0.01" name="nilai[<?= $s['id'] ?>][uas]" class="form-control form-control-sm rounded-3 text-center" value="0">
+                                <input type="number" step="0.01" name="nilai[<?= $s['nisn'] ?>][uas]" class="form-control form-control-sm rounded-3 text-center" value="0">
                             </td>
                             <td>
-                                <input type="text" name="nilai[<?= $s['id'] ?>][keterangan]" class="form-control form-control-sm rounded-3" placeholder="Opsional">
+                                <input type="text" name="nilai[<?= $s['nisn'] ?>][keterangan]" class="form-control form-control-sm rounded-3" placeholder="Opsional">
                             </td>
                         </tr>
                         <?php endforeach; ?>

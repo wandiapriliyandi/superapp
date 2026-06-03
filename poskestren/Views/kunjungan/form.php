@@ -19,10 +19,10 @@
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">SANTRI</label>
-                            <select name="santri_id" class="form-select border-0 bg-light rounded-3 py-2" required>
+                            <select name="nisn" class="form-select border-0 bg-light rounded-3 py-2" required>
                                 <option value="">Pilih Santri...</option>
                                 <?php foreach($santri as $s): ?>
-                                    <option value="<?= $s['id'] ?>"><?= $s['nama_lengkap'] ?> (<?= $s['nis'] ?>)</option>
+                                    <option value="<?= $s['nisn'] ?>"><?= $s['nama_lengkap'] ?> (<?= $s['nis'] ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

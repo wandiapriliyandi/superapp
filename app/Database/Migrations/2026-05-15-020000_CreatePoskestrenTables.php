@@ -53,10 +53,10 @@ class CreatePoskestrenTables extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'santri_id' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'nisn' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '10',
+                'null'       => true,
             ],
             'tgl_kunjungan' => [
                 'type' => 'DATETIME',

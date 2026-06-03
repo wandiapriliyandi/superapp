@@ -40,9 +40,9 @@ class Nilai extends BaseController
     {
         $id_mapel = $this->request->getPost('id_mapel');
         $id_tahun_ajaran = $this->request->getPost('id_tahun_ajaran');
-        $nilai_data = $this->request->getPost('nilai'); // [id_santri => [tugas, uts, uas]]
+        $nilai_data = $this->request->getPost('nilai'); // [nisn => [tugas, uts, uas]]
 
-        foreach ($nilai_data as $id_santri => $n) {
+        foreach ($nilai_data as $nisn => $n) {
             $tugas = $n['tugas'] ?? 0;
             $uts = $n['uts'] ?? 0;
             $uas = $n['uas'] ?? 0;
@@ -59,13 +59,13 @@ class Nilai extends BaseController
 
             // Check if exists
             $existing = $this->nilaiModel->where([
-                'id_santri' => $id_santri,
+                'nisn' => $nisn,
                 'id_mapel' => $id_mapel,
                 'id_tahun_ajaran' => $id_tahun_ajaran
             ])->first();
 
             $data_save = [
-                'id_santri' => $id_santri,
+                'nisn' => $nisn,
                 'id_mapel' => $id_mapel,
                 'id_tahun_ajaran' => $id_tahun_ajaran,
                 'nilai_tugas' => $tugas,
@@ -86,19 +86,19 @@ class Nilai extends BaseController
         return redirect()->to(base_url('akademik/nilai'))->with('success', 'Nilai berhasil disimpan');
     }
 
-    public function rapor($id_santri)
+    public function rapor($nisn)
     {
         $santriModel = new SantriModel();
         $taModel = new TahunAjaranModel();
         
-        $santri = $santriModel->find($id_santri);
+        $santri = $santriModel->where('nisn', $nisn)->first();
         $ta = $taModel->where('status', 'Aktif')->first();
         
         $data = [
             'title' => 'Rapor Santri',
             'santri' => $santri,
             'tahun_ajaran' => $ta,
-            'nilai' => $this->nilaiModel->getNilaiSantri($id_santri, $ta['id'])
+            'nilai' => $this->nilaiModel->getNilaiSantri($nisn, $ta['id'])
         ];
 
         return view('Akademik\Views\nilai\rapor', $data);

@@ -88,15 +88,15 @@ class Presensi extends BaseController
     {
         $id_jadwal = $this->request->getPost('id_jadwal');
         $tanggal = $this->request->getPost('tanggal');
-        $presensi_data = $this->request->getPost('presensi'); // array [id_santri => status]
+        $presensi_data = $this->request->getPost('presensi'); // array [nisn => status]
 
-        foreach ($presensi_data as $id_santri => $status) {
+        foreach ($presensi_data as $nisn => $status) {
             $this->presensiModel->save([
                 'id_jadwal' => $id_jadwal,
-                'id_santri' => $id_santri,
+                'nisn' => $nisn,
                 'tanggal' => $tanggal,
                 'status' => $status,
-                'catatan' => $this->request->getPost('catatan')[$id_santri] ?? ''
+                'catatan' => $this->request->getPost('catatan')[$nisn] ?? ''
             ]);
         }
 
@@ -118,7 +118,7 @@ class Presensi extends BaseController
 
             foreach ($santri as $s) {
                 $stats = $this->presensiModel->select('status, COUNT(*) as total')
-                                            ->where('id_santri', $s['id'])
+                                            ->where('nisn', $s['nisn'])
                                             ->where('MONTH(tanggal)', $bulan)
                                             ->where('YEAR(tanggal)', $tahun)
                                             ->groupBy('status')
@@ -129,7 +129,7 @@ class Presensi extends BaseController
                     $data_stat[$st['status']] = $st['total'];
                 }
                 
-                $rekap[$s['id']] = $data_stat;
+                $rekap[$s['nisn']] = $data_stat;
             }
         }
 

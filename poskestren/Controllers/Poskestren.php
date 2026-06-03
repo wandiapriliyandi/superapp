@@ -53,7 +53,7 @@ class Poskestren extends BaseController
     {
         $data = [
             'title' => 'Catat Kunjungan Baru',
-            'santri' => $this->santriModel->select('id, nama_lengkap, nis')->orderBy('nama_lengkap', 'ASC')->findAll(),
+            'santri' => $this->santriModel->select('nisn, nama_lengkap, nis')->orderBy('nama_lengkap', 'ASC')->findAll(),
             'obat' => $this->obatModel->where('stok >', 0)->findAll(),
         ];
         return view('Poskestren\Views\kunjungan\form', $data);
@@ -61,7 +61,7 @@ class Poskestren extends BaseController
 
     public function simpan_kunjungan()
     {
-        $santri_id = $this->request->getPost('santri_id');
+        $nisn = $this->request->getPost('nisn');
         $tgl = $this->request->getPost('tgl_kunjungan');
         $keluhan = $this->request->getPost('keluhan');
         $diagnosa = $this->request->getPost('diagnosa');
@@ -76,7 +76,7 @@ class Poskestren extends BaseController
         $db->transStart();
 
         $kunjungan_id = $this->kunjunganModel->insert([
-            'santri_id' => $santri_id,
+            'nisn' => $nisn,
             'tgl_kunjungan' => $tgl,
             'keluhan' => $keluhan,
             'diagnosa' => $diagnosa,

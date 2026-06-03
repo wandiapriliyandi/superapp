@@ -19,15 +19,15 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-uppercase tracking-wider">Pilih Santri</label>
-                        <select name="santri_id" class="form-select form-select-lg rounded-3 select2 <?= $validation->hasError('santri_id') ? 'is-invalid' : '' ?>" id="santri_id">
+                        <select name="nisn" class="form-select form-select-lg rounded-3 select2 <?= $validation->hasError('nisn') ? 'is-invalid' : '' ?>" id="nisn">
                             <option value="">-- Cari Nama Santri --</option>
                             <?php foreach ($santri as $s) : ?>
-                                <option value="<?= $s['id'] ?>" <?= old('santri_id') == $s['id'] ? 'selected' : '' ?>>
+                                <option value="<?= $s['nisn'] ?>" <?= old('nisn') == $s['nisn'] ? 'selected' : '' ?>>
                                     <?= $s['nama_lengkap'] ?> (<?= $s['nis'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="invalid-feedback"><?= $validation->getError('santri_id') ?></div>
+                        <div class="invalid-feedback"><?= $validation->getError('nisn') ?></div>
                     </div>
 
                     <div class="row mb-4">
@@ -98,7 +98,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#santri_id').select2({
+        $('#nisn').select2({
             theme: 'bootstrap-5',
             placeholder: '-- Pilih Santri --'
         });

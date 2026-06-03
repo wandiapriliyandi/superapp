@@ -144,10 +144,10 @@ class CreateProfessionalAcademicTables extends Migration
                 'constraint' => 11,
                 'unsigned'   => true,
             ],
-            'id_santri' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'nisn' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '10',
+                'null'       => true,
             ],
             'tanggal' => [
                 'type' => 'DATE',
@@ -181,10 +181,10 @@ class CreateProfessionalAcademicTables extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'id_santri' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'nisn' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '10',
+                'null'       => true,
             ],
             'id_mapel' => [
                 'type'       => 'INT',

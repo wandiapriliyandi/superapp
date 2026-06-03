@@ -132,7 +132,7 @@
         ?>
         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; margin-bottom: 5mm;">
             <p style="text-align: right; margin-bottom: 0;"><?= $setting['kabupaten'] ?? 'Jakarta' ?>, <?= $tgl ?></p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= base_url('verify/agreement/' . $santri['id']) ?>" width="80" height="80" style="border: 1px solid #ddd; padding: 3px;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= base_url('verify/agreement/' . $santri['nisn']) ?>" width="80" height="80" style="border: 1px solid #ddd; padding: 3px;">
         </div>
         <div class="signature">
             <div class="sig-box">

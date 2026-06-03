@@ -69,7 +69,7 @@
                         <tr><td colspan="6" class="text-center py-4 text-muted">Data tidak ditemukan</td></tr>
                     <?php else: ?>
                         <?php foreach ($santri as $s): 
-                            $st = $rekap[$s['id']];
+                            $st = $rekap[$s['nisn']];
                             $total = array_sum($st);
                         ?>
                         <tr>

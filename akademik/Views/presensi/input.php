@@ -42,19 +42,19 @@
                                 <small class="text-muted"><?= $s['nis'] ?></small>
                             </td>
                             <td class="text-center">
-                                <input class="form-check-input" type="radio" name="presensi[<?= $s['id'] ?>]" value="Hadir" checked>
+                                <input class="form-check-input" type="radio" name="presensi[<?= $s['nisn'] ?>]" value="Hadir" checked>
                             </td>
                             <td class="text-center">
-                                <input class="form-check-input" type="radio" name="presensi[<?= $s['id'] ?>]" value="Izin">
+                                <input class="form-check-input" type="radio" name="presensi[<?= $s['nisn'] ?>]" value="Izin">
                             </td>
                             <td class="text-center">
-                                <input class="form-check-input" type="radio" name="presensi[<?= $s['id'] ?>]" value="Sakit">
+                                <input class="form-check-input" type="radio" name="presensi[<?= $s['nisn'] ?>]" value="Sakit">
                             </td>
                             <td class="text-center">
-                                <input class="form-check-input" type="radio" name="presensi[<?= $s['id'] ?>]" value="Alpa">
+                                <input class="form-check-input" type="radio" name="presensi[<?= $s['nisn'] ?>]" value="Alpa">
                             </td>
                             <td>
-                                <input type="text" name="catatan[<?= $s['id'] ?>]" class="form-control form-control-sm rounded-pill" placeholder="Opsional">
+                                <input type="text" name="catatan[<?= $s['nisn'] ?>]" class="form-control form-control-sm rounded-pill" placeholder="Opsional">
                             </td>
                         </tr>
                         <?php endforeach; ?>

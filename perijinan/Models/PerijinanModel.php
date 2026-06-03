@@ -13,7 +13,7 @@ class PerijinanModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'santri_id', 
+        'nisn', 
         'jenis_izin', 
         'alasan', 
         'tanggal_mulai', 
@@ -32,7 +32,7 @@ class PerijinanModel extends Model
     {
         $builder = $this->db->table($this->table);
         $builder->select('perijinan.*, santri.nama_lengkap as nama_santri, santri.nis');
-        $builder->join('santri', 'santri.id = perijinan.santri_id');
+        $builder->join('santri', 'santri.nisn = perijinan.nisn');
         
         if ($id) {
             $data = $builder->where('perijinan.id', $id)->get()->getRowArray();

@@ -12,7 +12,7 @@ class PresensiModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_jadwal', 'id_santri', 'tanggal', 'status', 'catatan'];
+    protected $allowedFields    = ['id_jadwal', 'nisn', 'tanggal', 'status', 'catatan'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

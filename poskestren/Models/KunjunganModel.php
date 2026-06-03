@@ -11,7 +11,7 @@ class KunjunganModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $allowedFields    = [
-        'santri_id', 
+        'nisn', 
         'tgl_kunjungan', 
         'keluhan', 
         'diagnosa', 
@@ -28,7 +28,7 @@ class KunjunganModel extends Model
     {
         $builder = $this->db->table($this->table);
         $builder->select('pos_kunjungan.*, santri.nama_lengkap as nama_santri, santri.nis, akademik_kelas.nama_kelas');
-        $builder->join('santri', 'santri.id = pos_kunjungan.santri_id');
+        $builder->join('santri', 'santri.nisn = pos_kunjungan.nisn');
         $builder->join('akademik_kelas', 'akademik_kelas.id = santri.kelas_id', 'left');
         
         if ($id) {

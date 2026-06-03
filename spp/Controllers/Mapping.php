@@ -88,7 +88,7 @@ class Mapping extends BaseController
                       ->orderBy('nominal', 'DESC')
                       ->findAll();
 
-        $currentMapping = $this->mappingModel->where('santri_id', $id)->findAll();
+        $currentMapping = $this->mappingModel->where('nisn', $santri['nisn'])->findAll();
         $mappedData = [];
         foreach ($currentMapping as $cm) {
             $mappedData[$cm['tarif_id']] = $cm;
@@ -106,26 +106,27 @@ class Mapping extends BaseController
 
     public function save()
     {
-        $santri_id = $this->request->getPost('santri_id');
+        $nisn = $this->request->getPost('nisn');
         $tarif_ids = $this->request->getPost('tarif_ids') ?? [];
         $diskon    = $this->request->getPost('nominal_diskon') ?? [];
         $ket       = $this->request->getPost('keterangan_diskon') ?? [];
 
         // Hapus mapping lama
-        $this->mappingModel->where('santri_id', $santri_id)->delete();
+        $this->mappingModel->where('nisn', $nisn)->delete();
 
         // Simpan mapping baru
         foreach ($tarif_ids as $tid) {
             $this->mappingModel->insert([
-                'santri_id' => $santri_id,
-                'tarif_id'  => $tid,
+                'nisn'              => $nisn,
+                'tarif_id'          => $tid,
                 'nominal_diskon'    => $diskon[$tid] ?? 0,
                 'keterangan_diskon' => $ket[$tid] ?? null,
-                'created_at'=> date('Y-m-d H:i:s')
+                'created_at'        => date('Y-m-d H:i:s')
             ]);
         }
 
-        return redirect()->to(base_url('spp/mapping/santri/' . $santri_id))->with('success', 'Kesepakatan bayaran berhasil diperbarui.');
+        $santri = $this->santriModel->where('nisn', $nisn)->first();
+        return redirect()->to(base_url('spp/mapping/santri/' . $santri['id']))->with('success', 'Kesepakatan bayaran berhasil diperbarui.');
     }
 
     public function print($id)
@@ -133,7 +134,7 @@ class Mapping extends BaseController
         $santri = $this->santriModel->find($id);
         if (!$santri) die('Santri tidak ditemukan.');
 
-        $mapping = $this->mappingModel->getMappingWithDetails($id);
+        $mapping = $this->mappingModel->getMappingWithDetails($santri['nisn']);
         
         $db = \Config\Database::connect();
         $setting = $db->table('app_settings')->get()->getRowArray();
@@ -151,7 +152,7 @@ class Mapping extends BaseController
         $santri = $this->santriModel->find($id);
         if (!$santri) die('Santri tidak ditemukan.');
 
-        $mapping = $this->mappingModel->getMappingWithDetails($id);
+        $mapping = $this->mappingModel->getMappingWithDetails($santri['nisn']);
         
         $db = \Config\Database::connect();
         $setting = $db->table('app_settings')->get()->getRowArray();

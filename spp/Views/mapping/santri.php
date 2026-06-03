@@ -35,7 +35,7 @@
             <div class="card-body">
                 <form action="<?= base_url('spp/mapping/save') ?>" method="POST">
                     <?= csrf_field() ?>
-                    <input type="hidden" name="santri_id" value="<?= $santri['id'] ?>">
+                    <input type="hidden" name="nisn" value="<?= $santri['nisn'] ?>">
                     
                     <div class="list-group list-group-flush mb-4">
                         <?php foreach ($tarif as $t): 
