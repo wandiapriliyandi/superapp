@@ -284,8 +284,10 @@ class Pembayaran extends BaseController
                         ->find($tagihan_id);
         
         // Simpan Log Pembayaran
+        $no_trx_single = 'TRX-S-' . date('Ymd') . '-' . $tagihan_id . '-' . rand(100, 999);
         $this->pembayaranModel->save([
             'tagihan_id'        => $tagihan_id,
+            'nomor_transaksi'   => $no_trx_single,
             'tanggal_bayar'     => date('Y-m-d'),
             'nominal_bayar'     => $nominal_bayar,
             'metode_pembayaran' => $this->request->getPost('metode_pembayaran'),
@@ -306,7 +308,6 @@ class Pembayaran extends BaseController
         ]);
 
         // INTEGRASI KEUANGAN: Catat ke Jurnal Umum
-        $no_trx_single = 'TRX-S-' . date('Ymd') . '-' . $tagihan_id . '-' . rand(100, 999);
         $this->recordToJournal($no_trx_single, date('Y-m-d'), $nominal_bayar, $tagihan['nama_lengkap'] ?? 'Santri');
 
         log_activity('Menerima Pembayaran SPP', 'Spp', 'Santri: ' . $tagihan['nama_lengkap'] . ', Nominal: ' . $nominal_bayar);

@@ -75,8 +75,9 @@ class Tagihan extends BaseController
         $nisn = $santri['nisn'];
         if (!$nisn) return redirect()->back()->with('error', 'Santri tidak memiliki NISN.');
 
-        $mappingModel = new \Spp\Models\SppSantriTarifModel();
+$mappingModel = new \Spp\Models\SppSantriTarifModel();
         $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe')
+                                 ->join('santri', 'santri.nisn = spp_santri_tarif.nisn')
                                  ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
                                  ->where('spp_santri_tarif.nisn', $nisn)
                                  ->findAll();
@@ -130,7 +131,7 @@ class Tagihan extends BaseController
         } else {
             // Mode Mapping: Ambil semua kesepakatan bayaran
             $mappingModel = new \Spp\Models\SppSantriTarifModel();
-            $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe, santri.status_santri')
+            $mappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe, santri.status_santri, spp_santri_tarif.nisn')
                                      ->join('santri', 'santri.nisn = spp_santri_tarif.nisn')
                                      ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
                                      ->findAll();
@@ -165,12 +166,13 @@ class Tagihan extends BaseController
         $startYear = trim($years[0]);
         $endYear   = trim($years[1]);
 
-        $mappingModel = new \Spp\Models\SppSantriTarifModel();
+$mappingModel = new \Spp\Models\SppSantriTarifModel();
         // Ambil semua pemetaan yang masuk dalam tahun akademik ini
-        $allMappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe')
-                                    ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
-                                    ->where('spp_tarif.id_tahun_akademik', $ta_id)
-                                    ->findAll();
+        $allMappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe, spp_santri_tarif.nisn')
+                                     ->join('santri', 'santri.nisn = spp_santri_tarif.nisn')
+                                     ->join('spp_tarif', 'spp_tarif.id = spp_santri_tarif.tarif_id')
+                                     ->where('spp_tarif.id_tahun_akademik', $ta_id)
+                                     ->findAll();
 
         $count = 0;
         foreach ($allMappings as $m) {
@@ -308,13 +310,15 @@ class Tagihan extends BaseController
         }
 
         $pembayaranModel = new SppPembayaranModel();
-        $paymentCount = $pembayaranModel->where('tagihan_id', $id)->countAllResults();
+        $payments = $pembayaranModel->where('tagihan_id', $id)->findAll();
+        $paymentCount = count($payments);
 
         $db = \Config\Database::connect();
         $db->transStart();
 
         if ($paymentCount > 0) {
             $pembayaranModel->where('tagihan_id', $id)->delete();
+            $this->syncFinancialRecordsAfterPaymentDeletion($id, $payments);
         }
 
         $this->tagihanModel->delete($id);
@@ -332,6 +336,74 @@ class Tagihan extends BaseController
         }
 
         return redirect()->to(base_url('spp/tagihan'))->with('success', $message);
+    }
+
+    private function syncFinancialRecordsAfterPaymentDeletion(int $tagihanId, array $payments): void
+    {
+        $db = \Config\Database::connect();
+
+        $transactionNumbers = array_values(array_unique(array_filter(array_map(
+            static fn(array $payment) => $payment['nomor_transaksi'] ?? null,
+            $payments
+        ))));
+
+        foreach ($transactionNumbers as $transactionNumber) {
+            $remainingPayments = $db->table('spp_pembayaran')
+                ->selectSum('nominal_bayar', 'total_bayar')
+                ->where('nomor_transaksi', $transactionNumber)
+                ->get()
+                ->getRowArray();
+
+            $remainingTotal = (float) ($remainingPayments['total_bayar'] ?? 0);
+            $journal = $db->table('keu_jurnal')
+                ->where('referensi', $transactionNumber)
+                ->get()
+                ->getRowArray();
+
+            if (!$journal) {
+                continue;
+            }
+
+            if ($remainingTotal <= 0) {
+                $db->table('keu_jurnal')->where('id', $journal['id'])->delete();
+                continue;
+            }
+
+            $this->updateJournalAmount((int) $journal['id'], $remainingTotal);
+        }
+
+        $legacyJournals = $db->table('keu_jurnal')
+            ->like('referensi', 'TRX-S-')
+            ->like('referensi', '-' . $tagihanId . '-', 'both')
+            ->get()
+            ->getResultArray();
+
+        foreach ($legacyJournals as $journal) {
+            $db->table('keu_jurnal')->where('id', $journal['id'])->delete();
+        }
+    }
+
+    private function updateJournalAmount(int $journalId, float $amount): void
+    {
+        $db = \Config\Database::connect();
+        $details = $db->table('keu_jurnal_detail')
+            ->where('jurnal_id', $journalId)
+            ->get()
+            ->getResultArray();
+
+        foreach ($details as $detail) {
+            $payload = ['debit' => 0, 'kredit' => 0];
+
+            if ((float) $detail['debit'] > 0) {
+                $payload['debit'] = $amount;
+            } else {
+                $payload['kredit'] = $amount;
+            }
+
+            $db->table('keu_jurnal_detail')
+                ->where('id', $detail['id'])
+                ->update($payload);
+        }
     }
 
     public function export($format)
