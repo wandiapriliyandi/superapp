@@ -308,17 +308,30 @@ class Tagihan extends BaseController
         }
 
         $pembayaranModel = new SppPembayaranModel();
-        $hasPayment = $pembayaranModel->where('tagihan_id', $id)->countAllResults() > 0;
+        $paymentCount = $pembayaranModel->where('tagihan_id', $id)->countAllResults();
 
-        if ($hasPayment || (float) $tagihan['total_terbayar'] > 0) {
-            return redirect()->to(base_url('spp/tagihan'))->with('error', 'Tagihan yang sudah memiliki pembayaran tidak dapat dihapus.');
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        if ($paymentCount > 0) {
+            $pembayaranModel->where('tagihan_id', $id)->delete();
         }
 
         $this->tagihanModel->delete($id);
+        $db->transComplete();
 
-        log_activity('Menghapus Tagihan SPP', 'Spp', 'Santri: ' . $tagihan['nama_santri'] . ', Tagihan: ' . $tagihan['nama_tarif']);
+        if ($db->transStatus() === false) {
+            return redirect()->to(base_url('spp/tagihan'))->with('error', 'Tagihan gagal dihapus.');
+        }
 
-        return redirect()->to(base_url('spp/tagihan'))->with('success', 'Tagihan berhasil dihapus.');
+        log_activity('Menghapus Tagihan SPP', 'Spp', 'Santri: ' . $tagihan['nama_santri'] . ', Tagihan: ' . $tagihan['nama_tarif'] . ', Pembayaran ikut dihapus: ' . $paymentCount);
+
+        $message = 'Tagihan berhasil dihapus.';
+        if ($paymentCount > 0) {
+            $message .= ' ' . $paymentCount . ' data pembayaran terkait ikut dihapus.';
+        }
+
+        return redirect()->to(base_url('spp/tagihan'))->with('success', $message);
     }
 
     public function export($format)
