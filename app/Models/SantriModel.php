@@ -24,4 +24,22 @@ class SantriModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
+
+    protected $beforeInsert = ['normalizeOptionalIdentifiers'];
+    protected $beforeUpdate = ['normalizeOptionalIdentifiers'];
+
+    protected function normalizeOptionalIdentifiers(array $data): array
+    {
+        if (!isset($data['data'])) {
+            return $data;
+        }
+
+        foreach (['nisn', 'nis', 'nik'] as $field) {
+            if (array_key_exists($field, $data['data']) && trim((string) $data['data'][$field]) === '') {
+                $data['data'][$field] = null;
+            }
+        }
+
+        return $data;
+    }
 }

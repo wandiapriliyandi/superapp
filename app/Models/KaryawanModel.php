@@ -16,4 +16,22 @@ class KaryawanModel extends Model
         'tanggal_masuk', 'foto'
     ];
     protected $useTimestamps    = true;
+
+    protected $beforeInsert = ['normalizeOptionalIdentifiers'];
+    protected $beforeUpdate = ['normalizeOptionalIdentifiers'];
+
+    protected function normalizeOptionalIdentifiers(array $data): array
+    {
+        if (!isset($data['data'])) {
+            return $data;
+        }
+
+        foreach (['nip', 'nik'] as $field) {
+            if (array_key_exists($field, $data['data']) && trim((string) $data['data'][$field]) === '') {
+                $data['data'][$field] = null;
+            }
+        }
+
+        return $data;
+    }
 }

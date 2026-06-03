@@ -25,11 +25,11 @@ class Tagihan extends BaseController
         $bulan     = $this->request->getGet('bulan');
         $q         = $this->request->getGet('q');
 
-        $query = $this->tagihanModel->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                                    ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+        $query = $this->tagihanModel->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                                    ->join('santri', 'santri.id = spp_tagihan.santri_id')
                                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($nisn)   $query->where('spp_tagihan.nisn', $nisn);
+        if ($nisn)   $query->where('santri.nisn', $nisn);
         if ($status) $query->where('spp_tagihan.status', $status);
         if ($bulan)  $query->where('spp_tagihan.bulan', $bulan);
         if ($q)      $query->like('spp_tagihan.keterangan_diskon', $q);
@@ -200,10 +200,17 @@ class Tagihan extends BaseController
 
     private function createTagihanIfNotExist($nisn, $tarif_id, $bulan, $tahun, $nominal, $tipe = 'Bulanan', $diskon = 0, $ket_diskon = null)
     {
+        $santriModel = new SantriModel();
+        $santri = $santriModel->where('nisn', $nisn)->first();
+
+        if (!$santri) {
+            return false;
+        }
+
         $query = $this->tagihanModel->where([
-            'nisn'     => $nisn,
-            'tarif_id' => $tarif_id,
-            'tahun'    => $tahun
+            'santri_id' => $santri['id'],
+            'tarif_id'  => $tarif_id,
+            'tahun'     => $tahun
         ]);
 
         // Jika bulanan, cek bulannya juga. Jika tahunan, cukup cek tahunnya saja.
@@ -218,7 +225,7 @@ class Tagihan extends BaseController
             $status = (($nominal - $diskon) <= 0) ? 'Lunas' : 'Belum Lunas';
 
             $this->tagihanModel->save([
-                'nisn'            => $nisn,
+                'santri_id'       => $santri['id'],
                 'tarif_id'        => $tarif_id,
                 'bulan'           => ($tipe == 'Tahunan') ? 0 : $bulan, // 0 menandakan tagihan tahunan
                 'tahun'           => $tahun,
@@ -245,8 +252,8 @@ class Tagihan extends BaseController
     public function edit($id)
     {
         $tagihan = $this->tagihanModel
-                        ->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                        ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+                        ->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
                         ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
                         ->find($id);
 
@@ -292,11 +299,11 @@ class Tagihan extends BaseController
         $bulan  = $this->request->getGet('bulan');
         $q      = $this->request->getGet('q');
 
-        $query = $this->tagihanModel->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                                    ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+        $query = $this->tagihanModel->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                                    ->join('santri', 'santri.id = spp_tagihan.santri_id')
                                     ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($nisn)   $query->where('spp_tagihan.nisn', $nisn);
+        if ($nisn)   $query->where('santri.nisn', $nisn);
         if ($status) $query->where('spp_tagihan.status', $status);
         if ($bulan)  $query->where('spp_tagihan.bulan', $bulan);
         if ($q)      $query->like('spp_tagihan.keterangan_diskon', $q);

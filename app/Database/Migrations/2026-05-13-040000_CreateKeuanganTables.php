@@ -49,9 +49,10 @@ class CreateKeuanganTables extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'nisn' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '10',
+            'santri_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
                 'null'       => true,
             ],
             'tarif_id' => [
@@ -91,6 +92,7 @@ class CreateKeuanganTables extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
+        $this->forge->addForeignKey('santri_id', 'santri', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('tarif_id', 'spp_tarif', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('spp_tagihan');
 

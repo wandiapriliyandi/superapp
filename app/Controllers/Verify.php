@@ -13,8 +13,9 @@ class Verify extends BaseController
         $pembayaranModel = new SppPembayaranModel();
         $santriModel = new SantriModel();
 
-        $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.nisn')
+        $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, santri.nisn')
             ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
+            ->join('santri', 'santri.id = spp_tagihan.santri_id')
             ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
             ->where('spp_pembayaran.nomor_transaksi', $no_trx)
             ->findAll();

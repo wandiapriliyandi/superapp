@@ -27,8 +27,8 @@ class Pembayaran extends BaseController
             'pembayaran' => $this->pembayaranModel
                                  ->select('spp_pembayaran.*, santri.nama_lengkap as nama_santri')
                                  ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
-                                 ->join('santri', 'santri.nisn = spp_tagihan.nisn')
-                                 ->orderBy('created_at', 'DESC')
+                                 ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                                 ->orderBy('spp_pembayaran.created_at', 'DESC')
                                  ->findAll()
         ];
         return view('Spp\Views\pembayaran\index', $data);
@@ -59,7 +59,8 @@ class Pembayaran extends BaseController
                 $history = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.bulan, spp_tagihan.tahun')
                                            ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
                                            ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
-                                           ->where('spp_tagihan.nisn', $nisn)
+                                           ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                                           ->where('santri.nisn', $nisn)
                                            ->orderBy('spp_pembayaran.created_at', 'DESC')
                                            ->findAll();
             }
@@ -80,8 +81,8 @@ class Pembayaran extends BaseController
     public function bayar($tagihan_id)
     {
         $tagihan = $this->tagihanModel
-                        ->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
-                        ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+                        ->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
                         ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
                         ->find($tagihan_id);
 
@@ -167,7 +168,7 @@ class Pembayaran extends BaseController
         
         $query = $pembayaranModel->select('spp_pembayaran.nomor_transaksi, spp_pembayaran.tanggal_bayar, spp_pembayaran.metode_pembayaran, spp_pembayaran.created_at, SUM(spp_pembayaran.nominal_bayar) as total_bayar, santri.nama_lengkap, santri.nisn')
                                 ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
-                                ->join('santri', 'santri.nisn = spp_tagihan.nisn');
+                                ->join('santri', 'santri.id = spp_tagihan.santri_id');
 
         if ($tgl_mulai)   $query->where('spp_pembayaran.tanggal_bayar >=', $tgl_mulai);
         if ($tgl_selesai) $query->where('spp_pembayaran.tanggal_bayar <=', $tgl_selesai);
@@ -196,7 +197,7 @@ class Pembayaran extends BaseController
         $pembayaranModel = new \Spp\Models\SppPembayaranModel();
         $query = $pembayaranModel->select('spp_pembayaran.nomor_transaksi, spp_pembayaran.tanggal_bayar, spp_pembayaran.metode_pembayaran, SUM(spp_pembayaran.nominal_bayar) as total_bayar, santri.nama_lengkap')
                                 ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
-                                ->join('santri', 'santri.nisn = spp_tagihan.nisn');
+                                ->join('santri', 'santri.id = spp_tagihan.santri_id');
 
         if ($tgl_mulai)   $query->where('spp_pembayaran.tanggal_bayar >=', $tgl_mulai);
         if ($tgl_selesai) $query->where('spp_pembayaran.tanggal_bayar <=', $tgl_selesai);
@@ -231,7 +232,7 @@ class Pembayaran extends BaseController
         $details = $pembayaranModel->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.bulan, spp_tagihan.tahun, santri.nama_lengkap, santri.nisn')
                                    ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
                                    ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
-                                   ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+                                   ->join('santri', 'santri.id = spp_tagihan.santri_id')
                                    ->where('spp_pembayaran.nomor_transaksi', $no_transaksi)
                                    ->findAll();
 
@@ -255,7 +256,7 @@ class Pembayaran extends BaseController
                 ->select('spp_pembayaran.*, spp_tarif.nama_tarif, spp_tagihan.bulan, spp_tagihan.tahun, santri.nama_lengkap, santri.nisn')
                 ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
                 ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
-                ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+                ->join('santri', 'santri.id = spp_tagihan.santri_id')
                 ->where('spp_pembayaran.nomor_transaksi', $no_transaksi)
                 ->findAll();
 
@@ -278,7 +279,8 @@ class Pembayaran extends BaseController
         $nominal_bayar = $this->request->getPost('nominal_bayar');
         
         $tagihan = $this->tagihanModel
-                        ->join('santri', 'santri.nisn = spp_tagihan.nisn')
+                        ->select('spp_tagihan.*, santri.nama_lengkap')
+                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
                         ->find($tagihan_id);
         
         // Simpan Log Pembayaran
