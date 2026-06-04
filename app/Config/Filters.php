@@ -82,6 +82,8 @@ class Filters extends BaseFilters
                     'login/proses',
                     'logout',
                     'verify/*',
+                    'migrate',
+                    'migrate/*',
                 ]
             ],
         ],

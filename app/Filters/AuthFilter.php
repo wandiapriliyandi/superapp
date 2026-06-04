@@ -29,11 +29,11 @@ class AuthFilter implements FilterInterface
         }
 
         // Modul penting yang dilindungi
-        $protectedModules = ['perijinan', 'poskestren', 'monitoring', 'setting', 'migrate', 'activity'];
+        $protectedModules = ['perijinan', 'poskestren', 'monitoring', 'setting', 'activity'];
 
         if (in_array($module, $protectedModules)) {
-            // Untuk modul sistem (setting, migrate, activity) hanya boleh diakses superadmin (*)
-            $systemModules = ['setting', 'migrate', 'activity'];
+            // Untuk modul sistem (setting, activity) hanya boleh diakses superadmin (*)
+            $systemModules = ['setting', 'activity'];
             if (in_array($module, $systemModules)) {
                 return redirect()->to(base_url('/'))->with('error', 'Anda tidak memiliki hak akses superadmin.');
             }
