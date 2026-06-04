@@ -31,7 +31,7 @@
             background-color: white;
             width: 105mm;
             height: 148mm;
-            padding: 8mm 6mm;
+            padding: 7mm 6mm;
             box-sizing: border-box;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -67,12 +67,14 @@
             color: #6b7280;
         }
         .title-surat {
-            font-size: 8.5px;
+            font-size: 9px;
             font-weight: 700;
             text-align: center;
             text-decoration: underline;
-            margin-bottom: 6px;
+            margin-top: 2px;
+            margin-bottom: 8px;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         .santri-info {
             background-color: #f9fafb;
@@ -85,7 +87,7 @@
             background-color: #f3f4f6;
             border-radius: 6px;
             padding: 6px 8px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .rincian-row {
             display: flex;
@@ -104,23 +106,32 @@
             font-weight: 600;
             color: #111827;
         }
-        .notes {
-            font-size: 6.5px;
-            color: #6b7280;
-            line-height: 1.3;
-            margin-bottom: 6px;
-        }
         .ttd-section {
             display: flex;
             justify-content: space-between;
             text-align: center;
             font-size: 7.5px;
+            margin-bottom: 8px;
         }
         .ttd-box {
             width: 45%;
         }
         .ttd-space {
             height: 25px;
+        }
+        .token-section {
+            border-top: 1px dashed #d1d5db;
+            padding-top: 6px;
+            margin-bottom: 4px;
+        }
+        .notes {
+            font-size: 6px;
+            color: #9ca3af;
+            line-height: 1.2;
+            text-align: center;
+            border-top: 1px solid #f3f4f6;
+            padding-top: 4px;
+            margin-top: auto;
         }
         @page {
             size: A6 portrait;
@@ -138,7 +149,7 @@
             .print-card {
                 width: 105mm;
                 height: 148mm;
-                padding: 8mm 6mm;
+                padding: 7mm 6mm;
                 box-shadow: none;
                 border-radius: 0;
                 border: none;
@@ -168,19 +179,9 @@
                 <p>Sistem Informasi Izin Keluar Masuk Santri Terintegrasi</p>
             </div>
 
-            <!-- Judul Surat & QR Token -->
-            <div class="row align-items-center mb-1">
-                <div class="col-8">
-                    <div class="title-surat text-start">SURAT IZIN KELUAR SANTRI</div>
-                    <div style="font-size: 7.5px;">
-                        Token: <span class="fw-bold bg-dark text-white px-2 py-0_5 rounded font-monospace" style="letter-spacing: 0.5px;"><?= esc($r['token'] ?? '-') ?></span>
-                    </div>
-                </div>
-                <div class="col-4 text-end">
-                    <?php if (!empty($r['token'])): ?>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?= $r['token'] ?>" alt="QR Code Token" class="img-thumbnail p-0 border-0" width="48" height="48">
-                    <?php endif; ?>
-                </div>
+            <!-- Judul Surat (Center) -->
+            <div class="title-surat">
+                SURAT IZIN KELUAR SANTRI
             </div>
 
             <!-- Informasi Santri -->
@@ -213,11 +214,6 @@
                 </div>
             </div>
 
-            <!-- Catatan Kaki -->
-            <div class="notes">
-                * Santri wajib melapor ke pos penjagaan keamanan/kesantrian setibanya di lingkungan pesantren untuk mengonfirmasi kepulangan dan memindai/memasukkan token izin ini.
-            </div>
-
             <!-- Tanda Tangan -->
             <div class="ttd-section">
                 <div class="ttd-box">
@@ -230,6 +226,24 @@
                     <div class="ttd-space"></div>
                     <p class="fw-bold mb-0 text-decoration-underline">___________________</p>
                 </div>
+            </div>
+
+            <!-- Token & QR Code Section (Setelah TTD) -->
+            <div class="token-section d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted" style="font-size: 7px;">Token Izin Resmi:</span><br>
+                    <span class="fw-bold bg-dark text-white px-2 py-0_5 rounded font-monospace" style="letter-spacing: 0.5px; font-size: 8px;"><?= esc($r['token'] ?? '-') ?></span>
+                </div>
+                <div>
+                    <?php if (!empty($r['token'])): ?>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?= $r['token'] ?>" alt="QR Code Token" class="img-thumbnail p-0 border-0" width="38" height="38">
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Catatan Kaki (Di paling bawah kertas) -->
+            <div class="notes">
+                * Santri wajib melapor ke pos penjagaan keamanan/kesantrian setibanya di lingkungan pesantren untuk mengonfirmasi kepulangan dan memindai token ini.
             </div>
 
         </div>
