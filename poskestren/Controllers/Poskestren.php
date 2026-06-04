@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use Poskestren\Models\KunjunganModel;
 use Poskestren\Models\ObatModel;
 use Poskestren\Models\PemberianObatModel;
+use Poskestren\Models\StokMutasiModel;
 use App\Models\SantriModel;
 
 class Poskestren extends BaseController
@@ -13,6 +14,7 @@ class Poskestren extends BaseController
     protected $kunjunganModel;
     protected $obatModel;
     protected $pemberianObatModel;
+    protected $stokMutasiModel;
     protected $santriModel;
 
     public function __construct()
@@ -20,6 +22,7 @@ class Poskestren extends BaseController
         $this->kunjunganModel = new KunjunganModel();
         $this->obatModel = new ObatModel();
         $this->pemberianObatModel = new PemberianObatModel();
+        $this->stokMutasiModel = new StokMutasiModel();
         $this->santriModel = new SantriModel();
     }
 
@@ -88,15 +91,34 @@ class Poskestren extends BaseController
         if (!empty($obat_ids)) {
             foreach ($obat_ids as $key => $obat_id) {
                 if (!empty($obat_id)) {
+                    $qty = (int) $jumlahs[$key];
+                    if ($qty <= 0) {
+                        continue;
+                    }
+
+                    $result = $this->stokMutasiModel->catat(
+                        (int) $obat_id,
+                        $qty,
+                        'keluar',
+                        'konsumsi',
+                        'Pemberian ke pasien (kunjungan #' . $kunjungan_id . ')',
+                        (int) $kunjungan_id,
+                        'kunjungan',
+                        session()->get('user_id'),
+                        false
+                    );
+
+                    if (!$result['ok']) {
+                        $db->transRollback();
+                        return redirect()->back()->with('error', $result['message'])->withInput();
+                    }
+
                     $this->pemberianObatModel->insert([
                         'kunjungan_id' => $kunjungan_id,
-                        'obat_id' => $obat_id,
-                        'jumlah' => $jumlahs[$key],
-                        'dosis' => $dosiss[$key]
+                        'obat_id'      => $obat_id,
+                        'jumlah'       => $qty,
+                        'dosis'        => $dosiss[$key],
                     ]);
-
-                    // Update stok obat
-                    $this->obatModel->where('id', $obat_id)->set('stok', 'stok - ' . (int)$jumlahs[$key], false)->update();
                 }
             }
         }

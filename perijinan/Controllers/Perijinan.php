@@ -157,6 +157,33 @@ class Perijinan extends BaseController
         return view('Perijinan\Views\pengaturan', $data);
     }
 
+    public function cetak($ids)
+    {
+        $idArray = explode('-', $ids);
+        $db = \Config\Database::connect();
+        $setting = $db->table('app_settings')->get()->getRowArray();
+        
+        $rombonganData = [];
+        foreach ($idArray as $id) {
+            $izin = $this->perijinanModel->getIzin($id);
+            if ($izin) {
+                $rombonganData[] = $izin;
+            }
+        }
+        
+        if (empty($rombonganData)) {
+            return redirect()->back()->with('error', 'Data perizinan tidak ditemukan.');
+        }
+        
+        $data = [
+            'title'     => 'Surat Izin Santri',
+            'setting'   => $setting,
+            'rombongan' => $rombonganData
+        ];
+        
+        return view('Perijinan\Views\print', $data);
+    }
+
     private function generateToken($year)
     {
         do {

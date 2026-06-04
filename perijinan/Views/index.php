@@ -64,9 +64,12 @@
                                             <div>
                                                 <div class="fw-bold"><?= $p['nama_santri'] ?></div>
                                                 <div class="small text-muted"><?= $p['nis'] ?></div>
-                                                <?php if (!empty($p['token'])) : ?>
-                                                    <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.65rem;">Token: <?= $p['token'] ?></span>
-                                                <?php endif; ?>
+                                                 <?php if (!empty($p['token'])) : ?>
+                                                     <div class="d-flex align-items-center gap-1 mt-1">
+                                                         <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;">Token: <?= $p['token'] ?></span>
+                                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=<?= $p['token'] ?>" alt="QR" class="img-thumbnail p-0 border-0" style="width: 18px; height: 18px; cursor: pointer;" title="Klik untuk melihat detail" onclick="$(this).closest('tr').find('button[data-bs-target=\'#actionModal\']').click();">
+                                                     </div>
+                                                 <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
@@ -168,8 +171,13 @@
                             <div class="col-5 text-muted">Nama Santri:</div>
                             <div class="col-7 fw-bold text-end text-truncate text-primary" id="detailNama"></div>
                             
-                            <div class="col-5 text-muted">Token Izin:</div>
-                            <div class="col-7 fw-bold text-end" id="detailToken"></div>
+                            <div class="col-5 text-muted d-flex align-items-center">Token Izin:</div>
+                            <div class="col-7 text-end">
+                                <span class="fw-bold" id="detailToken"></span>
+                                <div id="detailTokenQrWrapper" class="mt-2" style="display: none;">
+                                    <img id="detailTokenQr" src="" alt="QR Code Token" class="img-thumbnail" style="width: 100px; height: 100px;">
+                                </div>
+                            </div>
                             
                             <div class="col-5 text-muted">Jenis Izin:</div>
                             <div class="col-7 fw-semibold text-end" id="detailJenis"></div>
@@ -281,6 +289,17 @@
                 // Populate details
                 document.getElementById('detailNama').innerText = nama;
                 document.getElementById('detailToken').innerText = token && token !== '-' ? token : 'Belum Ada';
+                
+                const qrWrapper = document.getElementById('detailTokenQrWrapper');
+                const qrImg = document.getElementById('detailTokenQr');
+                if (token && token !== '-') {
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${token}`;
+                    qrWrapper.style.display = 'block';
+                } else {
+                    qrWrapper.style.display = 'none';
+                    qrImg.src = '';
+                }
+                
                 document.getElementById('detailJenis').innerText = jenis;
                 document.getElementById('detailMulai').innerText = mulai;
                 document.getElementById('detailSelesai').innerText = selesai;
@@ -363,7 +382,7 @@
                     }
                     
                     buttonsHTML += `
-                        <a href="#" class="btn btn-outline-secondary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
+                        <a href="${baseUrl}perijinan/cetak/${idsToUse}" target="_blank" class="btn btn-outline-secondary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
                             <i class="bi bi-printer me-3 fs-5"></i> Cetak Surat Izin${textSuffix}
                         </a>
                         <button type="button" class="btn btn-danger py-2 text-start px-3 d-flex align-items-center rounded-3 fw-semibold btn-delete-trigger" data-ids="${idsToUse}">

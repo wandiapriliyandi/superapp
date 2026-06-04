@@ -507,7 +507,16 @@ function hexToRgb($hex) {
                 <span class="nav-icon">📋</span> <span class="nav-text">Rekam Medis</span>
             </a>
             <a class="nav-link <?= url_is('poskestren/obat*') ? 'active' : '' ?>" href="<?= base_url('poskestren/obat') ?>">
-                <span class="nav-icon">💊</span> <span class="nav-text">Stok Obat</span>
+                <span class="nav-icon">💊</span> <span class="nav-text">Data Obat</span>
+            </a>
+            <a class="nav-link <?= url_is('poskestren/stok/pengadaan*') ? 'active' : '' ?>" href="<?= base_url('poskestren/stok/pengadaan') ?>">
+                <span class="nav-icon">📥</span> <span class="nav-text">Pengadaan</span>
+            </a>
+            <a class="nav-link <?= url_is('poskestren/stok/keluar*') ? 'active' : '' ?>" href="<?= base_url('poskestren/stok/keluar') ?>">
+                <span class="nav-icon">📤</span> <span class="nav-text">Barang Keluar</span>
+            </a>
+            <a class="nav-link <?= url_is('poskestren/stok/riwayat*') ? 'active' : '' ?>" href="<?= base_url('poskestren/stok/riwayat') ?>">
+                <span class="nav-icon">📒</span> <span class="nav-text">Kartu Stok</span>
             </a>
 
         <!-- MENU SYSTEM / DEFAULT -->

@@ -9,6 +9,7 @@ $routes->group('perijinan', ['namespace' => 'Perijinan\Controllers'], function (
     $routes->get('aktifkan/(:any)', 'Perijinan::aktifkan/$1');
     $routes->get('kembali/(:any)', 'Perijinan::kembali/$1');
     $routes->get('hapus/(:any)', 'Perijinan::hapus/$1');
+    $routes->get('cetak/(:any)', 'Perijinan::cetak/$1');
     $routes->get('rekap', 'Perijinan::rekap');
     $routes->get('pengaturan', 'Perijinan::pengaturan');
 });
