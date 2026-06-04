@@ -34,19 +34,24 @@ class CreateSppTahunAkademikTable extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('spp_tahun_akademik');
+        $this->forge->createTable('spp_tahun_akademik', true);
 
         // Update spp_tarif to use the new ID
-        $this->forge->dropColumn('spp_tarif', 'tahun_ajaran');
-        $this->forge->addColumn('spp_tarif', [
-            'id_tahun_akademik' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-                'after'      => 'id'
-            ],
-        ]);
+        if ($this->db->fieldExists('tahun_ajaran', 'spp_tarif')) {
+            $this->forge->dropColumn('spp_tarif', 'tahun_ajaran');
+        }
+        
+        if (!$this->db->fieldExists('id_tahun_akademik', 'spp_tarif')) {
+            $this->forge->addColumn('spp_tarif', [
+                'id_tahun_akademik' => [
+                    'type'       => 'INT',
+                    'constraint' => 11,
+                    'unsigned'   => true,
+                    'null'       => true,
+                    'after'      => 'id'
+                ],
+            ]);
+        }
     }
 
     public function down()
