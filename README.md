@@ -67,3 +67,18 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+## Standar Operasional Prosedur (SOP) Pengembangan Modul Baru
+Untuk menjaga transparansi data dan audit trail sistem, **setiap pembuatan modul baru atau fitur CRUD (Create, Update, Delete) baru Wajib mengintegrasikan perekaman log aktivitas** menggunakan helper `log_activity()`.
+
+### Cara Penggunaan:
+1. Pastikan helper `activity` sudah dimuat di controller (bawaan dari `BaseController` sudah ter-load otomatis).
+2. Panggil fungsi `log_activity()` tepat setelah aksi database berhasil dieksekusi:
+   ```php
+   log_activity(
+       'Nama Tindakan (misal: Menambah Data Siswa)', 
+       'Nama Modul (misal: Akademik)', 
+       'Keterangan Tambahan (misal: ID: 1, Nama: Wandi)'
+   );
+   ```
+3. Data nama pengguna yang melakukan aksi akan secara otomatis diambil secara dinamis dari session (`nama_lengkap`) oleh helper.
