@@ -29,7 +29,10 @@ class AuthFilter implements FilterInterface
         }
 
         // Modul penting yang dilindungi
-        $protectedModules = ['perijinan', 'poskestren', 'monitoring', 'setting', 'activity'];
+        $protectedModules = [
+            'perijinan', 'poskestren', 'monitoring', 'setting', 'activity',
+            'akademik', 'spp', 'keuangan', 'kepegawaian', 'perpustakaan', 'ppdb', 'e-learning'
+        ];
 
         if (in_array($module, $protectedModules)) {
             // Untuk modul sistem (setting, activity) hanya boleh diakses superadmin (*)
