@@ -37,6 +37,7 @@ class CreateSppTahunAkademikTable extends Migration
         $this->forge->createTable('spp_tahun_akademik', true);
 
         // Update spp_tarif to use the new ID
+        $this->db->resetDataCache();
         if ($this->db->fieldExists('tahun_ajaran', 'spp_tarif')) {
             $this->forge->dropColumn('spp_tarif', 'tahun_ajaran');
         }
@@ -58,6 +59,7 @@ class CreateSppTahunAkademikTable extends Migration
     {
         $this->forge->dropTable('spp_tahun_akademik');
 
+        $this->db->resetDataCache();
         if ($this->db->fieldExists('id_tahun_akademik', 'spp_tarif')) {
             $this->forge->dropColumn('spp_tarif', 'id_tahun_akademik');
         }
