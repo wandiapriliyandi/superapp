@@ -11,6 +11,7 @@ class Setting extends Controller
 
     public function __construct()
     {
+        helper('activity');
         $this->userModel = new \App\Models\UserModel();
         $this->roleModel = new \App\Models\RoleModel();
     }
@@ -34,7 +35,6 @@ class Setting extends Controller
 
     public function update()
     {
-        helper('activity');
         $db = \Config\Database::connect();
         $setting = $db->table('app_settings')->get()->getRowArray();
         
