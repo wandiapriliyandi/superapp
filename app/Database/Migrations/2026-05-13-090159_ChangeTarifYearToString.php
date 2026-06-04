@@ -21,7 +21,9 @@ class ChangeTarifYearToString extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('spp_tarif', 'tahun_ajaran');
+        if ($this->db->fieldExists('tahun_ajaran', 'spp_tarif')) {
+            $this->forge->dropColumn('spp_tarif', 'tahun_ajaran');
+        }
         $this->forge->addColumn('spp_tarif', [
             'id_tahun_ajaran' => [
                 'type'       => 'INT',

@@ -52,5 +52,20 @@ class CreateSppTahunAkademikTable extends Migration
     public function down()
     {
         $this->forge->dropTable('spp_tahun_akademik');
+
+        if ($this->db->fieldExists('id_tahun_akademik', 'spp_tarif')) {
+            $this->forge->dropColumn('spp_tarif', 'id_tahun_akademik');
+        }
+
+        if (!$this->db->fieldExists('tahun_ajaran', 'spp_tarif')) {
+            $this->forge->addColumn('spp_tarif', [
+                'tahun_ajaran' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => 20,
+                    'null'       => true,
+                    'after'      => 'id'
+                ],
+            ]);
+        }
     }
 }
