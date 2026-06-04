@@ -23,6 +23,11 @@
                 <form action="<?= base_url('poskestren/stok/pengadaan/simpan') ?>" method="post">
                     <?= csrf_field() ?>
 
+                    <div class="mb-4 col-md-4">
+                        <label class="form-label fw-bold small text-muted">TANGGAL PENGADAAN</label>
+                        <input type="datetime-local" name="tanggal" class="form-control border-0 bg-light rounded-3 py-2" value="<?= date('Y-m-d\TH:i') ?>" required>
+                    </div>
+
                     <div class="table-responsive mb-3">
                         <table class="table table-hover align-middle border" id="tablePengadaan">
                             <thead class="bg-light">

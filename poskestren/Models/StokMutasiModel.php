@@ -40,7 +40,8 @@ class StokMutasiModel extends Model
         ?int $referensiId = null,
         ?string $referensiTipe = null,
         ?int $petugasId = null,
-        bool $useTransaction = true
+        bool $useTransaction = true,
+        ?string $createdAt = null
     ): array {
         if ($jumlah <= 0) {
             return ['ok' => false, 'message' => 'Jumlah harus lebih dari 0.'];
@@ -90,7 +91,7 @@ class StokMutasiModel extends Model
             'referensi_tipe'  => $referensiTipe,
             'keterangan'      => $keterangan,
             'petugas_id'      => $petugasId,
-            'created_at'      => date('Y-m-d H:i:s'),
+            'created_at'      => $createdAt ?: date('Y-m-d H:i:s'),
         ]);
 
         if ($useTransaction) {

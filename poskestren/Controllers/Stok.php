@@ -43,11 +43,17 @@ class Stok extends BaseController
 
     public function simpan_pengadaan()
     {
-        $items = $this->request->getPost('items');
-        $ket   = trim((string) $this->request->getPost('keterangan'));
+        $items   = $this->request->getPost('items');
+        $ket     = trim((string) $this->request->getPost('keterangan'));
+        $tanggal = $this->request->getPost('tanggal');
 
         if (empty($items) || !is_array($items)) {
             return redirect()->back()->with('error', 'Belum ada data obat yang diinput.')->withInput();
+        }
+
+        $createdAt = null;
+        if (!empty($tanggal)) {
+            $createdAt = date('Y-m-d H:i:s', strtotime($tanggal));
         }
 
         $db = \Config\Database::connect();
@@ -70,7 +76,9 @@ class Stok extends BaseController
                 $ket ?: 'Pengadaan obat',
                 null,
                 null,
-                session()->get('user_id')
+                session()->get('user_id'),
+                false,
+                $createdAt
             );
 
             if (!$result['ok']) {
