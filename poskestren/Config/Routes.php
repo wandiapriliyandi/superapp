@@ -8,6 +8,7 @@ $routes->group('poskestren', ['namespace' => 'Poskestren\Controllers'], function
     $routes->get('kunjungan/tambah', 'Poskestren::tambah_kunjungan');
     $routes->post('kunjungan/simpan', 'Poskestren::simpan_kunjungan');
     $routes->get('kunjungan/detail/(:num)', 'Poskestren::detail_kunjungan/$1');
+    $routes->post('kunjungan/update/(:num)', 'Poskestren::update_perkembangan/$1');
     $routes->get('kunjungan/hapus/(:num)', 'Poskestren::hapus_kunjungan/$1');
 
     // Obat (master data)

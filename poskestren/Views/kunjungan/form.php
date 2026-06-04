@@ -41,10 +41,11 @@
                             <input type="text" name="diagnosa" class="form-control border-0 bg-light rounded-3 py-2" placeholder="Hasil diagnosa awal">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">STATUS AKHIR</label>
+                            <label class="form-label fw-bold small text-muted">STATUS PERKEMBANGAN</label>
                             <select name="status" class="form-select border-0 bg-light rounded-3 py-2">
-                                <option value="Sembuh">Sembuh / Kembali ke Kamar</option>
+                                <option value="Sakit" selected>Sakit (Dalam Perawatan)</option>
                                 <option value="Observasi">Observasi / Rawat Inap</option>
+                                <option value="Sembuh">Sembuh / Kembali ke Kamar</option>
                                 <option value="Rujuk">Rujuk ke RS / Klinik Luar</option>
                             </select>
                         </div>

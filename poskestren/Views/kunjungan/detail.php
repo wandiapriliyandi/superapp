@@ -101,9 +101,14 @@
             <div class="card-footer bg-light border-0 p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">Dicatat oleh ID Petugas: <?= $kunjungan['petugas_id'] ?: '-' ?></span>
-                    <button class="btn btn-primary rounded-pill btn-sm px-4" onclick="window.print()">
-                        <i class="bi bi-printer me-2"></i> Cetak Rekam Medis
-                    </button>
+                    <div>
+                        <button class="btn btn-outline-primary rounded-pill btn-sm px-4 me-2" data-bs-toggle="modal" data-bs-target="#updateModal" <?= in_array($kunjungan['status'], ['Sembuh', 'Rujuk']) ? 'disabled' : '' ?>>
+                            <i class="bi bi-pencil-square me-2"></i> Update Perkembangan
+                        </button>
+                        <button class="btn btn-primary rounded-pill btn-sm px-4" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i> Cetak Rekam Medis
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,4 +165,117 @@
         }
     }
 </style>
+<!-- Modal Update Perkembangan -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <form action="<?= base_url('poskestren/kunjungan/update/' . $kunjungan['id']) ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="modal-header border-0 pb-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="updateModalLabel">Update Perkembangan Rekam Medis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">STATUS PERKEMBANGAN</label>
+                            <select name="status" class="form-select border-0 bg-light rounded-3 py-2" required>
+                                <option value="Sakit" <?= $kunjungan['status'] == 'Sakit' ? 'selected' : '' ?>>Sakit (Dalam Perawatan)</option>
+                                <option value="Observasi" <?= $kunjungan['status'] == 'Observasi' ? 'selected' : '' ?>>Observasi / Rawat Inap</option>
+                                <option value="Sembuh" <?= $kunjungan['status'] == 'Sembuh' ? 'selected' : '' ?>>Sembuh / Kembali ke Kamar</option>
+                                <option value="Rujuk" <?= $kunjungan['status'] == 'Rujuk' ? 'selected' : '' ?>>Rujuk ke RS / Klinik Luar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">DIAGNOSA (DAPAT DIPERBARUI)</label>
+                            <input type="text" name="diagnosa" class="form-control border-0 bg-light rounded-3 py-2" value="<?= esc($kunjungan['diagnosa']) ?>" placeholder="Update diagnosa jika ada perubahan">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold small text-muted">TINDAKAN / CATATAN MEDIS BARU</label>
+                            <textarea name="tindakan" class="form-control border-0 bg-light rounded-3" rows="3" placeholder="Tuliskan perkembangan/tindakan medis terbaru..."></textarea>
+                        </div>
+
+                        <!-- Sub-form Pemberian Obat Tambahan -->
+                        <div class="col-md-12 mt-4">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h6 class="fw-bold mb-0 text-secondary" style="font-size: 0.85rem;"><i class="bi bi-capsule me-2"></i>Pemberian Obat Tambahan (Opsional)</h6>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" id="addObatUpdate" style="font-size: 0.75rem;">
+                                    <i class="bi bi-plus"></i> Tambah Obat
+                                </button>
+                            </div>
+                            <div id="obatWrapperUpdate">
+                                <div class="row g-2 mb-2 obat-row-update">
+                                    <div class="col-md-6">
+                                        <select name="obat_id[]" class="form-select border-0 bg-light rounded-3 py-2">
+                                            <option value="">Pilih Obat...</option>
+                                            <?php foreach($obat_list as $o): ?>
+                                                <option value="<?= $o['id'] ?>"><?= esc($o['nama_obat']) ?> (Stok: <?= (int)$o['stok'] ?> <?= esc($o['satuan']) ?>)</option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" name="jumlah[]" class="form-control border-0 bg-light rounded-3 py-2" placeholder="Jml">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" name="dosis[]" class="form-control border-0 bg-light rounded-3 py-2" placeholder="Dosis (3x1 hari)">
+                                    </div>
+                                    <div class="col-md-1 text-end">
+                                        <button type="button" class="btn btn-light text-danger rounded-3 py-2 remove-obat-update"><i class="bi bi-x"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light px-4 py-2 fw-semibold" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" style="border-radius: 12px;">Simpan Perkembangan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addBtn = document.getElementById('addObatUpdate');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                const wrapper = document.getElementById('obatWrapperUpdate');
+                const row = wrapper.querySelector('.obat-row-update');
+                if (row) {
+                    const firstRow = row.cloneNode(true);
+                    
+                    // Reset inputs
+                    firstRow.querySelectorAll('input').forEach(input => input.value = '');
+                    firstRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+                    
+                    wrapper.appendChild(firstRow);
+                    
+                    // Add event listener to remove button
+                    firstRow.querySelector('.remove-obat-update').addEventListener('click', function() {
+                        if (wrapper.querySelectorAll('.obat-row-update').length > 1) {
+                            firstRow.remove();
+                        } else {
+                            // Jika sisa 1 baris, cukup reset nilainya
+                            firstRow.querySelectorAll('input').forEach(input => input.value = '');
+                            firstRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+                        }
+                    });
+                }
+            });
+        }
+
+        $(document).on('click', '.remove-obat-update', function() {
+            const wrapper = document.getElementById('obatWrapperUpdate');
+            if (wrapper.querySelectorAll('.obat-row-update').length > 1) {
+                $(this).closest('.obat-row-update').remove();
+            } else {
+                $(this).closest('.obat-row-update').find('input').val('');
+                $(this).closest('.obat-row-update').find('select').val('');
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?>

@@ -29,16 +29,32 @@ class Poskestren extends BaseController
     public function index()
     {
         $db = \Config\Database::connect();
+        
+        // Ambil data santri sedang sakit (status = Sakit atau Observasi atau NULL)
+        $santriSakit = $this->kunjunganModel->select('pos_kunjungan.*, santri.nama_lengkap as nama_santri, santri.nis, akademik_kelas.nama_kelas')
+            ->join('santri', 'santri.nisn = pos_kunjungan.nisn')
+            ->join('akademik_kelas', 'akademik_kelas.id = santri.kelas_id', 'left')
+            ->groupStart()
+                ->whereIn('pos_kunjungan.status', ['Sakit', 'Observasi'])
+                ->orWhere('pos_kunjungan.status IS NULL')
+            ->groupEnd()
+            ->orderBy('pos_kunjungan.tgl_kunjungan', 'ASC')
+            ->get()->getResultArray();
+
         $data = [
             'title' => 'Dashboard Poskestren',
             'stats' => [
                 'total_kunjungan' => $this->kunjunganModel->countAllResults(),
                 'kunjungan_hari_ini' => $this->kunjunganModel->where('DATE(tgl_kunjungan)', date('Y-m-d'))->countAllResults(),
                 'stok_obat_low' => $this->obatModel->where('stok <', 10)->countAllResults(),
-                'santri_sakit' => $this->kunjunganModel->where('status', 'Observasi')->countAllResults(),
+                'santri_sakit' => count($santriSakit),
             ],
-            'recent_kunjungan' => $this->kunjunganModel->getKunjungan()
+            'recent_kunjungan' => $this->kunjunganModel->getKunjungan(),
+            'santri_sakit_list' => $santriSakit
         ];
+
+        // Batasi recent kunjungan ke 5 terakhir
+        $data['recent_kunjungan'] = array_slice($data['recent_kunjungan'], 0, 5);
 
         return view('Poskestren\Views\index', $data);
     }
@@ -132,6 +148,89 @@ class Poskestren extends BaseController
         return redirect()->to(base_url('poskestren/kunjungan'))->with('success', 'Data rekam medis berhasil disimpan.');
     }
 
+    public function update_perkembangan($id)
+    {
+        $status = $this->request->getPost('status');
+        $diagnosa = $this->request->getPost('diagnosa');
+        $tindakan_baru = $this->request->getPost('tindakan');
+        
+        $kunjungan = $this->kunjunganModel->find($id);
+        if (!$kunjungan) {
+            return redirect()->back()->with('error', 'Data kunjungan tidak ditemukan.');
+        }
+
+        $obat_ids = $this->request->getPost('obat_id');
+        $jumlahs = $this->request->getPost('jumlah');
+        $dosiss = $this->request->getPost('dosis');
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        // Gabungkan tindakan lama dengan tindakan baru
+        $tindakan_final = $kunjungan['tindakan'];
+        if (!empty($tindakan_baru)) {
+            $log_tindakan = "\n[" . date('d/m/Y H:i') . "] " . $tindakan_baru;
+            $tindakan_final = !empty($tindakan_final) ? $tindakan_final . $log_tindakan : $tindakan_baru;
+        }
+
+        $updateData = [
+            'status' => $status,
+        ];
+        if (!empty($diagnosa)) {
+            $updateData['diagnosa'] = $diagnosa;
+        }
+        if (!empty($tindakan_baru)) {
+            $updateData['tindakan'] = $tindakan_final;
+        }
+
+        $this->kunjunganModel->update($id, $updateData);
+
+        // Catat pemberian obat tambahan
+        if (!empty($obat_ids)) {
+            foreach ($obat_ids as $key => $obat_id) {
+                if (!empty($obat_id)) {
+                    $qty = (int) $jumlahs[$key];
+                    if ($qty <= 0) {
+                        continue;
+                    }
+
+                    $result = $this->stokMutasiModel->catat(
+                        (int) $obat_id,
+                        $qty,
+                        'keluar',
+                        'konsumsi',
+                        'Pemberian obat tambahan (kunjungan #' . $id . ')',
+                        (int) $id,
+                        'kunjungan',
+                        session()->get('user_id'),
+                        false
+                    );
+
+                    if (!$result['ok']) {
+                        $db->transRollback();
+                        return redirect()->back()->with('error', $result['message']);
+                    }
+
+                    $this->pemberianObatModel->insert([
+                        'kunjungan_id' => $id,
+                        'obat_id'      => $obat_id,
+                        'jumlah'       => $qty,
+                        'dosis'        => $dosiss[$key],
+                    ]);
+                }
+            }
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Gagal memperbarui perkembangan rekam medis.');
+        }
+
+        return redirect()->to(base_url('poskestren/kunjungan/detail/' . $id))
+            ->with('success', 'Perkembangan rekam medis berhasil diperbarui.');
+    }
+
     public function detail_kunjungan($id)
     {
         $db = \Config\Database::connect();
@@ -141,7 +240,8 @@ class Poskestren extends BaseController
             'title' => 'Detail Rekam Medis',
             'setting' => $setting,
             'kunjungan' => $this->kunjunganModel->getKunjungan($id),
-            'obat' => $this->pemberianObatModel->getByKunjungan($id)
+            'obat' => $this->pemberianObatModel->getByKunjungan($id),
+            'obat_list' => $this->obatModel->where('stok >', 0)->findAll()
         ];
         
         if (empty($data['kunjungan'])) {
