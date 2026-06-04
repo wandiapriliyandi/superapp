@@ -86,9 +86,10 @@ class Presensi extends BaseController
 
     public function store()
     {
+        helper('activity');
         $id_jadwal = $this->request->getPost('id_jadwal');
         $tanggal = $this->request->getPost('tanggal');
-        $presensi_data = $this->request->getPost('presensi'); // array [nisn => status]
+        $presensi_data = $this->request->getPost('presensi') ?? []; // array [nisn => status]
 
         foreach ($presensi_data as $nisn => $status) {
             $this->presensiModel->save([
@@ -99,6 +100,13 @@ class Presensi extends BaseController
                 'catatan' => $this->request->getPost('catatan')[$nisn] ?? ''
             ]);
         }
+
+        $jadwalModel = new JadwalModel();
+        $jadwal = $jadwalModel->select('akademik_jadwal.*, akademik_mapel.nama_mapel')
+                              ->join('akademik_mapel', 'akademik_mapel.id = akademik_jadwal.id_mapel')
+                              ->find($id_jadwal);
+
+        log_activity('Menginput Presensi Santri', 'Akademik', 'Mapel: ' . ($jadwal['nama_mapel'] ?? '') . ', Tanggal: ' . $tanggal . ', Total Santri: ' . count($presensi_data));
 
         return redirect()->to(base_url('akademik/presensi'))->with('success', 'Presensi berhasil disimpan');
     }

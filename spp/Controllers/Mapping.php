@@ -106,6 +106,7 @@ class Mapping extends BaseController
 
     public function save()
     {
+        helper('activity');
         $nisn = $this->request->getPost('nisn');
         $tarif_ids = $this->request->getPost('tarif_ids') ?? [];
         $diskon    = $this->request->getPost('nominal_diskon') ?? [];
@@ -126,6 +127,7 @@ class Mapping extends BaseController
         }
 
         $santri = $this->santriModel->where('nisn', $nisn)->first();
+        log_activity('Mengubah Pemetaan Tarif Santri', 'Spp', 'Santri: ' . ($santri['nama_lengkap'] ?? '') . ' (NISN: ' . $nisn . '), Total Tarif: ' . count($tarif_ids));
         return redirect()->to(base_url('spp/mapping/santri/' . $santri['id']))->with('success', 'Kesepakatan bayaran berhasil diperbarui.');
     }
 

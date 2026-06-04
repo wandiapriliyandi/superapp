@@ -57,6 +57,7 @@ class Dashboard extends BaseController
 
     public function simpan()
     {
+        helper('activity');
         // Validasi
         if (!$this->validate([
             'judul' => 'required',
@@ -123,11 +124,14 @@ class Dashboard extends BaseController
 
         $this->bukuModel->save($data);
 
+        log_activity('Menambah Koleksi Buku', 'Perpustakaan', 'Judul: ' . $data['judul'] . ', Lokasi: ' . $lokasi);
+
         return redirect()->to(base_url('perpustakaan/list/' . strtolower($lokasi)))->with('success', 'Buku berhasil ditambahkan');
     }
 
     public function hapus($id)
     {
+        helper('activity');
         $buku = $this->bukuModel->find($id);
         if ($buku) {
             // Hapus file jika ada
@@ -135,6 +139,7 @@ class Dashboard extends BaseController
             if ($buku['file_digital']) @unlink('uploads/perpus/digital/' . $buku['file_digital']);
             
             $this->bukuModel->delete($id);
+            log_activity('Menghapus Koleksi Buku', 'Perpustakaan', 'Judul: ' . ($buku['judul'] ?? ''));
         }
         return redirect()->back()->with('success', 'Buku berhasil dihapus');
     }
@@ -151,9 +156,11 @@ class Dashboard extends BaseController
 
     public function simpan_konfigurasi()
     {
+        helper('activity');
         $file = $this->request->getFile('google_json');
         if ($file && $file->isValid()) {
             $file->move(WRITEPATH, 'google-credentials.json', true);
+            log_activity('Mengubah Konfigurasi Google Drive', 'Perpustakaan');
             return redirect()->back()->with('success', 'Konfigurasi Google Drive berhasil disimpan');
         }
         return redirect()->back()->with('error', 'Gagal menyimpan konfigurasi');

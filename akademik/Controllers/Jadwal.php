@@ -48,6 +48,7 @@ class Jadwal extends BaseController
 
     public function store()
     {
+        helper('activity');
         $this->jadwalModel->save([
             'id_tahun_ajaran' => $this->request->getPost('id_tahun_ajaran'),
             'id_kelas' => $this->request->getPost('id_kelas'),
@@ -59,12 +60,19 @@ class Jadwal extends BaseController
             'ruangan' => $this->request->getPost('ruangan'),
         ]);
 
+        log_activity('Menyimpan Jadwal Pelajaran', 'Akademik', 'Hari: ' . $this->request->getPost('hari') . ', Ruangan: ' . $this->request->getPost('ruangan'));
+
         return redirect()->to(base_url('akademik/jadwal'))->with('success', 'Jadwal berhasil disimpan');
     }
 
     public function delete($id)
     {
-        $this->jadwalModel->delete($id);
+        helper('activity');
+        $jadwal = $this->jadwalModel->find($id);
+        if ($jadwal) {
+            $this->jadwalModel->delete($id);
+            log_activity('Menghapus Jadwal Pelajaran', 'Akademik', 'Hari: ' . ($jadwal['hari'] ?? '') . ', Ruangan: ' . ($jadwal['ruangan'] ?? ''));
+        }
         return redirect()->to(base_url('akademik/jadwal'))->with('success', 'Jadwal berhasil dihapus');
     }
 }

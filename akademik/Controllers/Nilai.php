@@ -38,9 +38,10 @@ class Nilai extends BaseController
 
     public function store()
     {
+        helper('activity');
         $id_mapel = $this->request->getPost('id_mapel');
         $id_tahun_ajaran = $this->request->getPost('id_tahun_ajaran');
-        $nilai_data = $this->request->getPost('nilai'); // [nisn => [tugas, uts, uas]]
+        $nilai_data = $this->request->getPost('nilai') ?? []; // [nisn => [tugas, uts, uas]]
 
         foreach ($nilai_data as $nisn => $n) {
             $tugas = $n['tugas'] ?? 0;
@@ -82,6 +83,10 @@ class Nilai extends BaseController
                 $this->nilaiModel->save($data_save);
             }
         }
+
+        $mapelModel = new MapelModel();
+        $mapel = $mapelModel->find($id_mapel);
+        log_activity('Menginput Nilai Santri', 'Akademik', 'Mata Pelajaran: ' . ($mapel['nama_mapel'] ?? '') . ', Total Santri: ' . count($nilai_data));
 
         return redirect()->to(base_url('akademik/nilai'))->with('success', 'Nilai berhasil disimpan');
     }

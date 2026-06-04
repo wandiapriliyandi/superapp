@@ -26,6 +26,7 @@ class Pengaturan extends BaseController
 
     public function save()
     {
+        helper('activity');
         $data = [
             'gelombang' => $this->request->getPost('gelombang'),
             'kuota'     => $this->request->getPost('kuota'),
@@ -36,8 +37,10 @@ class Pengaturan extends BaseController
 
         if ($id = $this->request->getPost('id')) {
             $this->pengaturanModel->update($id, $data);
+            log_activity('Mengubah Pengaturan PPDB', 'PPDB', 'Gelombang: ' . $data['gelombang'] . ', Status: ' . $data['status']);
         } else {
             $this->pengaturanModel->insert($data);
+            log_activity('Menambah Pengaturan PPDB', 'PPDB', 'Gelombang: ' . $data['gelombang'] . ', Status: ' . $data['status']);
         }
 
         return redirect()->to('ppdb/pengaturan')->with('success', 'Pengaturan berhasil disimpan.');

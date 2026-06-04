@@ -152,6 +152,7 @@ $mappingModel = new \Spp\Models\SppSantriTarifModel();
 
     public function generateTahunan()
     {
+        helper('activity');
         $ta_id = $this->request->getPost('id_tahun_akademik');
         if (!$ta_id) return redirect()->back()->with('error', 'Pilih Tahun Akademik terlebih dahulu.');
 
@@ -166,7 +167,7 @@ $mappingModel = new \Spp\Models\SppSantriTarifModel();
         $startYear = trim($years[0]);
         $endYear   = trim($years[1]);
 
-$mappingModel = new \Spp\Models\SppSantriTarifModel();
+        $mappingModel = new \Spp\Models\SppSantriTarifModel();
         // Ambil semua pemetaan yang masuk dalam tahun akademik ini
         $allMappings = $mappingModel->select('spp_santri_tarif.*, spp_tarif.nominal, spp_tarif.tipe, spp_santri_tarif.nisn')
                                      ->join('santri', 'santri.nisn = spp_santri_tarif.nisn')
@@ -198,6 +199,7 @@ $mappingModel = new \Spp\Models\SppSantriTarifModel();
             }
         }
 
+        log_activity('Generate Tagihan SPP Tahunan', 'Spp', 'Tahun Akademik: ' . ($ta['nama_tahun'] ?? '') . ', Total: ' . $count);
         return redirect()->to(base_url('spp/tagihan'))->with('success', "Berhasil men-generate $count tagihan untuk satu tahun ajaran.");
     }
 
@@ -271,6 +273,7 @@ $mappingModel = new \Spp\Models\SppSantriTarifModel();
 
     public function update($id)
     {
+        helper('activity');
         $nominal = $this->request->getPost('nominal_tagihan');
         $diskon  = $this->request->getPost('diskon') ?? 0;
         $tagihan = $this->tagihanModel->find($id);
@@ -291,6 +294,14 @@ $mappingModel = new \Spp\Models\SppSantriTarifModel();
             'keterangan_diskon' => $this->request->getPost('keterangan_diskon'),
             'status'            => $status
         ]);
+
+        $tagihanDetail = $this->tagihanModel
+                        ->select('spp_tagihan.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
+                        ->join('santri', 'santri.id = spp_tagihan.santri_id')
+                        ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id')
+                        ->find($id);
+
+        log_activity('Mengubah Tagihan SPP', 'Spp', 'Santri: ' . ($tagihanDetail['nama_santri'] ?? '') . ', Tagihan: ' . ($tagihanDetail['nama_tarif'] ?? '') . ', Nominal Baru: ' . $nominal);
 
         return redirect()->to(base_url('spp/tagihan'))->with('success', 'Tagihan berhasil diperbarui.');
     }

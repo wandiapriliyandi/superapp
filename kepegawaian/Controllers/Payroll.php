@@ -35,10 +35,12 @@ class Payroll extends BaseController
 
     public function generate()
     {
+        helper('activity');
         $bulan = $this->request->getPost('bulan');
         $tahun = $this->request->getPost('tahun');
         
         $pegawai = $this->pegawaiModel->getPegawaiFull();
+        $count = 0;
         
         foreach ($pegawai as $p) {
             // Cek jika sudah digenerate
@@ -60,8 +62,11 @@ class Payroll extends BaseController
                     'gaji_bersih' => $gaji_pokok + $tunjangan,
                     'status_bayar' => 'Belum Dibayar'
                 ]);
+                $count++;
             }
         }
+
+        log_activity('Generate Payroll Pegawai', 'Kepegawaian', 'Bulan: ' . $bulan . ', Tahun: ' . $tahun . ', Total: ' . $count);
 
         return redirect()->to(base_url("kepegawaian/payroll?bulan=$bulan&tahun=$tahun"))->with('success', 'Payroll berhasil digenerate.');
     }

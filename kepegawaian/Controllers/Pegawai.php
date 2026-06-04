@@ -43,6 +43,7 @@ class Pegawai extends BaseController
 
     public function save()
     {
+        helper('activity');
         $foto = $this->request->getFile('foto');
         $fileName = 'default.png';
 
@@ -51,9 +52,10 @@ class Pegawai extends BaseController
             $foto->move(FCPATH . 'uploads/pegawai', $fileName);
         }
 
+        $nama_lengkap = $this->request->getPost('nama_lengkap');
         $this->pegawaiModel->save([
             'nik' => $this->request->getPost('nik'),
-            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+            'nama_lengkap' => $nama_lengkap,
             'tempat_lahir' => $this->request->getPost('tempat_lahir'),
             'tanggal_lahir' => $this->request->getPost('tanggal_lahir'),
             'jenis_kelamin' => $this->request->getPost('jenis_kelamin'),
@@ -66,12 +68,19 @@ class Pegawai extends BaseController
             'foto' => $fileName
         ]);
 
+        log_activity('Menyimpan Data Pegawai', 'Kepegawaian', 'Nama Pegawai: ' . $nama_lengkap);
+
         return redirect()->to(base_url('kepegawaian/pegawai'))->with('success', 'Data SDM berhasil disimpan.');
     }
 
     public function delete($id)
     {
-        $this->pegawaiModel->delete($id);
+        helper('activity');
+        $pegawai = $this->pegawaiModel->find($id);
+        if ($pegawai) {
+            $this->pegawaiModel->delete($id);
+            log_activity('Menghapus Data Pegawai', 'Kepegawaian', 'Nama Pegawai: ' . ($pegawai['nama_lengkap'] ?? ''));
+        }
         return redirect()->to(base_url('kepegawaian/pegawai'))->with('success', 'Data SDM berhasil dihapus.');
     }
 }

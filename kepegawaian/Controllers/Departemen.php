@@ -26,17 +26,26 @@ class Departemen extends BaseController
 
     public function save()
     {
+        helper('activity');
+        $nama_departemen = $this->request->getPost('nama_departemen');
         $this->deptModel->save([
-            'nama_departemen' => $this->request->getPost('nama_departemen'),
+            'nama_departemen' => $nama_departemen,
             'keterangan' => $this->request->getPost('keterangan')
         ]);
+
+        log_activity('Menyimpan Data Departemen', 'Kepegawaian', 'Nama Departemen: ' . $nama_departemen);
 
         return redirect()->to(base_url('kepegawaian/departemen'))->with('success', 'Departemen berhasil disimpan.');
     }
 
     public function delete($id)
     {
-        $this->deptModel->delete($id);
+        helper('activity');
+        $dept = $this->deptModel->find($id);
+        if ($dept) {
+            $this->deptModel->delete($id);
+            log_activity('Menghapus Data Departemen', 'Kepegawaian', 'Nama Departemen: ' . ($dept['nama_departemen'] ?? ''));
+        }
         return redirect()->to(base_url('kepegawaian/departemen'))->with('success', 'Departemen berhasil dihapus.');
     }
 }

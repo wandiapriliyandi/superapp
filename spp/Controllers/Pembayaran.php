@@ -156,6 +156,9 @@ class Pembayaran extends BaseController
         $santri = $santriModel->where('nisn', $nisn)->first();
         $this->recordToJournal($no_transaksi, date('Y-m-d'), $total_bayar, $santri['nama_lengkap'] ?? 'Santri');
 
+        helper('activity');
+        log_activity('Menerima Pembayaran SPP Massal', 'Spp', 'Santri: ' . ($santri['nama_lengkap'] ?? '') . ', Nominal Total: ' . $total_bayar . ', No Transaksi: ' . $no_transaksi);
+
         return redirect()->to(base_url('spp/pembayaran/kwitansi/' . $no_transaksi))->with('success', 'Pembayaran berhasil diproses.');
     }
 

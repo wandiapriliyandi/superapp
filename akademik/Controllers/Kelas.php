@@ -41,11 +41,15 @@ class Kelas extends BaseController
 
     public function store()
     {
+        helper('activity');
+        $nama_kelas = $this->request->getPost('nama_kelas');
         $this->kelasModel->save([
-            'nama_kelas' => $this->request->getPost('nama_kelas'),
+            'nama_kelas' => $nama_kelas,
             'tingkat' => $this->request->getPost('tingkat'),
             'id_wali_kelas' => $this->request->getPost('id_wali_kelas'),
         ]);
+
+        log_activity('Menambah Kelas', 'Akademik', 'Nama Kelas: ' . $nama_kelas);
 
         return redirect()->to(base_url('akademik/kelas'))->with('success', 'Data kelas berhasil disimpan');
     }
@@ -66,18 +70,27 @@ class Kelas extends BaseController
 
     public function update($id)
     {
+        helper('activity');
+        $nama_kelas = $this->request->getPost('nama_kelas');
         $this->kelasModel->update($id, [
-            'nama_kelas' => $this->request->getPost('nama_kelas'),
+            'nama_kelas' => $nama_kelas,
             'tingkat' => $this->request->getPost('tingkat'),
             'id_wali_kelas' => $this->request->getPost('id_wali_kelas'),
         ]);
+
+        log_activity('Mengubah Kelas', 'Akademik', 'Nama Kelas: ' . $nama_kelas);
 
         return redirect()->to(base_url('akademik/kelas'))->with('success', 'Data kelas berhasil diperbarui');
     }
 
     public function delete($id)
     {
-        $this->kelasModel->delete($id);
+        helper('activity');
+        $kelas = $this->kelasModel->find($id);
+        if ($kelas) {
+            $this->kelasModel->delete($id);
+            log_activity('Menghapus Kelas', 'Akademik', 'Nama Kelas: ' . ($kelas['nama_kelas'] ?? ''));
+        }
         return redirect()->to(base_url('akademik/kelas'))->with('success', 'Data kelas berhasil dihapus');
     }
 }

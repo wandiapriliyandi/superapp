@@ -32,7 +32,8 @@ class Absensi extends BaseController
 
     public function save()
     {
-        $pegawai_ids = $this->request->getPost('pegawai_id');
+        helper('activity');
+        $pegawai_ids = $this->request->getPost('pegawai_id') ?? [];
         $status = $this->request->getPost('status');
         $tanggal = $this->request->getPost('tanggal');
 
@@ -55,6 +56,8 @@ class Absensi extends BaseController
                 $this->absensiModel->save($saveData);
             }
         }
+
+        log_activity('Menginput Absensi Pegawai', 'Kepegawaian', 'Tanggal: ' . $tanggal . ', Total Pegawai: ' . count($pegawai_ids));
 
         return redirect()->to(base_url('kepegawaian/absensi?tanggal='.$tanggal))->with('success', 'Presensi berhasil diperbarui.');
     }

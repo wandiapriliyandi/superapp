@@ -62,14 +62,19 @@ class Tarif extends BaseController
 
     public function save()
     {
-        $this->tarifModel->save($this->request->getPost());
+        helper('activity');
+        $data = $this->request->getPost();
+        $this->tarifModel->save($data);
+        log_activity('Menambah Tarif SPP', 'Spp', 'Nama Tarif: ' . ($data['nama_tarif'] ?? ''));
         return redirect()->to(base_url('spp/tarif'))->with('success', 'Tarif berhasil disimpan.');
     }
 
     public function update($id)
     {
+        helper('activity');
         $data = $this->request->getPost();
         $this->tarifModel->update($id, $data);
+        log_activity('Mengubah Tarif SPP', 'Spp', 'Nama Tarif: ' . ($data['nama_tarif'] ?? ''));
         return redirect()->to(base_url('spp/tarif'))->with('success', 'Tarif berhasil diperbarui.');
     }
 
@@ -109,7 +114,12 @@ class Tarif extends BaseController
 
     public function delete($id)
     {
-        $this->tarifModel->delete($id);
+        helper('activity');
+        $tarif = $this->tarifModel->find($id);
+        if ($tarif) {
+            $this->tarifModel->delete($id);
+            log_activity('Menghapus Tarif SPP', 'Spp', 'Nama Tarif: ' . ($tarif['nama_tarif'] ?? ''));
+        }
         return redirect()->to(base_url('spp/tarif'))->with('success', 'Tarif berhasil dihapus.');
     }
 }

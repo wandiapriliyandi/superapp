@@ -531,8 +531,14 @@ function hexToRgb($hex) {
                 <a class="nav-link <?= url_is('activity*') ? 'active' : '' ?>" href="<?= base_url('activity') ?>">
                     <span class="nav-icon">📜</span> <span class="nav-text">Log Aktivitas</span>
                 </a>
-                <a class="nav-link <?= url_is('setting') && !url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting') ?>">
+                <a class="nav-link <?= url_is('setting') && !url_is('setting/theme') && !url_is('setting/users*') && !url_is('setting/roles*') ? 'active' : '' ?>" href="<?= base_url('setting') ?>">
                     <span class="nav-icon">⚙️</span> <span class="nav-text">Profil Pesantren</span>
+                </a>
+                <a class="nav-link <?= url_is('setting/users*') ? 'active' : '' ?>" href="<?= base_url('setting/users') ?>">
+                    <span class="nav-icon">👥</span> <span class="nav-text">Manajemen Pengguna</span>
+                </a>
+                <a class="nav-link <?= url_is('setting/roles*') ? 'active' : '' ?>" href="<?= base_url('setting/roles') ?>">
+                    <span class="nav-icon">🛡️</span> <span class="nav-text">Manajemen Hak Akses</span>
                 </a>
                 <a class="nav-link <?= url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting/theme') ?>">
                     <span class="nav-icon">🎨</span> <span class="nav-text">Tema Aplikasi</span>
