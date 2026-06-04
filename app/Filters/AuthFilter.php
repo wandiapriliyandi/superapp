@@ -10,69 +10,70 @@ class AuthFilter implements FilterInterface
 {
     /**
      * Mapping kata kunci URL ke suffix aksi permission.
-     * Misalnya: URL mengandung 'add' → cek permission '{modul}_create'.
+     * Deteksi dari SEMUA segmen URL.
      */
     private array $actionMap = [
         // CREATE
-        'create'   => 'create',
-        'add'      => 'create',
-        'save'     => 'create',
-        'store'    => 'create',
-        'tambah'   => 'create',
-        'simpan'   => 'create',
-        'generate' => 'create',
-        'bayar'    => 'create',
-        'input'    => 'create',
-        'import'   => 'create',
-        'daftar'   => 'create',
-        'register' => 'create',
+        'create'   => 'create', 'add'      => 'create', 'save'     => 'create',
+        'store'    => 'create', 'tambah'   => 'create', 'simpan'   => 'create',
+        'generate' => 'create', 'bayar'    => 'create', 'input'    => 'create',
+        'import'   => 'create', 'daftar'   => 'create', 'register' => 'create',
+        'process-generate' => 'create', 'save-massal' => 'create',
+        'bayar-massal'     => 'create',
 
         // UPDATE
-        'edit'     => 'update',
-        'update'   => 'update',
-        'ubah'     => 'update',
-        'perbarui' => 'update',
-        'approve'  => 'update',
-        'status'   => 'update',
-        'verify'   => 'update',
-        'aktivasi' => 'update',
+        'edit'     => 'update', 'update'   => 'update', 'ubah'     => 'update',
+        'perbarui' => 'update', 'approve'  => 'update', 'status'   => 'update',
+        'verify'   => 'update', 'aktivasi' => 'update', 'set-active' => 'update',
+        'update-kehadiran' => 'update', 'update-status' => 'update',
+        'syarat-save'      => 'update',
 
         // DELETE
-        'delete'  => 'delete',
-        'remove'  => 'delete',
-        'destroy' => 'delete',
-        'hapus'   => 'delete',
+        'delete'  => 'delete', 'remove'  => 'delete', 'destroy'  => 'delete',
+        'hapus'   => 'delete', 'syarat-delete' => 'delete', 'remove-peserta' => 'delete',
 
         // EXPORT
-        'export'    => 'export',
-        'print'     => 'export',
-        'cetak'     => 'export',
-        'pdf'       => 'export',
-        'excel'     => 'export',
-        'word'      => 'export',
-        'rapor'     => 'export',
-        'kwitansi'  => 'export',
-        'laporan'   => 'export',
-        'rekap'     => 'export',
-        'download'  => 'export',
+        'export'       => 'export', 'print'        => 'export', 'cetak'        => 'export',
+        'pdf'          => 'export', 'excel'        => 'export', 'word'         => 'export',
+        'rapor'        => 'export', 'kwitansi'     => 'export', 'laporan'      => 'export',
+        'rekap'        => 'export', 'download'     => 'export', 'slip'         => 'export',
+        'export-excel' => 'export', 'export-word'  => 'export', 'export-pdf'   => 'export',
+        'cetak-struk'  => 'export',
+    ];
+
+    /**
+     * Sub-menu yang dikenali per modul.
+     * Key = nama modul, Value = array sub-menu key yang valid.
+     */
+    private array $moduleSubMenus = [
+        'spp'          => ['tarif', 'tagihan', 'pembayaran', 'mapping'],
+        'akademik'     => ['santri', 'tahun-ajaran', 'kelas', 'mapel', 'jadwal', 'presensi', 'nilai'],
+        'kepegawaian'  => ['pegawai', 'departemen', 'jabatan', 'jadwal', 'absensi', 'cuti', 'payroll'],
+        'perpustakaan' => ['buku', 'anggota', 'peminjaman', 'pengaturan'],
+        'ppdb'         => ['pendaftar', 'berkas', 'jadwal', 'pengaturan'],
+        'perijinan'    => ['perijinan', 'rekap', 'pengaturan'],
+        'poskestren'   => ['kunjungan', 'obat', 'stok'],
+        'keuangan'     => ['akun', 'jurnal', 'buku-besar', 'laporan'],
+        'monitoring'   => [],
+        'e-learning'   => [],
     ];
 
     public function before(RequestInterface $request, $arguments = null)
     {
-        // 1. Cek apakah user sudah login
+        // 1. Cek login
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // 2. Ambil path URL dan segmen-segmennya
-        $uri      = $request->getUri();
-        $path     = $uri->getPath();
-        $segments = explode('/', trim($path, '/'));
+        // 2. Parse URL
+        $path     = $request->getUri()->getPath();
+        $segments = array_values(array_filter(explode('/', trim($path, '/'))));
         $module   = $segments[0] ?? '';
+        $subMenu  = $segments[1] ?? '';
 
         $permissions = session()->get('permissions') ?: [];
 
-        // 3. Superadmin (*) dilewati untuk semua modul
+        // 3. Superadmin bypass
         if (in_array('*', $permissions)) {
             return;
         }
@@ -84,25 +85,47 @@ class AuthFilter implements FilterInterface
         ];
 
         if (!in_array($module, $protectedModules)) {
-            return; // Modul tidak terdaftar, lewati cek
+            return; // bukan modul terlindungi, lewati
         }
 
-        // 5. Modul sistem hanya bisa diakses superadmin (sudah ditangani di atas)
-        $systemModules = ['setting', 'activity'];
-        if (in_array($module, $systemModules)) {
+        // 5. Modul sistem hanya superadmin
+        if (in_array($module, ['setting', 'activity'])) {
             return redirect()->to(base_url('/'))->with('error', 'Anda tidak memiliki hak akses superadmin.');
         }
 
-        // 6. Cek permission akses modul dasar
+        // 6. Cek permission modul dasar
         if (!in_array($module, $permissions)) {
             return redirect()->to(base_url('/'))->with('error', 'Anda tidak memiliki hak akses ke modul ' . ucfirst($module) . '.');
         }
 
-        // 7. Deteksi aksi CRUD dari segmen URL & cek permission granular
+        // 7. Cek permission sub-menu (jika modul punya sub-menu terdaftar)
+        $knownSubMenus = $this->moduleSubMenus[$module] ?? [];
+
+        if (!empty($knownSubMenus) && !empty($subMenu) && in_array($subMenu, $knownSubMenus)) {
+            // Cek apakah role memiliki SETIDAKNYA SATU permission sub-menu untuk modul ini.
+            // Jika tidak ada → backward-compat: izinkan semua sub-menu.
+            $hasAnySubMenuPerm = $this->hasAnySubMenuPermission($module, $knownSubMenus, $permissions);
+
+            if ($hasAnySubMenuPerm) {
+                // Role sudah dikonfigurasi sub-menu → terapkan cek
+                $subMenuPermKey = $module . '.' . $subMenu;
+                if (!in_array($subMenuPermKey, $permissions)) {
+                    return redirect()->to(base_url($module))->with('error', 'Anda tidak memiliki akses ke menu ' . ucfirst(str_replace('-', ' ', $subMenu)) . ' di modul ' . ucfirst($module) . '.');
+                }
+            }
+            // else: role lama tanpa sub-menu perm → lewati, izinkan
+        }
+
+        // 8. Deteksi aksi CRUD dari segmen URL & cek permission granular
         $detectedAction = $this->detectAction($segments);
 
         if ($detectedAction !== null) {
-            $requiredPermission = $module . '_' . $detectedAction;
+            // Tentukan prefix permission: pakai sub-menu jika relevan, else modul saja
+            $permPrefix = (!empty($subMenu) && in_array($subMenu, $knownSubMenus))
+                ? $module . '.' . $subMenu
+                : $module;
+
+            $requiredPermission = $permPrefix . '_' . $detectedAction;
 
             if (!in_array($requiredPermission, $permissions)) {
                 $actionLabel = [
@@ -113,9 +136,23 @@ class AuthFilter implements FilterInterface
                 ][$detectedAction] ?? $detectedAction;
 
                 return redirect()->back()
-                    ->with('error', 'Anda tidak memiliki izin untuk ' . $actionLabel . ' di modul ' . ucfirst($module) . '.');
+                    ->with('error', 'Anda tidak memiliki izin untuk ' . $actionLabel . ' di ' . ucfirst(str_replace('-', ' ', $subMenu ?: $module)) . '.');
             }
         }
+    }
+
+    /**
+     * Cek apakah di session permissions ada setidaknya satu permission sub-menu
+     * untuk modul tertentu (format: 'modul.submenu').
+     */
+    private function hasAnySubMenuPermission(string $module, array $knownSubMenus, array $permissions): bool
+    {
+        foreach ($knownSubMenus as $sm) {
+            if (in_array($module . '.' . $sm, $permissions)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -130,7 +167,7 @@ class AuthFilter implements FilterInterface
                 return $this->actionMap[$seg];
             }
         }
-        return null; // Aksi READ — tidak perlu permission tambahan
+        return null;
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
