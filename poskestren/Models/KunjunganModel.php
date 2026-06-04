@@ -11,7 +11,7 @@ class KunjunganModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $allowedFields    = [
-        'nisn', 
+        'nisn',
         'tgl_kunjungan', 
         'keluhan', 
         'diagnosa', 
