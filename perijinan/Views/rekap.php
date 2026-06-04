@@ -59,7 +59,12 @@
                             </td>
                             <td><?= $p['jenis_izin'] ?></td>
                             <td><?= date('d/m/Y H:i', strtotime($p['tanggal_mulai'])) ?></td>
-                            <td><?= date('d/m/Y H:i', strtotime($p['tanggal_selesai'])) ?></td>
+                            <td>
+                                <?= date('d/m/Y H:i', strtotime($p['tanggal_selesai'])) ?>
+                                <?php if ($p['status'] == 'Kembali' && !empty($p['waktu_kembali'])) : ?>
+                                    <br><small class="text-success fw-bold">Kembali: <?= date('d/m/Y H:i', strtotime($p['waktu_kembali'])) ?></small>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <span class="badge bg-<?= $p['is_terlambat'] ? 'danger' : 'light text-dark' ?> rounded-pill">
                                     <?= $p['status'] ?> <?= $p['is_terlambat'] ? '(Terlambat)' : '' ?>

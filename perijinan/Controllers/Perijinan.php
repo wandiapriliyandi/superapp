@@ -104,6 +104,13 @@ class Perijinan extends BaseController
         return redirect()->back()->with('error', 'Perijinan telah ditolak.');
     }
 
+    public function hapus($id)
+    {
+        $this->perijinanModel->delete($id);
+
+        return redirect()->back()->with('success', 'Data perijinan berhasil dihapus.');
+    }
+
     public function rekap()
     {
         $data = [

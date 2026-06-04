@@ -76,6 +76,9 @@
                                         <div class="small">
                                             <span class="text-muted">Dari:</span> <?= date('d M Y H:i', strtotime($p['tanggal_mulai'])) ?><br>
                                             <span class="text-muted">Sampai:</span> <?= date('d M Y H:i', strtotime($p['tanggal_selesai'])) ?>
+                                            <?php if ($p['status'] == 'Kembali' && !empty($p['waktu_kembali'])) : ?>
+                                                <br><span class="text-success fw-bold">Kembali:</span> <?= date('d M Y H:i', strtotime($p['waktu_kembali'])) ?>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                     <td>
