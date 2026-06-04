@@ -55,6 +55,9 @@
     <!-- 15. Portal Wali -->
     <?= dashboard_card('Portal Wali', 'Akses Orang Tua Santri', 'bi-phone-vibrate', 'bg-dark', '#', 'Coming Soon') ?>
 
+    <!-- 16. Pengaturan -->
+    <?= dashboard_card('Pengaturan', 'Profil Pesantren & Tema', 'bi-gear', 'bg-custom-charcoal text-white', base_url('setting')) ?>
+
     <!-- Additional: Activity Log -->
     <?= dashboard_card('Log Aktivitas', 'Riwayat Audit Sistem', 'bi-clock-history', 'bg-light text-dark border', base_url('activity')) ?>
 </div>
@@ -98,6 +101,7 @@ function dashboard_card($title, $desc, $icon, $bg, $link, $status = '') {
     .bg-custom-gray { background-color: #64748b; }
     .bg-custom-crimson { background-color: #e11d48; }
     .bg-custom-indigo-dark { background-color: #312e81; }
+    .bg-custom-charcoal { background-color: #374151; }
 
     .dashboard-card {
         transition: all 0.3s cubic-bezier(.25,.8,.25,1);
