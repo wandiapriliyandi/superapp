@@ -222,11 +222,13 @@ function hexToRgb($hex) {
             z-index: 999;
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         }
         .sidebar-backdrop.show {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         /* Responsive Breakpoints */
@@ -287,7 +289,11 @@ function hexToRgb($hex) {
 
     <?php if (!isset($hide_sidebar) || !$hide_sidebar): ?>
     <div class="sidebar" id="sidebar">
-        <div class="px-4 mb-3 text-center border-bottom pb-3">
+        <div class="px-4 mb-3 text-center border-bottom pb-3 position-relative">
+            <!-- Tombol Tutup Sidebar untuk Mobile -->
+            <button class="btn btn-link text-body position-absolute top-0 end-0 mt-2 me-2 p-0 d-md-none" id="sidebarCloseMobile" aria-label="Tutup Menu">
+                <i class="bi bi-x-lg fs-4"></i>
+            </button>
             <a href="<?= base_url() ?>" class="text-decoration-none">
                 <?php 
                     if($setting && $setting['app_logo'] && file_exists(FCPATH . 'uploads/img/' . $setting['app_logo'])) {
@@ -675,6 +681,7 @@ function hexToRgb($hex) {
         const mainContent = document.getElementById('main-content');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const sidebarCloseMobile = document.getElementById('sidebarCloseMobile');
 
         // Restore sidebar state only on desktop
         if (sidebar && mainContent && window.innerWidth > 768 && localStorage.getItem('sidebar-toggled') === 'true') {
@@ -705,6 +712,10 @@ function hexToRgb($hex) {
 
         if (sidebarBackdrop) {
             sidebarBackdrop.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarCloseMobile) {
+            sidebarCloseMobile.addEventListener('click', toggleSidebar);
         }
 
         // Handle window resizing
