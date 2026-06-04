@@ -14,6 +14,7 @@ class PerijinanModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'nisn', 
+        'token',
         'jenis_izin', 
         'alasan', 
         'tanggal_mulai', 

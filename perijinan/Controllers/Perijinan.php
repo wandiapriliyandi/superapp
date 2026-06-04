@@ -49,16 +49,29 @@ class Perijinan extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $data = [
-            'nisn'            => $this->request->getPost('nisn'),
-            'jenis_izin'      => $this->request->getPost('jenis_izin'),
-            'alasan'          => $this->request->getPost('alasan'),
-            'tanggal_mulai'   => $this->request->getPost('tanggal_mulai'),
-            'tanggal_selesai' => $this->request->getPost('tanggal_selesai'),
-            'status'          => 'Pending'
-        ];
+        $tanggalMulai = $this->request->getPost('tanggal_mulai');
+        $year = date('Y', strtotime($tanggalMulai));
 
-        $this->perijinanModel->save($data);
+        $nisnArray = $this->request->getPost('nisn');
+        if (!is_array($nisnArray)) {
+            $nisnArray = [$nisnArray];
+        }
+
+        foreach ($nisnArray as $nisn) {
+            $token = $this->generateToken($year);
+            
+            $data = [
+                'nisn'            => $nisn,
+                'token'           => $token,
+                'jenis_izin'      => $this->request->getPost('jenis_izin'),
+                'alasan'          => $this->request->getPost('alasan'),
+                'tanggal_mulai'   => $this->request->getPost('tanggal_mulai'),
+                'tanggal_selesai' => $this->request->getPost('tanggal_selesai'),
+                'status'          => 'Pending'
+            ];
+            
+            $this->perijinanModel->insert($data);
+        }
 
         return redirect()->to(base_url('perijinan'))->with('success', 'Pengajuan perijinan berhasil dikirim.');
     }
@@ -126,5 +139,16 @@ class Perijinan extends BaseController
             'title' => 'Pengaturan Modul Perijinan'
         ];
         return view('Perijinan\Views\pengaturan', $data);
+    }
+
+    private function generateToken($year)
+    {
+        do {
+            $random = rand(10000, 99999);
+            $token = $year . $random;
+            $exists = $this->perijinanModel->where('token', $token)->first();
+        } while ($exists);
+        
+        return $token;
     }
 }

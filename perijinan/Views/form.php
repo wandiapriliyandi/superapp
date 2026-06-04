@@ -19,10 +19,9 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-uppercase tracking-wider">Pilih Santri</label>
-                        <select name="nisn" class="form-select form-select-lg rounded-3 select2 <?= $validation->hasError('nisn') ? 'is-invalid' : '' ?>" id="nisn">
-                            <option value="">-- Cari Nama Santri --</option>
+                        <select name="nisn[]" class="form-select form-select-lg rounded-3 select2 <?= $validation->hasError('nisn') ? 'is-invalid' : '' ?>" id="nisn" multiple="multiple" data-placeholder="-- Cari & Pilih Nama-Nama Santri --">
                             <?php foreach ($santri as $s) : ?>
-                                <option value="<?= $s['nisn'] ?>" <?= old('nisn') == $s['nisn'] ? 'selected' : '' ?>>
+                                <option value="<?= $s['nisn'] ?>" <?= (old('nisn') && in_array($s['nisn'], (array)old('nisn'))) ? 'selected' : '' ?>>
                                     <?= $s['nama_lengkap'] ?> (<?= $s['nis'] ?>)
                                 </option>
                             <?php endforeach; ?>
@@ -100,7 +99,8 @@
     $(document).ready(function() {
         $('#nisn').select2({
             theme: 'bootstrap-5',
-            placeholder: '-- Pilih Santri --'
+            placeholder: '-- Cari & Pilih Nama-Nama Santri --',
+            closeOnSelect: false
         });
     });
 </script>

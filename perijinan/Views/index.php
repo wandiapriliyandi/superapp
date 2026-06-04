@@ -64,6 +64,9 @@
                                             <div>
                                                 <div class="fw-bold"><?= $p['nama_santri'] ?></div>
                                                 <div class="small text-muted"><?= $p['nis'] ?></div>
+                                                <?php if (!empty($p['token'])) : ?>
+                                                    <span class="badge bg-light text-secondary border mt-1" style="font-size: 0.65rem;">Token: <?= $p['token'] ?></span>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
@@ -109,7 +112,14 @@
                                                 data-bs-target="#actionModal"
                                                 data-id="<?= $p['id'] ?>"
                                                 data-nama="<?= htmlspecialchars($p['nama_santri'], ENT_QUOTES, 'UTF-8') ?>"
-                                                data-status="<?= $p['status'] ?>">
+                                                data-status="<?= $p['status'] ?>"
+                                                data-token="<?= $p['token'] ?? '-' ?>"
+                                                data-jenis="<?= htmlspecialchars($p['jenis_izin'], ENT_QUOTES, 'UTF-8') ?>"
+                                                data-alasan="<?= htmlspecialchars($p['alasan'] ?? '-', ENT_QUOTES, 'UTF-8') ?>"
+                                                data-mulai="<?= date('d M Y H:i', strtotime($p['tanggal_mulai'])) ?>"
+                                                data-selesai="<?= date('d M Y H:i', strtotime($p['tanggal_selesai'])) ?>"
+                                                data-kembali="<?= $p['waktu_kembali'] ? date('d M Y H:i', strtotime($p['waktu_kembali'])) : '-' ?>"
+                                                data-catatan="<?= htmlspecialchars($p['catatan_petugas'] ?? '-', ENT_QUOTES, 'UTF-8') ?>">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                     </td>
@@ -146,11 +156,51 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold" id="actionModalTitle">Pilihan Aksi</h5>
+                <h5 class="modal-title fw-bold" id="actionModalTitle">Detail & Aksi Perizinan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <p class="text-muted small mb-3">Pilih aksi untuk santri: <strong id="actionModalSantriName" class="text-dark"></strong></p>
+                <!-- Card Detail Rincian Izin (Premium Card) -->
+                <div class="card border-0 bg-light rounded-4 mb-4">
+                    <div class="card-body p-3 small text-dark">
+                        <h6 class="fw-bold mb-3 text-secondary" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1"></i> Rincian Izin</h6>
+                        <div class="row g-2">
+                            <div class="col-5 text-muted">Nama Santri:</div>
+                            <div class="col-7 fw-bold text-end text-truncate text-primary" id="detailNama"></div>
+                            
+                            <div class="col-5 text-muted">Token Izin:</div>
+                            <div class="col-7 fw-bold text-end" id="detailToken"></div>
+                            
+                            <div class="col-5 text-muted">Jenis Izin:</div>
+                            <div class="col-7 fw-semibold text-end" id="detailJenis"></div>
+                            
+                            <div class="col-5 text-muted">Waktu Mulai:</div>
+                            <div class="col-7 fw-semibold text-end text-muted" id="detailMulai"></div>
+                            
+                            <div class="col-5 text-muted">Batas Kembali:</div>
+                            <div class="col-7 fw-semibold text-end text-muted" id="detailSelesai"></div>
+                            
+                            <div class="col-5 text-muted" id="detailKembaliLabel">Waktu Kembali (Riil):</div>
+                            <div class="col-7 fw-bold text-end text-success" id="detailKembali"></div>
+                            
+                            <div class="col-12"><hr class="my-1 opacity-25"></div>
+                            
+                            <div class="col-4 text-muted">Alasan:</div>
+                            <div class="col-8 fw-semibold text-end text-wrap" id="detailAlasan"></div>
+                            
+                            <div class="col-4 text-muted">Status:</div>
+                            <div class="col-8 text-end" id="detailStatusBadge"></div>
+                            
+                            <div class="col-12" id="detailCatatanRow">
+                                <hr class="my-1 opacity-25">
+                                <div class="text-muted mb-1">Catatan Penolakan/Petugas:</div>
+                                <div class="bg-white bg-opacity-75 p-2 rounded text-muted text-start" id="detailCatatan" style="font-size: 0.7rem; max-height: 80px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h6 class="fw-bold mb-3 text-secondary" style="font-size: 0.8rem;"><i class="bi bi-lightning-charge me-1"></i> Pilih Tindakan</h6>
                 <div class="d-grid gap-2" id="actionModalButtons">
                     <!-- Tombol-tombol aksi akan diisi secara dinamis oleh JS -->
                 </div>
@@ -194,9 +244,49 @@
                 const id = button.getAttribute('data-id');
                 const nama = button.getAttribute('data-nama');
                 const status = button.getAttribute('data-status');
+                const token = button.getAttribute('data-token');
+                const jenis = button.getAttribute('data-jenis');
+                const alasan = button.getAttribute('data-alasan');
+                const mulai = button.getAttribute('data-mulai');
+                const selesai = button.getAttribute('data-selesai');
+                const kembali = button.getAttribute('data-kembali');
+                const catatan = button.getAttribute('data-catatan');
                 
-                // Set nama santri
-                document.getElementById('actionModalSantriName').innerText = nama;
+                // Populate details
+                document.getElementById('detailNama').innerText = nama;
+                document.getElementById('detailToken').innerText = token && token !== '-' ? token : 'Belum Ada';
+                document.getElementById('detailJenis').innerText = jenis;
+                document.getElementById('detailMulai').innerText = mulai;
+                document.getElementById('detailSelesai').innerText = selesai;
+                document.getElementById('detailAlasan').innerText = alasan;
+                
+                // Handle kembali (riil)
+                if (status === 'Kembali') {
+                    document.getElementById('detailKembaliLabel').style.display = 'block';
+                    document.getElementById('detailKembali').style.display = 'block';
+                    document.getElementById('detailKembali').innerText = kembali;
+                } else {
+                    document.getElementById('detailKembaliLabel').style.display = 'none';
+                    document.getElementById('detailKembali').style.display = 'none';
+                }
+                
+                // Handle catatan
+                if (catatan && catatan !== '-') {
+                    document.getElementById('detailCatatanRow').style.display = 'block';
+                    document.getElementById('detailCatatan').innerText = catatan;
+                } else {
+                    document.getElementById('detailCatatanRow').style.display = 'none';
+                }
+                
+                // Render status badge inside details
+                const statusBadgeContainer = document.getElementById('detailStatusBadge');
+                let badgeClass = 'bg-secondary';
+                if (status === 'Pending') badgeClass = 'bg-warning text-dark';
+                else if (status === 'Disetujui') badgeClass = 'bg-success';
+                else if (status === 'Ditolak') badgeClass = 'bg-danger';
+                else if (status === 'Aktif') badgeClass = 'bg-primary';
+                
+                statusBadgeContainer.innerHTML = `<span class="badge ${badgeClass} rounded-pill px-3 py-1">${status}</span>`;
                 
                 // Kontainer tombol
                 const container = document.getElementById('actionModalButtons');
