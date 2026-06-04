@@ -58,6 +58,8 @@ class Auth extends BaseController
             'logged_in'    => true
         ]);
 
+        log_activity('Melakukan Login', 'Autentikasi', 'User dengan username ' . $user['username'] . ' berhasil masuk ke sistem.');
+ 
         // Redirect sesuai hak akses modul
         if (in_array('*', $permissions)) {
             return redirect()->to(base_url('activity'));
@@ -74,6 +76,11 @@ class Auth extends BaseController
 
     public function logout()
     {
+        $namaLengkap = session()->get('nama_lengkap');
+        if ($namaLengkap) {
+            log_activity('Melakukan Logout', 'Autentikasi', 'User ' . $namaLengkap . ' keluar dari sistem.');
+        }
+
         session()->destroy();
         return redirect()->to(base_url('login'));
     }
