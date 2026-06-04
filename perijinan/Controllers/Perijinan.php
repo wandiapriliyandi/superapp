@@ -13,6 +13,11 @@ class Perijinan extends BaseController
 
     public function __construct()
     {
+        $permissions = session()->get('permissions') ?: [];
+        if (!in_array('*', $permissions) && !in_array('perijinan', $permissions)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Anda tidak memiliki hak akses.');
+        }
+
         $this->perijinanModel = new PerijinanModel();
         $this->santriModel = new SantriModel();
     }

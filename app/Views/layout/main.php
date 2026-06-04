@@ -3,6 +3,11 @@
 $db = \Config\Database::connect();
 $setting = $db->table('app_settings')->get()->getRowArray();
 
+$session = session();
+$permissions = $session->get('permissions') ?: [];
+$namaLengkap = $session->get('nama_lengkap') ?: 'Administrator';
+$roleName = $session->get('role_name') ?: 'Admin';
+
 // Fungsi helper untuk mengubah Hex ke RGB
 function hexToRgb($hex) {
     $hex = str_replace("#", "", $hex);
@@ -521,19 +526,21 @@ function hexToRgb($hex) {
 
         <!-- MENU SYSTEM / DEFAULT -->
         <?php else: ?>
-            <div class="sidebar-heading text-secondary fw-bold">SYSTEM ADMIN</div>
-            <a class="nav-link <?= url_is('activity*') ? 'active' : '' ?>" href="<?= base_url('activity') ?>">
-                <span class="nav-icon">📜</span> <span class="nav-text">Log Aktivitas</span>
-            </a>
-            <a class="nav-link <?= url_is('setting') && !url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting') ?>">
-                <span class="nav-icon">⚙️</span> <span class="nav-text">Profil Pesantren</span>
-            </a>
-            <a class="nav-link <?= url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting/theme') ?>">
-                <span class="nav-icon">🎨</span> <span class="nav-text">Tema Aplikasi</span>
-            </a>
-            <a class="nav-link <?= url_is('migrate*') ? 'active' : '' ?>" href="<?= base_url('migrate') ?>">
-                <span class="nav-icon">⚡</span> <span class="nav-text">Migrasi & Database</span>
-            </a>
+            <?php if (in_array('*', $permissions)): ?>
+                <div class="sidebar-heading text-secondary fw-bold">SYSTEM ADMIN</div>
+                <a class="nav-link <?= url_is('activity*') ? 'active' : '' ?>" href="<?= base_url('activity') ?>">
+                    <span class="nav-icon">📜</span> <span class="nav-text">Log Aktivitas</span>
+                </a>
+                <a class="nav-link <?= url_is('setting') && !url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting') ?>">
+                    <span class="nav-icon">⚙️</span> <span class="nav-text">Profil Pesantren</span>
+                </a>
+                <a class="nav-link <?= url_is('setting/theme') ? 'active' : '' ?>" href="<?= base_url('setting/theme') ?>">
+                    <span class="nav-icon">🎨</span> <span class="nav-text">Tema Aplikasi</span>
+                </a>
+                <a class="nav-link <?= url_is('migrate*') ? 'active' : '' ?>" href="<?= base_url('migrate') ?>">
+                    <span class="nav-icon">⚡</span> <span class="nav-text">Migrasi & Database</span>
+                </a>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -552,14 +559,16 @@ function hexToRgb($hex) {
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
                     <button class="btn btn-link text-body text-decoration-none dropdown-toggle p-0" type="button" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="rounded-circle me-sm-2" width="35" height="35">
-                        <span class="fw-semibold d-none d-sm-inline">Administrator</span>
+                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($namaLengkap) ?>&background=random" class="rounded-circle me-sm-2" width="35" height="35">
+                        <span class="fw-semibold d-none d-sm-inline"><?= esc($namaLengkap) ?> <small class="text-muted">(<?= esc($roleName) ?>)</small></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profil</a></li>
-                        <li><a class="dropdown-item" href="<?= base_url('setting') ?>"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
+                        <?php if (in_array('*', $permissions) || in_array('setting', $permissions)): ?>
+                            <li><a class="dropdown-item" href="<?= base_url('setting') ?>"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
+                        <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i> Keluar</a></li>
+                        <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>"><i class="bi bi-box-arrow-right me-2"></i> Keluar</a></li>
                     </ul>
                 </div>
             </div>

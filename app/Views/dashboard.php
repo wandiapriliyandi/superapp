@@ -1,6 +1,12 @@
 <?= $this->extend('layout/main') ?>
 
 <?= $this->section('content') ?>
+<?php
+$permissions = session()->get('permissions') ?: [];
+$hasAccess = function($module) use ($permissions) {
+    return in_array('*', $permissions) || in_array($module, $permissions);
+};
+?>
 <div class="row g-3">
     <div class="col-12 mb-2">
         <h3 class="fw-bold">SuperApp Pesantren Dashboard 👋</h3>
@@ -8,58 +14,94 @@
     </div>
 
     <!-- 0. Monitoring Eksekutif -->
-    <?= dashboard_card('Monitoring', 'Laporan & Analisis Pimpinan', 'bi-speedometer2', 'bg-custom-indigo-dark', base_url('monitoring')) ?>
+    <?php if ($hasAccess('monitoring')): ?>
+        <?= dashboard_card('Monitoring', 'Laporan & Analisis Pimpinan', 'bi-speedometer2', 'bg-custom-indigo-dark', base_url('monitoring')) ?>
+    <?php endif; ?>
 
     <!-- 1. PPDB -->
-    <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-custom-blue', base_url('ppdb/dashboard')) ?>
+    <?php if ($hasAccess('ppdb')): ?>
+        <?= dashboard_card('PPDB', 'Pendaftaran Santri Baru', 'bi-person-plus', 'bg-custom-blue', base_url('ppdb/dashboard')) ?>
+    <?php endif; ?>
  
     <!-- 2. Siakad -->
-    <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-custom-emerald', base_url('akademik/dashboard')) ?>
+    <?php if ($hasAccess('akademik')): ?>
+        <?= dashboard_card('SIAKAD', 'Data Santri & Akademik', 'bi-mortarboard', 'bg-custom-emerald', base_url('akademik/dashboard')) ?>
+    <?php endif; ?>
  
     <!-- 3. HR (Kepegawaian) -->
-    <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-custom-cyan', base_url('kepegawaian/dashboard')) ?>
+    <?php if ($hasAccess('kepegawaian')): ?>
+        <?= dashboard_card('Kepegawaian', 'Data Guru & Karyawan', 'bi-person-workspace', 'bg-custom-cyan', base_url('kepegawaian/dashboard')) ?>
+    <?php endif; ?>
  
     <!-- 4. Kedisiplinan -->
-    <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-custom-rose', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('kedisiplinan')): ?>
+        <?= dashboard_card('Kedisiplinan', 'Poin Pelanggaran & Prestasi', 'bi-shield-check', 'bg-custom-rose', '#', 'Coming Soon') ?>
+    <?php endif; ?>
  
     <!-- 5. Perizinan -->
-    <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-custom-orange', base_url('perijinan')) ?>
+    <?php if ($hasAccess('perijinan')): ?>
+        <?= dashboard_card('Perizinan', 'Izin Pulang & Keluar', 'bi-card-checklist', 'bg-custom-orange', base_url('perijinan')) ?>
+    <?php endif; ?>
  
     <!-- 6. Keasramaan -->
-    <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-custom-indigo', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('keasramaan')): ?>
+        <?= dashboard_card('Keasramaan', 'Manajemen Kamar & Asrama', 'bi-houses', 'bg-custom-indigo', '#', 'Coming Soon') ?>
+    <?php endif; ?>
  
     <!-- 7. Kurikulum Spesialis -->
-    <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-custom-teal', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('tahfidz')): ?>
+        <?= dashboard_card('Tahfidz/Diniyah', 'Progres Hafalan & Kitab', 'bi-book', 'bg-custom-teal', '#', 'Coming Soon') ?>
+    <?php endif; ?>
  
     <!-- 8. E-Learning -->
-    <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-custom-violet', base_url('e-learning/dashboard')) ?>
+    <?php if ($hasAccess('e-learning')): ?>
+        <?= dashboard_card('E-Learning', 'Materi & Ujian Online', 'bi-laptop', 'bg-custom-violet', base_url('e-learning/dashboard')) ?>
+    <?php endif; ?>
  
     <!-- 9. SPP -->
-    <?= dashboard_card('Manajemen SPP', 'Pembayaran & Tagihan Santri', 'bi-wallet2', 'bg-custom-amber', base_url('spp')) ?>
+    <?php if ($hasAccess('spp')): ?>
+        <?= dashboard_card('Manajemen SPP', 'Pembayaran & Tagihan Santri', 'bi-wallet2', 'bg-custom-amber', base_url('spp')) ?>
+    <?php endif; ?>
  
     <!-- 10. Keuangan -->
-    <?= dashboard_card('Keuangan', 'Akuntansi, Jurnal & Buku Besar', 'bi-calculator', 'bg-custom-slate', base_url('keuangan')) ?>
+    <?php if ($hasAccess('keuangan')): ?>
+        <?= dashboard_card('Keuangan', 'Akuntansi, Jurnal & Buku Besar', 'bi-calculator', 'bg-custom-slate', base_url('keuangan')) ?>
+    <?php endif; ?>
 
     <!-- 11. OSIS -->
-    <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-custom-purple', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('osis')): ?>
+        <?= dashboard_card('OSIS', 'Kegiatan Santri/Siswa', 'bi-people', 'bg-custom-purple', '#', 'Coming Soon') ?>
+    <?php endif; ?>
 
     <!-- 12. Perpustakaan -->
-    <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-custom-sky', base_url('perpustakaan')) ?>
+    <?php if ($hasAccess('perpustakaan')): ?>
+        <?= dashboard_card('Perpustakaan', 'Katalog & Peminjaman Buku', 'bi-journal-bookmark', 'bg-custom-sky', base_url('perpustakaan')) ?>
+    <?php endif; ?>
 
     <!-- 13. Inventory -->
-    <?= dashboard_card('Inventory', 'Sarana & Infrastruktur', 'bi-box-seam', 'bg-custom-gray', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('inventory')): ?>
+        <?= dashboard_card('Inventory', 'Sarana & Infrastruktur', 'bi-box-seam', 'bg-custom-gray', '#', 'Coming Soon') ?>
+    <?php endif; ?>
 
     <!-- 14. Poskestren -->
-    <?= dashboard_card('Poskestren', 'Kesehatan & Rekam Medis', 'bi-heart-pulse', 'bg-custom-crimson', base_url('poskestren')) ?>
+    <?php if ($hasAccess('poskestren')): ?>
+        <?= dashboard_card('Poskestren', 'Kesehatan & Rekam Medis', 'bi-heart-pulse', 'bg-custom-crimson', base_url('poskestren')) ?>
+    <?php endif; ?>
 
     <!-- 15. Portal Wali -->
-    <?= dashboard_card('Portal Wali', 'Akses Orang Tua Santri', 'bi-phone-vibrate', 'bg-dark', '#', 'Coming Soon') ?>
+    <?php if ($hasAccess('wali')): ?>
+        <?= dashboard_card('Portal Wali', 'Akses Orang Tua Santri', 'bi-phone-vibrate', 'bg-dark', '#', 'Coming Soon') ?>
+    <?php endif; ?>
 
     <!-- 16. Pengaturan -->
-    <?= dashboard_card('Pengaturan', 'Profil Pesantren & Tema', 'bi-gear', 'bg-custom-charcoal text-white', base_url('setting')) ?>
+    <?php if ($hasAccess('setting')): ?>
+        <?= dashboard_card('Pengaturan', 'Profil Pesantren & Tema', 'bi-gear', 'bg-custom-charcoal text-white', base_url('setting')) ?>
+    <?php endif; ?>
 
     <!-- Additional: Activity Log -->
-    <?= dashboard_card('Log Aktivitas', 'Riwayat Audit Sistem', 'bi-clock-history', 'bg-light text-dark border', base_url('activity')) ?>
+    <?php if ($hasAccess('activity')): ?>
+        <?= dashboard_card('Log Aktivitas', 'Riwayat Audit Sistem', 'bi-clock-history', 'bg-light text-dark border', base_url('activity')) ?>
+    <?php endif; ?>
 </div>
 
 <?php
