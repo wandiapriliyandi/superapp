@@ -199,6 +199,17 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Opsi Rombongan -->
+                <div class="alert alert-info border-0 rounded-4 mb-4" id="groupActionWrapper" style="display: none;">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" id="groupActionToggle" checked>
+                        <label class="form-check-label fw-bold small text-info mb-0" for="groupActionToggle" style="cursor: pointer;">Terapkan Aksi untuk Rombongan</label>
+                    </div>
+                    <div class="small text-muted mt-2 ps-1" style="font-size: 0.72rem;">
+                        Aksi akan diterapkan sekaligus untuk: <strong id="groupMembersList" class="text-dark"></strong>
+                    </div>
+                </div>
                 
                 <h6 class="fw-bold mb-3 text-secondary" style="font-size: 0.8rem;"><i class="bi bi-lightning-charge me-1"></i> Pilih Tindakan</h6>
                 <div class="d-grid gap-2" id="actionModalButtons">
@@ -252,6 +263,21 @@
                 const kembali = button.getAttribute('data-kembali');
                 const catatan = button.getAttribute('data-catatan');
                 
+                // Cari anggota rombongan dengan token yang sama (dan status yang sama)
+                let rombongan = [];
+                if (token && token !== '-') {
+                    $('button[data-token]').each(function() {
+                        const t = $(this).attr('data-token');
+                        const statusRombongan = $(this).attr('data-status');
+                        if (t === token && statusRombongan === status) {
+                            rombongan.push({
+                                id: $(this).attr('data-id'),
+                                nama: $(this).attr('data-nama')
+                            });
+                        }
+                    });
+                }
+                
                 // Populate details
                 document.getElementById('detailNama').innerText = nama;
                 document.getElementById('detailToken').innerText = token && token !== '-' ? token : 'Belum Ada';
@@ -288,73 +314,97 @@
                 
                 statusBadgeContainer.innerHTML = `<span class="badge ${badgeClass} rounded-pill px-3 py-1">${status}</span>`;
                 
-                // Kontainer tombol
-                const container = document.getElementById('actionModalButtons');
-                container.innerHTML = ''; // Kosongkan terlebih dahulu
+                // Render rombongan section
+                const groupWrapper = document.getElementById('groupActionWrapper');
+                const groupList = document.getElementById('groupMembersList');
+                const toggle = document.getElementById('groupActionToggle');
                 
-                let buttonsHTML = '';
-                const baseUrl = '<?= base_url() ?>';
-                
-                if (status === 'Pending') {
-                    buttonsHTML += `
-                        <a href="${baseUrl}perijinan/approve/${id}" class="btn btn-outline-success py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
-                            <i class="bi bi-check-circle me-3 fs-5"></i> Setujui Perizinan
-                        </a>
-                        <button type="button" class="btn btn-outline-danger py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold btn-reject-trigger" data-id="${id}">
-                            <i class="bi bi-x-circle me-3 fs-5"></i> Tolak Perizinan
-                        </button>
-                    `;
-                } else if (status === 'Disetujui') {
-                    buttonsHTML += `
-                        <a href="${baseUrl}perijinan/aktifkan/${id}" class="btn btn-outline-primary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
-                            <i class="bi bi-door-open me-3 fs-5"></i> Mulai Berangkat (Keluar)
-                        </a>
-                    `;
-                } else if (status === 'Aktif') {
-                    buttonsHTML += `
-                        <a href="${baseUrl}perijinan/kembali/${id}" class="btn btn-outline-success py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
-                            <i class="bi bi-house-door me-3 fs-5"></i> Konfirmasi Kembali (Pulang)
-                        </a>
-                    `;
+                if (rombongan.length > 1) {
+                    groupWrapper.style.display = 'block';
+                    groupList.innerText = rombongan.map(m => m.nama).join(', ');
+                    toggle.checked = true; // Default apply to all
+                } else {
+                    groupWrapper.style.display = 'none';
                 }
                 
-                // Selalu ada opsi Cetak Surat Izin dan Hapus
-                buttonsHTML += `
-                    <a href="#" class="btn btn-outline-secondary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
-                        <i class="bi bi-printer me-3 fs-5"></i> Cetak Surat Izin
-                    </a>
-                    <button type="button" class="btn btn-danger py-2 text-start px-3 d-flex align-items-center rounded-3 fw-semibold btn-delete-trigger" data-id="${id}">
-                        <i class="bi bi-trash me-3 fs-5"></i> Hapus Data Perizinan
-                    </button>
-                `;
+                // Kontainer tombol
+                const container = document.getElementById('actionModalButtons');
+                const baseUrl = '<?= base_url() ?>';
                 
-                container.innerHTML = buttonsHTML;
-                
-                // Handler tombol Tolak di dalam modal aksi
-                $('.btn-reject-trigger').off('click').on('click', function() {
-                    const rejectId = $(this).attr('data-id');
-                    const modalActionInstance = bootstrap.Modal.getInstance(actionModal);
-                    modalActionInstance.hide();
+                function updateActions() {
+                    const useGroup = toggle.checked && rombongan.length > 1;
+                    const idsToUse = useGroup ? rombongan.map(m => m.id).join('-') : id;
+                    const textSuffix = useGroup ? ' Rombongan' : '';
                     
-                    setTimeout(() => {
-                        $('#rejectForm').attr('action', `${baseUrl}perijinan/reject/${rejectId}`);
-                        const rejectModalInstance = new bootstrap.Modal(document.getElementById('rejectModal'));
-                        rejectModalInstance.show();
-                    }, 350);
-                });
-                
-                // Handler tombol Hapus di dalam modal aksi
-                $('.btn-delete-trigger').off('click').on('click', function() {
-                    const deleteId = $(this).attr('data-id');
-                    const modalActionInstance = bootstrap.Modal.getInstance(actionModal);
-                    modalActionInstance.hide();
+                    container.innerHTML = ''; // Kosongkan terlebih dahulu
+                    let buttonsHTML = '';
                     
-                    setTimeout(() => {
-                        $('#confirmDeleteBtn').attr('href', `${baseUrl}perijinan/hapus/${deleteId}`);
-                        const deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
-                        deleteModalInstance.show();
-                    }, 350);
-                });
+                    if (status === 'Pending') {
+                        buttonsHTML += `
+                            <a href="${baseUrl}perijinan/approve/${idsToUse}" class="btn btn-outline-success py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
+                                <i class="bi bi-check-circle me-3 fs-5"></i> Setujui Perizinan${textSuffix}
+                            </a>
+                            <button type="button" class="btn btn-outline-danger py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold btn-reject-trigger" data-ids="${idsToUse}">
+                                <i class="bi bi-x-circle me-3 fs-5"></i> Tolak Perizinan${textSuffix}
+                            </button>
+                        `;
+                    } else if (status === 'Disetujui') {
+                        buttonsHTML += `
+                            <a href="${baseUrl}perijinan/aktifkan/${idsToUse}" class="btn btn-outline-primary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
+                                <i class="bi bi-door-open me-3 fs-5"></i> Mulai Berangkat${textSuffix} (Keluar)
+                            </a>
+                        `;
+                    } else if (status === 'Aktif') {
+                        buttonsHTML += `
+                            <a href="${baseUrl}perijinan/kembali/${idsToUse}" class="btn btn-outline-success py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
+                                <i class="bi bi-house-door me-3 fs-5"></i> Konfirmasi Kembali${textSuffix} (Pulang)
+                            </a>
+                        `;
+                    }
+                    
+                    buttonsHTML += `
+                        <a href="#" class="btn btn-outline-secondary py-2 text-start px-3 d-flex align-items-center rounded-3 mb-2 fw-semibold">
+                            <i class="bi bi-printer me-3 fs-5"></i> Cetak Surat Izin${textSuffix}
+                        </a>
+                        <button type="button" class="btn btn-danger py-2 text-start px-3 d-flex align-items-center rounded-3 fw-semibold btn-delete-trigger" data-ids="${idsToUse}">
+                            <i class="bi bi-trash me-3 fs-5"></i> Hapus Data Perizinan${textSuffix}
+                        </button>
+                    `;
+                    
+                    container.innerHTML = buttonsHTML;
+                    
+                    // Handler tombol Tolak di dalam modal aksi
+                    $('.btn-reject-trigger').off('click').on('click', function() {
+                        const rejectIds = $(this).attr('data-ids');
+                        const modalActionInstance = bootstrap.Modal.getInstance(actionModal);
+                        modalActionInstance.hide();
+                        
+                        setTimeout(() => {
+                            $('#rejectForm').attr('action', `${baseUrl}perijinan/reject/${rejectIds}`);
+                            const rejectModalInstance = new bootstrap.Modal(document.getElementById('rejectModal'));
+                            rejectModalInstance.show();
+                        }, 350);
+                    });
+                    
+                    // Handler tombol Hapus di dalam modal aksi
+                    $('.btn-delete-trigger').off('click').on('click', function() {
+                        const deleteIds = $(this).attr('data-ids');
+                        const modalActionInstance = bootstrap.Modal.getInstance(actionModal);
+                        modalActionInstance.hide();
+                        
+                        setTimeout(() => {
+                            $('#confirmDeleteBtn').attr('href', `${baseUrl}perijinan/hapus/${deleteIds}`);
+                            const deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
+                            deleteModalInstance.show();
+                        }, 350);
+                    });
+                }
+                
+                // Inisialisasi awal aksi
+                updateActions();
+                
+                // Event listener untuk perubahan toggle rombongan
+                $(toggle).off('change').on('change', updateActions);
             });
         }
     });

@@ -57,9 +57,10 @@ class Perijinan extends BaseController
             $nisnArray = [$nisnArray];
         }
 
+        // Generate SATU token untuk seluruh rombongan di formulir ini
+        $token = $this->generateToken($year);
+
         foreach ($nisnArray as $nisn) {
-            $token = $this->generateToken($year);
-            
             $data = [
                 'nisn'            => $nisn,
                 'token'           => $token,
@@ -76,50 +77,65 @@ class Perijinan extends BaseController
         return redirect()->to(base_url('perijinan'))->with('success', 'Pengajuan perijinan berhasil dikirim.');
     }
 
-    public function approve($id)
+    public function approve($ids)
     {
-        $this->perijinanModel->update($id, [
-            'status'         => 'Disetujui',
-            'disetujui_oleh' => session()->get('user_id'),
-            'catatan_petugas' => 'Disetujui oleh admin pada ' . date('Y-m-d H:i:s')
-        ]);
+        $idArray = explode('-', $ids);
+        foreach ($idArray as $id) {
+            $this->perijinanModel->update($id, [
+                'status'         => 'Disetujui',
+                'disetujui_oleh' => session()->get('user_id'),
+                'catatan_petugas' => 'Disetujui oleh admin pada ' . date('Y-m-d H:i:s')
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Perijinan telah disetujui.');
     }
 
-    public function aktifkan($id)
+    public function aktifkan($ids)
     {
-        $this->perijinanModel->update($id, [
-            'status' => 'Aktif'
-        ]);
+        $idArray = explode('-', $ids);
+        foreach ($idArray as $id) {
+            $this->perijinanModel->update($id, [
+                'status' => 'Aktif'
+            ]);
+        }
 
-        return redirect()->back()->with('success', 'Santri telah keluar/mulai izin.');
+        return redirect()->back()->with('success', 'Status perizinan telah aktif (keluar).');
     }
 
-    public function kembali($id)
+    public function kembali($ids)
     {
-        $this->perijinanModel->update($id, [
-            'status'        => 'Kembali',
-            'waktu_kembali' => date('Y-m-d H:i:s')
-        ]);
+        $idArray = explode('-', $ids);
+        foreach ($idArray as $id) {
+            $this->perijinanModel->update($id, [
+                'status'        => 'Kembali',
+                'waktu_kembali' => date('Y-m-d H:i:s')
+            ]);
+        }
 
-        return redirect()->back()->with('success', 'Santri telah kembali ke pesantren.');
+        return redirect()->back()->with('success', 'Konfirmasi santri kembali berhasil.');
     }
 
-    public function reject($id)
+    public function reject($ids)
     {
+        $idArray = explode('-', $ids);
         $catatan = $this->request->getPost('catatan');
-        $this->perijinanModel->update($id, [
-            'status'         => 'Ditolak',
-            'catatan_petugas' => $catatan
-        ]);
+        foreach ($idArray as $id) {
+            $this->perijinanModel->update($id, [
+                'status'         => 'Ditolak',
+                'catatan_petugas' => $catatan
+            ]);
+        }
 
         return redirect()->back()->with('error', 'Perijinan telah ditolak.');
     }
 
-    public function hapus($id)
+    public function hapus($ids)
     {
-        $this->perijinanModel->delete($id);
+        $idArray = explode('-', $ids);
+        foreach ($idArray as $id) {
+            $this->perijinanModel->delete($id);
+        }
 
         return redirect()->back()->with('success', 'Data perijinan berhasil dihapus.');
     }
