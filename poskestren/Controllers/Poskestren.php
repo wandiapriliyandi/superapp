@@ -134,8 +134,12 @@ class Poskestren extends BaseController
 
     public function detail_kunjungan($id)
     {
+        $db = \Config\Database::connect();
+        $setting = $db->table('app_settings')->get()->getRowArray();
+
         $data = [
             'title' => 'Detail Rekam Medis',
+            'setting' => $setting,
             'kunjungan' => $this->kunjunganModel->getKunjungan($id),
             'obat' => $this->pemberianObatModel->getByKunjungan($id)
         ];

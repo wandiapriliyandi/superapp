@@ -16,6 +16,13 @@
                 </div>
             </div>
             <div class="card-body p-4">
+                <!-- Kop Surat untuk Cetak -->
+                <div class="d-none d-print-block text-center pb-2 mb-4">
+                    <h3 class="fw-bold mb-0 text-uppercase text-primary"><?= esc($setting['app_name'] ?? 'SuperApp Pesantren') ?></h3>
+                    <h5 class="fw-semibold mb-1"><?= esc($setting['pesantren_name'] ?? 'Pesantren Modern Digital') ?></h5>
+                    <p class="mb-0 text-muted small" style="font-size: 11px;">Sistem Rekam Medis Poskestren Terintegrasi</p>
+                    <hr class="my-2 border-dark" style="border-top: 3px double #000; opacity: 1;">
+                </div>
                 <div class="row mb-5">
                     <div class="col-md-6 border-end">
                         <label class="text-muted small fw-bold mb-1">DATA SANTRI</label>
@@ -105,10 +112,55 @@
 
 <style>
     @media print {
-        .btn, .card-header a, .card-footer button { display: none !important; }
-        .card { border: none !important; box-shadow: none !important; }
-        .card-header { background-color: #f8f9fa !important; border-bottom: 2px solid #0d6efd !important; }
-        body { padding: 0; background: white; }
+        /* Sembunyikan elemen non-print */
+        .btn, .card-header, .card-footer, #sidebarBackdrop, .sidebar, .topbar { 
+            display: none !important; 
+        }
+        
+        /* Reset layout admin */
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .container-fluid {
+            padding: 0 !important;
+        }
+        body { 
+            background: white !important; 
+            color: black !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+        }
+        .card { 
+            border: none !important; 
+            box-shadow: none !important; 
+            background: transparent !important;
+        }
+        .card-body {
+            padding: 0 !important;
+        }
+        
+        /* Atur ukuran font standar untuk cetak */
+        h5, .h5 {
+            font-size: 14pt !important;
+        }
+        p, td, th, div {
+            font-size: 11pt !important;
+        }
+        .text-muted {
+            color: #555 !important;
+        }
+        .bg-light {
+            background-color: #f8f9fa !important;
+            border: 1px solid #ddd !important;
+        }
+        
+        /* Set margin kertas */
+        @page {
+            size: portrait;
+            margin: 20mm;
+        }
     }
 </style>
 <?= $this->endSection() ?>
