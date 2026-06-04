@@ -160,7 +160,7 @@ function hexToRgb($hex) {
             padding: 0 2rem;
             position: sticky;
             top: 0;
-            z-index: 999;
+            z-index: 998;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -210,6 +210,57 @@ function hexToRgb($hex) {
             to { opacity: 1; transform: translateY(0); }
         }
         .main-content .container-fluid { animation: fadeIn 0.4s ease-out; }
+
+        /* Sidebar Backdrop */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+        }
+        .sidebar-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -var(--sidebar-width);
+                width: var(--sidebar-width) !important;
+            }
+            .sidebar.toggled {
+                left: 0;
+                width: var(--sidebar-width) !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .main-content.toggled {
+                margin-left: 0 !important;
+            }
+            .topbar {
+                padding: 0 1rem;
+            }
+            .sidebar.toggled .nav-text, 
+            .sidebar.toggled .sidebar-heading {
+                display: block !important;
+            }
+            .sidebar.toggled .nav-link {
+                justify-content: start !important;
+                padding: 0.8rem 1.5rem !important;
+            }
+            .sidebar.toggled .nav-link:hover {
+                transform: translateX(5px) !important;
+            }
+        }
 
         /* Print Styling */
         @media print {
@@ -474,6 +525,7 @@ function hexToRgb($hex) {
             </a>
         <?php endif; ?>
     </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
     <?php endif; ?>
 
     <div class="main-content" id="main-content" style="<?= (isset($hide_sidebar) && $hide_sidebar) ? 'margin-left: 0; width: 100%;' : '' ?>">
@@ -489,8 +541,8 @@ function hexToRgb($hex) {
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
                     <button class="btn btn-link text-body text-decoration-none dropdown-toggle p-0" type="button" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="rounded-circle me-2" width="35" height="35">
-                        <span class="fw-semibold">Administrator</span>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="rounded-circle me-sm-2" width="35" height="35">
+                        <span class="fw-semibold d-none d-sm-inline">Administrator</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profil</a></li>
@@ -502,7 +554,7 @@ function hexToRgb($hex) {
             </div>
         </div>
 
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-3 p-md-4">
             <!-- Flash Message -->
             <?php if(session()->getFlashdata('success')): ?>
                 <div class="alert alert-success border-0 shadow-sm mb-4"><?= session()->getFlashdata('success') ?></div>
@@ -622,17 +674,59 @@ function hexToRgb($hex) {
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('main-content');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
-        // Restore sidebar state
-        if (localStorage.getItem('sidebar-toggled') === 'true') {
+        // Restore sidebar state only on desktop
+        if (sidebar && mainContent && window.innerWidth > 768 && localStorage.getItem('sidebar-toggled') === 'true') {
             sidebar.classList.add('toggled');
             mainContent.classList.add('toggled');
         }
 
-        sidebarToggle.addEventListener('click', () => {
+        function toggleSidebar() {
+            if (!sidebar || !mainContent) return;
             sidebar.classList.toggle('toggled');
             mainContent.classList.toggle('toggled');
-            localStorage.setItem('sidebar-toggled', sidebar.classList.contains('toggled'));
+            
+            // Handle backdrop on mobile
+            if (window.innerWidth <= 768 && sidebarBackdrop) {
+                if (sidebar.classList.contains('toggled')) {
+                    sidebarBackdrop.classList.add('show');
+                } else {
+                    sidebarBackdrop.classList.remove('show');
+                }
+            } else {
+                localStorage.setItem('sidebar-toggled', sidebar.classList.contains('toggled'));
+            }
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', toggleSidebar);
+        }
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            if (!sidebar || !mainContent) return;
+            if (window.innerWidth > 768) {
+                if (sidebarBackdrop) sidebarBackdrop.classList.remove('show');
+                // Restore desktop preference
+                if (localStorage.getItem('sidebar-toggled') === 'true') {
+                    sidebar.classList.add('toggled');
+                    mainContent.classList.add('toggled');
+                } else {
+                    sidebar.classList.remove('toggled');
+                    mainContent.classList.remove('toggled');
+                }
+            } else {
+                // If on mobile and backdrop is not shown, ensure sidebar is closed
+                if (sidebar.classList.contains('toggled') && (!sidebarBackdrop || !sidebarBackdrop.classList.contains('show'))) {
+                    sidebar.classList.remove('toggled');
+                    mainContent.classList.remove('toggled');
+                }
+            }
         });
 
         // Script untuk Modal Hapus Global
