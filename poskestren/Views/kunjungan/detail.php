@@ -142,10 +142,7 @@
         }
         
         /* Atur ukuran font standar untuk cetak */
-        h5, .h5 {
-            font-size: 14pt !important;
-        }
-        p, td, th, div {
+        h5, .h5, p, td, th, div {
             font-size: 11pt !important;
         }
         .text-muted {
