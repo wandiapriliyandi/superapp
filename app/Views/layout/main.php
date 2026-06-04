@@ -234,7 +234,7 @@ function hexToRgb($hex) {
         /* Responsive Breakpoints */
         @media (max-width: 768px) {
             .sidebar {
-                left: -var(--sidebar-width);
+                left: calc(-1 * var(--sidebar-width));
                 width: var(--sidebar-width) !important;
             }
             .sidebar.toggled {
