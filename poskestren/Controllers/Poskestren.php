@@ -150,6 +150,8 @@ class Poskestren extends BaseController
             return redirect()->back()->with('error', 'Gagal menyimpan data rekam medis.')->withInput();
         }
 
+        log_activity('Mencatat Kunjungan Pasien', 'Poskestren', 'Kunjungan ID: ' . $kunjungan_id . ', NISN: ' . $nisn . ', Diagnosa: ' . $diagnosa);
+
         return redirect()->to(base_url('poskestren/kunjungan'))->with('success', 'Data rekam medis berhasil disimpan.');
     }
 
@@ -232,6 +234,8 @@ class Poskestren extends BaseController
             return redirect()->back()->with('error', 'Gagal memperbarui perkembangan rekam medis.');
         }
 
+        log_activity('Memperbarui Perkembangan Pasien', 'Poskestren', 'Kunjungan ID: ' . $id . ', Status Baru: ' . $status);
+
         return redirect()->to(base_url('poskestren/kunjungan/detail/' . $id))
             ->with('success', 'Perkembangan rekam medis berhasil diperbarui.');
     }
@@ -260,6 +264,9 @@ class Poskestren extends BaseController
     {
         $this->kunjunganModel->delete($id);
         $this->pemberianObatModel->where('kunjungan_id', $id)->delete();
+        
+        log_activity('Menghapus Rekam Medis Pasien', 'Poskestren', 'Kunjungan ID: ' . $id);
+
         return redirect()->to(base_url('poskestren/kunjungan'))->with('success', 'Data kunjungan berhasil dihapus.');
     }
 

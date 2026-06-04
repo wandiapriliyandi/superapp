@@ -99,6 +99,8 @@ class Stok extends BaseController
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat menyimpan pengadaan.')->withInput();
         }
 
+        log_activity('Mencatat Pengadaan Obat', 'Poskestren', 'Jumlah Jenis Obat: ' . $successCount . ', Keterangan: ' . ($ket ?: 'Pengadaan obat'));
+ 
         return redirect()->to(base_url('poskestren/stok/riwayat'))
             ->with('success', 'Berhasil mencatat pengadaan untuk ' . $successCount . ' jenis obat.');
     }
@@ -142,6 +144,8 @@ class Stok extends BaseController
             return redirect()->back()->with('error', $result['message'])->withInput();
         }
 
+        log_activity('Mencatat Obat Keluar (Pembuangan)', 'Poskestren', 'Obat ID: ' . $obatId . ', Jumlah: ' . $jumlah . ', Alasan: ' . $ket);
+ 
         return redirect()->to(base_url('poskestren/stok/riwayat?obat_id=' . $obatId))
             ->with('success', 'Barang keluar dicatat. Stok berkurang ' . $jumlah . '.');
     }

@@ -79,6 +79,8 @@ class Perijinan extends BaseController
             $this->perijinanModel->insert($data);
         }
 
+        log_activity('Mengajukan Perizinan Baru', 'Perizinan', 'Token: ' . $token . ', Jumlah Santri: ' . count($nisnArray));
+ 
         return redirect()->to(base_url('perijinan'))->with('success', 'Pengajuan perijinan berhasil dikirim.');
     }
 
@@ -93,6 +95,8 @@ class Perijinan extends BaseController
             ]);
         }
 
+        log_activity('Menyetujui Izin Santri', 'Perizinan', 'ID Perizinan: ' . $ids);
+ 
         return redirect()->back()->with('success', 'Perijinan telah disetujui.');
     }
 
@@ -105,6 +109,8 @@ class Perijinan extends BaseController
             ]);
         }
 
+        log_activity('Mengaktifkan Izin Santri (Keluar)', 'Perizinan', 'ID Perizinan: ' . $ids);
+ 
         return redirect()->back()->with('success', 'Status perizinan telah aktif (keluar).');
     }
 
@@ -118,6 +124,8 @@ class Perijinan extends BaseController
             ]);
         }
 
+        log_activity('Konfirmasi Santri Kembali', 'Perizinan', 'ID Perizinan: ' . $ids);
+ 
         return redirect()->back()->with('success', 'Konfirmasi santri kembali berhasil.');
     }
 
@@ -132,6 +140,8 @@ class Perijinan extends BaseController
             ]);
         }
 
+        log_activity('Menolak Izin Santri', 'Perizinan', 'ID Perizinan: ' . $ids . ', Alasan: ' . $catatan);
+ 
         return redirect()->back()->with('error', 'Perijinan telah ditolak.');
     }
 
@@ -142,6 +152,8 @@ class Perijinan extends BaseController
             $this->perijinanModel->delete($id);
         }
 
+        log_activity('Menghapus Data Perizinan', 'Perizinan', 'ID Perizinan: ' . $ids);
+ 
         return redirect()->back()->with('success', 'Data perijinan berhasil dihapus.');
     }
 
@@ -186,6 +198,8 @@ class Perijinan extends BaseController
             'rombongan' => $rombonganData
         ];
         
+        log_activity('Mencetak Surat Izin Santri', 'Perizinan', 'ID Perizinan: ' . $ids);
+
         return view('Perijinan\Views\print', $data);
     }
 

@@ -58,6 +58,8 @@ class Obat extends BaseController
             );
         }
 
+        log_activity('Menambah Data Obat', 'Poskestren', 'Obat: ' . $this->request->getPost('nama_obat') . ', Stok Awal: ' . $stokAwal);
+
         return redirect()->to(base_url('poskestren/obat'))->with('success', 'Obat berhasil didaftarkan.');
     }
 
@@ -78,12 +80,17 @@ class Obat extends BaseController
             'deskripsi' => $this->request->getPost('deskripsi'),
         ]);
 
+        log_activity('Memperbarui Data Obat', 'Poskestren', 'Obat ID: ' . $id . ', Nama: ' . $this->request->getPost('nama_obat'));
+
         return redirect()->to(base_url('poskestren/obat'))->with('success', 'Data obat berhasil diupdate.');
     }
 
     public function hapus($id)
     {
         $this->obatModel->delete($id);
+        
+        log_activity('Menghapus Data Obat', 'Poskestren', 'Obat ID: ' . $id);
+
         return redirect()->to(base_url('poskestren/obat'))->with('success', 'Data obat berhasil dihapus.');
     }
 
