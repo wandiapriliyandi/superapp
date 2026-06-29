@@ -7,7 +7,7 @@ const replaceApiUrlPlugin = () => {
     transform(code, id) {
       if (id.includes('/src/') && (id.endsWith('.vue') || id.endsWith('.js'))) {
         const newCode = code.replace(/(['"])http:\/\/127\.0\.0\.1:8080/g, (match, quote) => {
-          return `(window.location.port === "5173" ? "http://127.0.0.1:8080" : window.location.origin + "/superapp/public") + ${quote}`;
+          return `(window.location.port === "5173" ? "http://127.0.0.1:8080" : window.location.origin + window.location.pathname.replace(/\\/app\\/?$/, "")) + ${quote}`;
         });
         return {
           code: newCode,
