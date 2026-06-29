@@ -1,18 +1,21 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Login      from '../views/Login.vue'
-import Dashboard  from '../views/Dashboard.vue'
-import Departemen from '../views/Departemen.vue'
-import Perijinan  from '../views/Perijinan.vue'
-import Kepegawaian from '../views/Kepegawaian.vue'
-import Akademik   from '../views/Akademik.vue'
-import Spp        from '../views/Spp.vue'
-import Ppdb       from '../views/Ppdb.vue'
-import Perpustakaan from '../views/Perpustakaan.vue'
-import Keuangan     from '../views/Keuangan.vue'
-import Setting      from '../views/Setting.vue'
-import Poskestren   from '../views/Poskestren.vue'
-import Sarpras      from '../views/Sarpras.vue'
-import Alquran      from '../views/Alquran.vue'
+
+// Lazy-load setiap halaman agar bundel dipecah per-halaman (code splitting)
+// Pengguna hanya mengunduh kode halaman yang benar-benar dibuka
+const Login        = () => import('../views/Login.vue')
+const Dashboard    = () => import('../views/Dashboard.vue')
+const Departemen   = () => import('../views/Departemen.vue')
+const Perijinan    = () => import('../views/Perijinan.vue')
+const Kepegawaian  = () => import('../views/Kepegawaian.vue')
+const Akademik     = () => import('../views/Akademik.vue')
+const Spp          = () => import('../views/Spp.vue')
+const Ppdb         = () => import('../views/Ppdb.vue')
+const Perpustakaan = () => import('../views/Perpustakaan.vue')
+const Keuangan     = () => import('../views/Keuangan.vue')
+const Setting      = () => import('../views/Setting.vue')
+const Poskestren   = () => import('../views/Poskestren.vue')
+const Sarpras      = () => import('../views/Sarpras.vue')
+const Alquran      = () => import('../views/Alquran.vue')
 
 const routes = [
   {
