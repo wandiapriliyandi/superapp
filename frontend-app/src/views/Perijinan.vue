@@ -271,7 +271,6 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
-import { Html5Qrcode } from 'html5-qrcode'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
@@ -358,6 +357,8 @@ async function openScanner() {
   await nextTick()
 
   try {
+    // Lazy-load html5-qrcode hanya saat scanner dibuka (hemat ~300kB di bundel awal)
+    const { Html5Qrcode } = await import('html5-qrcode')
     html5QrCode = new Html5Qrcode('qr-reader')
     await html5QrCode.start(
       { facingMode: 'environment' },

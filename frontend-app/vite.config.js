@@ -27,5 +27,19 @@ export default defineConfig({
   build: {
     outDir: '../public/app',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Pisahkan library vendor ke chunk terpisah agar bisa di-cache browser
+        // saat kode aplikasi diupdate, vendor tidak perlu diunduh ulang
+        manualChunks(id) {
+          if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router') || id.includes('node_modules/@vue')) {
+            return 'vendor-vue'
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'vendor-axios'
+          }
+        }
+      }
+    }
   }
 })
