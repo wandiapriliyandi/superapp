@@ -19,20 +19,40 @@ class Ppdb extends BaseController
 
     public function indexPendaftar()
     {
-        $status = $this->request->getGet('status');
-        $q      = $this->request->getGet('q');
+        $page   = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit  = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $status = $this->request->getVar('status');
+        $q      = $this->request->getVar('q');
 
-        $query = $this->pendaftarModel
-            ->select('ppdb_pendaftar.*, tahun_ajaran.tahun_ajaran as nama_tahun')
-            ->join('tahun_ajaran', 'tahun_ajaran.id = ppdb_pendaftar.id_tahun_ajaran', 'left');
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('ppdb_pendaftar');
 
-        if ($status) $query->where('status_seleksi', $status);
-        if ($q)      $query->like('nama_lengkap', $q);
+        if ($status) $countBuilder->where('status_seleksi', $status);
+        if ($q)      $countBuilder->like('nama_lengkap', $q);
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('ppdb_pendaftar');
+        $mainBuilder->select('ppdb_pendaftar.*, tahun_ajaran.tahun_ajaran as nama_tahun');
+        $mainBuilder->join('tahun_ajaran', 'tahun_ajaran.id = ppdb_pendaftar.id_tahun_ajaran', 'left');
+
+        if ($status) $mainBuilder->where('status_seleksi', $status);
+        if ($q)      $mainBuilder->like('nama_lengkap', $q);
+
+        $data = $mainBuilder->orderBy('id', 'DESC')->limit($limit, $offset)->get()->getResultArray();
 
         return $this->response->setJSON([
             'status'  => 200,
             'message' => 'Data pendaftar berhasil diambil',
-            'data'    => $query->orderBy('id', 'DESC')->findAll()
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

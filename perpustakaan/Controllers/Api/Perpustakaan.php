@@ -16,22 +16,51 @@ class Perpustakaan extends BaseController
 
     public function indexBuku()
     {
-        $lokasi   = $this->request->getGet('lokasi');
-        $kategori = $this->request->getGet('kategori');
-        $q        = $this->request->getGet('q');
+        $page     = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit    = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $lokasi   = $this->request->getVar('lokasi');
+        $kategori = $this->request->getVar('kategori');
+        $q        = $this->request->getVar('q');
 
-        $query = $this->bukuModel;
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('perpus_buku');
 
-        if ($lokasi)   $query->where('lokasi', $lokasi);
-        if ($kategori) $query->where('kategori', $kategori);
-        if ($q)        $query->like('judul', $q)->orLike('pengarang', $q)->orLike('kode_buku', $q);
+        if ($lokasi)   $countBuilder->where('lokasi', $lokasi);
+        if ($kategori) $countBuilder->where('kategori', $kategori);
+        if ($q) {
+            $countBuilder->groupStart()
+                ->like('judul', $q)
+                ->orLike('pengarang', $q)
+                ->orLike('kode_buku', $q)
+                ->groupEnd();
+        }
+        $total = $countBuilder->countAllResults();
 
-        $data = $query->orderBy('judul', 'ASC')->findAll();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('perpus_buku');
+        if ($lokasi)   $mainBuilder->where('lokasi', $lokasi);
+        if ($kategori) $mainBuilder->where('kategori', $kategori);
+        if ($q) {
+            $mainBuilder->groupStart()
+                ->like('judul', $q)
+                ->orLike('pengarang', $q)
+                ->orLike('kode_buku', $q)
+                ->groupEnd();
+        }
+        $data = $mainBuilder->orderBy('judul', 'ASC')->limit($limit, $offset)->get()->getResultArray();
 
         return $this->response->setJSON([
             'status'  => 200,
             'message' => 'Data buku berhasil diambil',
-            'data'    => $data
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

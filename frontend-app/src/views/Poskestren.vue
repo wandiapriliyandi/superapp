@@ -89,9 +89,18 @@
       <!-- ==================== TAB 2: REKAM MEDIS KUNJUNGAN ==================== -->
       <section v-if="activeTab==='kunjungan'" class="content-body">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Riwayat Rekam Medis Kunjungan Santri</h3>
-            <button @click="openAddKunjungan" class="btn-primary">+ Catat Kunjungan Baru</button>
+            <div style="display:flex; align-items:center; gap:10px">
+              <select v-model="kunjunganLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <input v-model="searchKunjungan" @input="debounceKunjunganSearch" placeholder="Cari nama santri..." class="search-input" />
+              <button @click="openAddKunjungan" class="btn-primary">+ Catat Kunjungan Baru</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -121,15 +130,45 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination -->
+          <div v-if="kunjunganTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (kunjunganPage - 1) * kunjunganLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(kunjunganPage * kunjunganLimit, kunjunganTotal) }}</strong> dari 
+              <strong>{{ kunjunganTotal }}</strong> rekam medis
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeKunjunganPage(1)" :disabled="kunjunganPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeKunjunganPage(kunjunganPage - 1)" :disabled="kunjunganPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in kunjunganPaginationRange" :key="p" @click="changeKunjunganPage(p)" :class="['tab-btn', kunjunganPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeKunjunganPage(kunjunganPage + 1)" :disabled="kunjunganPage === kunjunganTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeKunjunganPage(kunjunganTotalPages)" :disabled="kunjunganPage === kunjunganTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- ==================== TAB 3: MASTER DATA OBAT ==================== -->
       <section v-if="activeTab==='obat'" class="content-body">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Daftar Persediaan &amp; Master Obat</h3>
-            <button @click="openAddObat" class="btn-primary">+ Daftarkan Obat Baru</button>
+            <div style="display:flex; align-items:center; gap:10px">
+              <select v-model="obatLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <input v-model="searchObat" @input="debounceObatSearch" placeholder="Cari nama obat..." class="search-input" />
+              <button @click="openAddObat" class="btn-primary">+ Daftarkan Obat Baru</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -156,6 +195,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="obatTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (obatPage - 1) * obatLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(obatPage * obatLimit, obatTotal) }}</strong> dari 
+              <strong>{{ obatTotal }}</strong> obat
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeObatPage(1)" :disabled="obatPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeObatPage(obatPage - 1)" :disabled="obatPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in obatPaginationRange" :key="p" @click="changeObatPage(p)" :class="['tab-btn', obatPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeObatPage(obatPage + 1)" :disabled="obatPage === obatTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeObatPage(obatTotalPages)" :disabled="obatPage === obatTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -245,6 +305,28 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <!-- Paginasi Riwayat Stok -->
+            <div v-if="stokTotalPages > 1" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 16px 20px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <select v-model="stokLimit" @change="fetchRiwayatStok(1)" class="fi" style="width: 100px; height: 36px; padding: 4px 8px; font-size: 12px;">
+                  <option :value="10">10 baris</option>
+                  <option :value="25">25 baris</option>
+                  <option :value="50">50 baris</option>
+                </select>
+                <span class="text-muted" style="font-size: 12px;">
+                  Menampilkan <strong>{{ (stokPage - 1) * stokLimit + 1 }}</strong> – 
+                  <strong>{{ Math.min(stokPage * stokLimit, stokTotal) }}</strong> dari 
+                  <strong>{{ stokTotal }}</strong> mutasi
+                </span>
+              </div>
+              <div style="display: flex; gap: 5px; align-items: center;">
+                <button @click="changeStokPage(1)" :disabled="stokPage === 1" class="tab-btn" style="padding: 5px 9px;">«</button>
+                <button @click="changeStokPage(stokPage - 1)" :disabled="stokPage === 1" class="tab-btn" style="padding: 5px 10px;">‹</button>
+                <button v-for="p in stokPaginationRange" :key="p" @click="changeStokPage(p)" :class="['tab-btn', stokPage === p ? 'active-indigo' : '']" style="padding: 5px 10px;">{{ p }}</button>
+                <button @click="changeStokPage(stokPage + 1)" :disabled="stokPage === stokTotalPages" class="tab-btn" style="padding: 5px 10px;">›</button>
+                <button @click="changeStokPage(stokTotalPages)" :disabled="stokPage === stokTotalPages" class="tab-btn" style="padding: 5px 9px;">»</button>
+              </div>
             </div>
           </div>
         </div>
@@ -414,7 +496,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
 
@@ -439,6 +521,23 @@ const obatList           = ref([])
 const riwayatStok        = ref([])
 const santriList         = ref([])
 const obatAktifList      = ref([])
+
+const kunjunganPage = ref(1)
+const kunjunganLimit = ref(10)
+const kunjunganTotal = ref(0)
+const kunjunganTotalPages = ref(0)
+const searchKunjungan = ref('')
+
+const obatPage = ref(1)
+const obatLimit = ref(10)
+const obatTotal = ref(0)
+const obatTotalPages = ref(0)
+const searchObat = ref('')
+
+const stokPage = ref(1)
+const stokLimit = ref(10)
+const stokTotal = ref(0)
+const stokTotalPages = ref(0)
 
 // Form states
 const filterObatId       = ref('')
@@ -472,11 +571,11 @@ function formatDateTime(d) { if(!d) return '-'; const date = new Date(d); return
 async function switchTab(key) {
   activeTab.value = key
   if (key === 'dashboard') await fetchDashboard()
-  if (key === 'kunjungan') await fetchKunjungan()
-  if (key === 'obat') await fetchObat()
+  if (key === 'kunjungan') await fetchKunjungan(1)
+  if (key === 'obat') await fetchObat(1)
   if (key === 'stok') {
-    await fetchObat()
-    await fetchRiwayatStok()
+    await fetchObat(1)
+    await fetchRiwayatStok(1)
     resetStokForm()
   }
 }
@@ -494,11 +593,23 @@ async function fetchDashboard() {
 }
 
 // === KUNJUNGAN ===
-async function fetchKunjungan() {
+async function fetchKunjungan(page = 1) {
   loading.value = true
+  kunjunganPage.value = page
   try {
-    const res = await axios.get(`${API}/kunjungan`, { headers })
-    kunjunganList.value = res.data.data
+    const res = await axios.get(`${API}/kunjungan`, { 
+      params: {
+        page: kunjunganPage.value,
+        limit: kunjunganLimit.value,
+        q: searchKunjungan.value
+      },
+      headers 
+    })
+    kunjunganList.value = res.data.data || []
+    if (res.data.pagination) {
+      kunjunganTotal.value = res.data.pagination.total || 0
+      kunjunganTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat rekam medis kunjungan', 'error') }
   finally { loading.value = false }
 }
@@ -542,7 +653,7 @@ async function saveKunjungan() {
   try {
     await axios.post(`${API}/kunjungan/save`, f, { headers })
     showKunjunganForm.value = false
-    await fetchKunjungan()
+    await fetchKunjungan(1)
     showNotif('Rekam medis kunjungan baru berhasil dicatat!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan kunjungan', 'error')
@@ -561,7 +672,7 @@ async function deleteKunjungan(id) {
   if (!confirm('Hapus rekam medis kunjungan ini?')) return
   try {
     await axios.delete(`${API}/kunjungan/delete/${id}`, { headers })
-    await fetchKunjungan()
+    await fetchKunjungan(kunjunganPage.value)
     showNotif('Rekam medis berhasil dihapus!')
   } catch { showNotif('Gagal menghapus rekam medis', 'error') }
 }
@@ -605,11 +716,23 @@ async function savePerkembangan() {
 }
 
 // === MASTER OBAT ===
-async function fetchObat() {
+async function fetchObat(page = 1) {
   loading.value = true
+  obatPage.value = page
   try {
-    const res = await axios.get(`${API}/obat`, { headers })
-    obatList.value = res.data.data
+    const res = await axios.get(`${API}/obat`, { 
+      params: {
+        page: obatPage.value,
+        limit: obatLimit.value,
+        q: searchObat.value
+      },
+      headers 
+    })
+    obatList.value = res.data.data || []
+    if (res.data.pagination) {
+      obatTotal.value = res.data.pagination.total || 0
+      obatTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat data persediaan obat', 'error') }
   finally { loading.value = false }
 }
@@ -631,7 +754,7 @@ async function saveObat() {
   try {
     await axios.post(`${API}/obat/save`, o, { headers })
     showObatForm.value = false
-    await fetchObat()
+    await fetchObat(1)
     showNotif('Persediaan obat berhasil disimpan!')
   } catch { showNotif('Gagal menyimpan data obat', 'error') }
   finally { saving.value = false }
@@ -641,21 +764,116 @@ async function deleteObat(id, nama) {
   if (!confirm(`Hapus obat "${nama}" dari sistem?`)) return
   try {
     await axios.delete(`${API}/obat/delete/${id}`, { headers })
-    await fetchObat()
+    await fetchObat(obatPage.value)
     showNotif('Obat berhasil dihapus!')
   } catch { showNotif('Gagal menghapus obat', 'error') }
 }
 
 // === MUTASI & STOK ===
-async function fetchRiwayatStok() {
+async function fetchRiwayatStok(page = 1) {
+  stokPage.value = page
   try {
     const res = await axios.get(`${API}/stok/riwayat`, {
-      headers,
-      params: { obat_id: filterObatId.value }
+      params: { 
+        page: stokPage.value,
+        limit: stokLimit.value,
+        obat_id: filterObatId.value 
+      },
+      headers
     })
-    riwayatStok.value = res.data.data
+    riwayatStok.value = res.data.data || []
+    if (res.data.pagination) {
+      stokTotal.value = res.data.pagination.total || 0
+      stokTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat kartu riwayat stok', 'error') }
 }
+
+watch(kunjunganLimit, () => {
+  kunjunganPage.value = 1
+  fetchKunjungan(1)
+})
+watch(obatLimit, () => {
+  obatPage.value = 1
+  fetchObat(1)
+})
+watch(stokLimit, () => {
+  stokPage.value = 1
+  fetchRiwayatStok(1)
+})
+
+let kunjunganSearchTimeout = null
+function debounceKunjunganSearch() {
+  if (kunjunganSearchTimeout) clearTimeout(kunjunganSearchTimeout)
+  kunjunganSearchTimeout = setTimeout(() => {
+    fetchKunjungan(1)
+  }, 400)
+}
+
+let obatSearchTimeout = null
+function debounceObatSearch() {
+  if (obatSearchTimeout) clearTimeout(obatSearchTimeout)
+  obatSearchTimeout = setTimeout(() => {
+    fetchObat(1)
+  }, 400)
+}
+
+function changeKunjunganPage(page) {
+  if (page < 1 || page > kunjunganTotalPages.value) return
+  kunjunganPage.value = page
+  fetchKunjungan(page)
+}
+
+function changeObatPage(page) {
+  if (page < 1 || page > obatTotalPages.value) return
+  obatPage.value = page
+  fetchObat(page)
+}
+
+function changeStokPage(page) {
+  if (page < 1 || page > stokTotalPages.value) return
+  stokPage.value = page
+  fetchRiwayatStok(page)
+}
+
+const kunjunganPaginationRange = computed(() => {
+  const current = kunjunganPage.value
+  const total = kunjunganTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
+
+const obatPaginationRange = computed(() => {
+  const current = obatPage.value
+  const total = obatTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
+
+const stokPaginationRange = computed(() => {
+  const current = stokPage.value
+  const total = stokTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 function resetStokForm() {
   formStok.value = {
@@ -686,8 +904,8 @@ async function saveMutasiStok() {
     await axios.post(`${API}/stok/${endpoint}`, f, { headers })
     resetStokForm()
     await Promise.all([
-      fetchObat(),
-      fetchRiwayatStok()
+      fetchObat(1),
+      fetchRiwayatStok(1)
     ])
     showNotif('Mutasi stok obat berhasil dicatat!')
   } catch (e) {
@@ -716,6 +934,11 @@ onMounted(fetchDashboard)
 .active-purple { background: rgba(167,139,250,0.15); color: #a78bfa; border-color: rgba(167,139,250,0.3); font-weight: 600; }
 .active-green { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); font-weight: 600; }
 .active-orange { background: rgba(251,146,60,0.15); color: #fb923c; border-color: rgba(251,146,60,0.3); font-weight: 600; }
+.active-indigo { background: rgba(99,102,241,0.2); color: #818cf8; border-color: rgba(99,102,241,0.4); font-weight: 700; }
+.tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.search-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #e2e8f0; font-size: 12px; outline: none; width: 180px; font-family: 'Inter', sans-serif; }
+.search-input:focus { border-color: rgba(99,102,241,0.5); }
+.text-muted { color: #64748b; }
 
 .content-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; }
 

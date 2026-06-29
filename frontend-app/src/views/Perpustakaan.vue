@@ -23,10 +23,16 @@
 
       <!-- ========== BUKU LIST ========== -->
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <h3>Koleksi Buku - {{ tabs.find(x => x.key === activeTab)?.label }}</h3>
-          <div class="header-actions">
-            <input v-model="searchQuery" placeholder="Cari judul, pengarang..." class="search-input" />
+          <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+            <select v-model="bukuLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+              <option :value="10">10 baris</option>
+              <option :value="25">25 baris</option>
+              <option :value="50">50 baris</option>
+              <option :value="100">100 baris</option>
+            </select>
+            <input v-model="searchQuery" @input="debounceSearch" placeholder="Cari judul, pengarang..." class="search-input" />
             <select v-model="filterKategori" class="filter-select">
               <option value="">Semua Kategori</option>
               <option v-for="k in kategoriList" :key="k" :value="k">{{ k }}</option>
@@ -54,7 +60,7 @@
               <tr v-if="loading"><td colspan="10" class="loading-cell">Memuat data buku...</td></tr>
               <tr v-else-if="filteredBuku.length === 0"><td colspan="10" class="empty-cell">Tidak ada koleksi buku</td></tr>
               <tr v-for="(b, i) in filteredBuku" :key="b.id">
-                <td>{{ i+1 }}</td>
+                <td>{{ (bukuPage - 1) * bukuLimit + i + 1 }}</td>
                 <td><code>{{ b.kode_buku }}</code></td>
                 <td class="name-cell">{{ b.judul }}</td>
                 <td>{{ b.pengarang || '—' }}</td>
@@ -81,6 +87,27 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination -->
+        <div v-if="bukuTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+          <div class="text-muted" style="font-size: 12px;">
+            Menampilkan <strong>{{ (bukuPage - 1) * bukuLimit + 1 }}</strong> - 
+            <strong>{{ Math.min(bukuPage * bukuLimit, bukuTotal) }}</strong> dari 
+            <strong>{{ bukuTotal }}</strong> buku
+          </div>
+          
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button @click="changeBukuPage(1)" :disabled="bukuPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+            <button @click="changeBukuPage(bukuPage - 1)" :disabled="bukuPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+            
+            <!-- Page numbers -->
+            <button v-for="p in bukuPaginationRange" :key="p" @click="changeBukuPage(p)" :class="['tab-btn', bukuPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+              {{ p }}
+            </button>
+            
+            <button @click="changeBukuPage(bukuPage + 1)" :disabled="bukuPage === bukuTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+            <button @click="changeBukuPage(bukuTotalPages)" :disabled="bukuPage === bukuTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+          </div>
         </div>
       </div>
     </main>
@@ -149,6 +176,11 @@ const showBukuForm  = ref(false)
 
 const formBuku      = ref({ id: '', kode_buku: '', judul: '', pengarang: '', penerbit: '', tahun_terbit: '', kategori: 'Agama', stok: 1, lokasi: 'Putra', deskripsi: '', link_eksternal: '' })
 
+const bukuPage = ref(1)
+const bukuLimit = ref(10)
+const bukuTotal = ref(0)
+const bukuTotalPages = ref(0)
+
 const tabs = [
   { key: 'putra', label: 'Perpustakaan Putra', icon: '👦', color: 'blue' },
   { key: 'putri', label: 'Perpustakaan Putri', icon: '👧', color: 'pink' },
@@ -158,31 +190,35 @@ const tabs = [
 const kategoriList = ['Agama', 'Bahasa', 'Sains', 'Sejarah', 'Sosial', 'Umum', 'Novel/Fiksi']
 
 // ===== COMPUTED =====
-const filteredBuku = computed(() => {
-  return buku.value.filter(b => {
-    const mapTab = { putra: 'Putra', putri: 'Putri', digital: 'Digital' }
-    const matchTab  = b.lokasi === mapTab[activeTab.value]
-    const matchCat  = !filterKategori.value || b.kategori === filterKategori.value
-    const matchSearch = !searchQuery.value || 
-                        b.judul?.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                        b.pengarang?.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                        b.kode_buku?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    return matchTab && matchCat && matchSearch
-  })
-})
+const filteredBuku = computed(() => buku.value)
 
 // ===== HELPERS =====
 function showNotif(m, type='success') { toast.value={show:true,message:m,type}; setTimeout(()=>toast.value.show=false, 3000) }
 
 // ===== METHODS =====
-async function fetchAll() {
+async function fetchBuku(page = 1) {
   loading.value = true
+  bukuPage.value = page
+  const mapTab = { putra: 'Putra', putri: 'Putri', digital: 'Digital' }
   try {
     const [resB, resS] = await Promise.all([
-      axios.get(`${API}/perpustakaan/buku`, { headers }),
+      axios.get(`${API}/perpustakaan/buku`, { 
+        params: {
+          page: bukuPage.value,
+          limit: bukuLimit.value,
+          lokasi: mapTab[activeTab.value],
+          kategori: filterKategori.value,
+          q: searchQuery.value
+        },
+        headers 
+      }),
       axios.get(`${API}/perpustakaan/stats`, { headers })
     ])
     buku.value  = resB.data.data || []
+    if (resB.data.pagination) {
+      bukuTotal.value = resB.data.pagination.total || 0
+      bukuTotalPages.value = resB.data.pagination.total_pages || 0
+    }
     stats.value = resS.data.data || {}
   } catch { showNotif('Gagal memuat perpustakaan', 'error') }
   finally { loading.value = false }
@@ -205,7 +241,7 @@ async function saveBuku() {
   try {
     await axios.post(`${API}/perpustakaan/buku/save`, formBuku.value, { headers })
     showBukuForm.value = false
-    await fetchAll()
+    await fetchBuku(1)
     showNotif('Buku berhasil disimpan!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan buku', 'error')
@@ -216,18 +252,57 @@ async function deleteBuku(id, judul) {
   if (!confirm(`Hapus buku "${judul}"?`)) return
   try {
     await axios.delete(`${API}/perpustakaan/buku/delete/${id}`, { headers })
-    await fetchAll()
+    await fetchBuku(bukuPage.value)
     showNotif('Buku berhasil dihapus!')
   } catch { showNotif('Gagal menghapus buku', 'error') }
 }
 
-// Watch tab to reset search/filters
+// Watch tab and limit to trigger fetch
+watch(bukuLimit, () => {
+  bukuPage.value = 1
+  fetchBuku(1)
+})
+watch(filterKategori, () => {
+  bukuPage.value = 1
+  fetchBuku(1)
+})
 watch(activeTab, () => {
   searchQuery.value = ''
   filterKategori.value = ''
+  bukuPage.value = 1
+  fetchBuku(1)
 })
 
-onMounted(fetchAll)
+let searchTimeout = null
+function debounceSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    fetchBuku(1)
+  }, 400)
+}
+
+function changeBukuPage(page) {
+  if (page < 1 || page > bukuTotalPages.value) return
+  bukuPage.value = page
+  fetchBuku(page)
+}
+
+const bukuPaginationRange = computed(() => {
+  const current = bukuPage.value
+  const total = bukuTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
+
+onMounted(() => {
+  fetchBuku(1)
+})
 </script>
 
 <style scoped>

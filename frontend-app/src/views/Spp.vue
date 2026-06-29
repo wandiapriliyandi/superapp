@@ -31,8 +31,14 @@
               <button @click="showBayarForm = true" class="btn-primary">+ Catat Pembayaran</button>
             </div>
           </div>
-          <div class="search-bar">
-            <input v-model="searchTagihan" placeholder="Cari nama santri..." class="search-input" />
+          <div class="search-bar" style="display: flex; align-items: center; gap: 10px;">
+            <select v-model="tagihanLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+              <option :value="10">10 baris</option>
+              <option :value="25">25 baris</option>
+              <option :value="50">50 baris</option>
+              <option :value="100">100 baris</option>
+            </select>
+            <input v-model="searchTagihan" @input="debounceTagihanSearch" placeholder="Cari nama santri..." class="search-input" />
             <select v-model="filterStatus" class="filter-select">
               <option value="">Semua Status</option>
               <option value="Belum Lunas">Belum Lunas</option>
@@ -51,7 +57,7 @@
                 <tr v-if="loading"><td colspan="11" class="loading-cell">Memuat data...</td></tr>
                 <tr v-else-if="filteredTagihan.length===0"><td colspan="11" class="empty-cell">Tidak ada data tagihan</td></tr>
                 <tr v-for="(t, i) in filteredTagihan" :key="t.id">
-                  <td>{{ i+1 }}</td>
+                  <td>{{ (tagihanPage - 1) * tagihanLimit + i + 1 }}</td>
                   <td class="name-cell">{{ t.nama_santri }}</td>
                   <td>{{ t.nama_tarif }}</td>
                   <td>{{ bulanList[t.bulan] || 'Tahunan' }}</td>
@@ -69,6 +75,27 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination -->
+          <div v-if="tagihanTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (tagihanPage - 1) * tagihanLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(tagihanPage * tagihanLimit, tagihanTotal) }}</strong> dari 
+              <strong>{{ tagihanTotal }}</strong> tagihan
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeTagihanPage(1)" :disabled="tagihanPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeTagihanPage(tagihanPage - 1)" :disabled="tagihanPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in tagihanPaginationRange" :key="p" @click="changeTagihanPage(p)" :class="['tab-btn', tagihanPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeTagihanPage(tagihanPage + 1)" :disabled="tagihanPage === tagihanTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeTagihanPage(tagihanTotalPages)" :disabled="tagihanPage === tagihanTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -78,8 +105,14 @@
           <div class="card-header">
             <h3>Riwayat Pembayaran</h3>
           </div>
-          <div class="search-bar">
-            <input v-model="searchPembayaran" placeholder="Cari nama santri..." class="search-input" />
+          <div class="search-bar" style="display: flex; align-items: center; gap: 10px;">
+            <select v-model="pembayaranLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+              <option :value="10">10 baris</option>
+              <option :value="25">25 baris</option>
+              <option :value="50">50 baris</option>
+              <option :value="100">100 baris</option>
+            </select>
+            <input v-model="searchPembayaran" @input="debouncePembayaranSearch" placeholder="Cari nama santri..." class="search-input" />
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -88,7 +121,7 @@
                 <tr v-if="loading"><td colspan="8" class="loading-cell">Memuat data...</td></tr>
                 <tr v-else-if="filteredPembayaran.length===0"><td colspan="8" class="empty-cell">Tidak ada riwayat pembayaran</td></tr>
                 <tr v-for="(p, i) in filteredPembayaran" :key="p.id">
-                  <td>{{ i+1 }}</td>
+                  <td>{{ (pembayaranPage - 1) * pembayaranLimit + i + 1 }}</td>
                   <td class="name-cell">{{ p.nama_santri }}</td>
                   <td>{{ p.nama_tarif }}</td>
                   <td class="paid-cell">{{ formatRupiah(p.nominal_bayar) }}</td>
@@ -99,6 +132,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="pembayaranTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (pembayaranPage - 1) * pembayaranLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(pembayaranPage * pembayaranLimit, pembayaranTotal) }}</strong> dari 
+              <strong>{{ pembayaranTotal }}</strong> pembayaran
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changePembayaranPage(1)" :disabled="pembayaranPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changePembayaranPage(pembayaranPage - 1)" :disabled="pembayaranPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in pembayaranPaginationRange" :key="p" @click="changePembayaranPage(p)" :class="['tab-btn', pembayaranPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changePembayaranPage(pembayaranPage + 1)" :disabled="pembayaranPage === pembayaranTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changePembayaranPage(pembayaranTotalPages)" :disabled="pembayaranPage === pembayaranTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -360,6 +414,16 @@ const mappingList     = ref([])
 const tahunAkademik   = ref([])
 const stats           = ref({ total_terkumpul: 0, belum_lunas: 0, cicilan: 0, lunas: 0 })
 
+const tagihanPage = ref(1)
+const tagihanLimit = ref(10)
+const tagihanTotal = ref(0)
+const tagihanTotalPages = ref(0)
+
+const pembayaranPage = ref(1)
+const pembayaranLimit = ref(10)
+const pembayaranTotal = ref(0)
+const pembayaranTotalPages = ref(0)
+
 const searchTagihan   = ref('')
 const searchPembayaran= ref('')
 const searchMapping   = ref('')
@@ -383,16 +447,9 @@ const tabs = [
 const bulanList = ['Tahunan', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
 // ===== COMPUTED =====
-const filteredTagihan = computed(() => tagihan.value.filter(t => {
-  const q  = !searchTagihan.value || t.nama_santri?.toLowerCase().includes(searchTagihan.value.toLowerCase())
-  const st = !filterStatus.value || t.status === filterStatus.value
-  const bl = filterBulan.value === '' || t.bulan == filterBulan.value
-  return q && st && bl
-}))
+const filteredTagihan = computed(() => tagihan.value)
 
-const filteredPembayaran = computed(() => pembayaran.value.filter(p =>
-  !searchPembayaran.value || p.nama_santri?.toLowerCase().includes(searchPembayaran.value.toLowerCase())
-))
+const filteredPembayaran = computed(() => pembayaran.value)
 
 const filteredMapping = computed(() => mappingList.value.filter(m =>
   !searchMapping.value || m.nama_lengkap?.toLowerCase().includes(searchMapping.value.toLowerCase()) || m.nisn?.includes(searchMapping.value)
@@ -408,19 +465,61 @@ function formatDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateStr
 function showNotif(m, type='success') { toast.value={show:true,message:m,type}; setTimeout(()=>toast.value.show=false,3000) }
 
 // ===== METHODS =====
+async function fetchTagihan(page = 1) {
+  tagihanPage.value = page
+  try {
+    const res = await axios.get(`${API}/spp/tagihan`, {
+      params: {
+        page: tagihanPage.value,
+        limit: tagihanLimit.value,
+        status: filterStatus.value,
+        bulan: filterBulan.value,
+        q: searchTagihan.value
+      },
+      headers
+    })
+    tagihan.value = res.data.data || []
+    if (res.data.pagination) {
+      tagihanTotal.value = res.data.pagination.total || 0
+      tagihanTotalPages.value = res.data.pagination.total_pages || 0
+    }
+  } catch (err) {
+    showNotif('Gagal memuat tagihan', 'error')
+  }
+}
+
+async function fetchPembayaran(page = 1) {
+  pembayaranPage.value = page
+  try {
+    const res = await axios.get(`${API}/spp/pembayaran`, {
+      params: {
+        page: pembayaranPage.value,
+        limit: pembayaranLimit.value,
+        q: searchPembayaran.value
+      },
+      headers
+    })
+    pembayaran.value = res.data.data || []
+    if (res.data.pagination) {
+      pembayaranTotal.value = res.data.pagination.total || 0
+      pembayaranTotalPages.value = res.data.pagination.total_pages || 0
+    }
+  } catch (err) {
+    showNotif('Gagal memuat pembayaran', 'error')
+  }
+}
+
 async function fetchAll() {
   loading.value = true
   try {
-    const [resT, resP, resS, resTf, resMap, resTa] = await Promise.all([
-      axios.get(`${API}/spp/tagihan`, { headers }),
-      axios.get(`${API}/spp/pembayaran`, { headers }),
+    const [resS, resTf, resMap, resTa] = await Promise.all([
       axios.get(`${API}/spp/stats`, { headers }),
       axios.get(`${API}/spp/tarif`, { headers }),
       axios.get(`${API}/spp/mapping`, { headers }),
       axios.get(`${API}/spp/tahun-akademik`, { headers }),
+      fetchTagihan(1),
+      fetchPembayaran(1)
     ])
-    tagihan.value       = resT.data.data || []
-    pembayaran.value    = resP.data.data || []
     stats.value         = resS.data.data || {}
     tarif.value         = resTf.data.data || []
     mappingList.value   = resMap.data.data || []
@@ -428,6 +527,77 @@ async function fetchAll() {
   } catch { showNotif('Gagal memuat data SPP', 'error') }
   finally { loading.value = false }
 }
+
+watch(tagihanLimit, () => {
+  tagihanPage.value = 1
+  fetchTagihan(1)
+})
+watch(filterStatus, () => {
+  tagihanPage.value = 1
+  fetchTagihan(1)
+})
+watch(filterBulan, () => {
+  tagihanPage.value = 1
+  fetchTagihan(1)
+})
+watch(pembayaranLimit, () => {
+  pembayaranPage.value = 1
+  fetchPembayaran(1)
+})
+
+let tagihanSearchTimeout = null
+function debounceTagihanSearch() {
+  if (tagihanSearchTimeout) clearTimeout(tagihanSearchTimeout)
+  tagihanSearchTimeout = setTimeout(() => {
+    fetchTagihan(1)
+  }, 400)
+}
+
+let pembayaranSearchTimeout = null
+function debouncePembayaranSearch() {
+  if (pembayaranSearchTimeout) clearTimeout(pembayaranSearchTimeout)
+  pembayaranSearchTimeout = setTimeout(() => {
+    fetchPembayaran(1)
+  }, 400)
+}
+
+function changeTagihanPage(page) {
+  if (page < 1 || page > tagihanTotalPages.value) return
+  tagihanPage.value = page
+  fetchTagihan(page)
+}
+
+function changePembayaranPage(page) {
+  if (page < 1 || page > pembayaranTotalPages.value) return
+  pembayaranPage.value = page
+  fetchPembayaran(page)
+}
+
+const tagihanPaginationRange = computed(() => {
+  const current = tagihanPage.value
+  const total = tagihanTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
+
+const pembayaranPaginationRange = computed(() => {
+  const current = pembayaranPage.value
+  const total = pembayaranTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 // === GENERATE TAGIHAN ===
 async function processGenerate() {
@@ -462,7 +632,7 @@ async function deleteTagihan(id) {
   if (!confirm('Hapus tagihan ini?')) return
   try {
     await axios.delete(`${API}/spp/tagihan/delete/${id}`, { headers })
-    await fetchAll()
+    await fetchTagihan(tagihanPage.value)
     showNotif('Tagihan berhasil dihapus!')
   } catch { showNotif('Gagal menghapus tagihan', 'error') }
 }

@@ -24,10 +24,42 @@ class Sarpras extends Controller
 
     public function indexBarang()
     {
-        $barang = $this->barangModel->orderBy('nama_barang', 'ASC')->findAll();
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q     = $this->request->getVar('q');
+
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('inv_barang');
+        if ($q) {
+            $countBuilder->groupStart()
+                ->like('nama_barang', $q)
+                ->orLike('kode_barang', $q)
+                ->orLike('kategori', $q)
+                ->groupEnd();
+        }
+        $total = $countBuilder->countAllResults();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('inv_barang');
+        if ($q) {
+            $mainBuilder->groupStart()
+                ->like('nama_barang', $q)
+                ->orLike('kode_barang', $q)
+                ->orLike('kategori', $q)
+                ->groupEnd();
+        }
+        $barang = $mainBuilder->orderBy('nama_barang', 'ASC')->limit($limit, $offset)->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $barang
+            'data'   => $barang,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
@@ -115,16 +147,37 @@ class Sarpras extends Controller
 
     public function indexMutasi()
     {
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $barangId = $this->request->getVar('barang_id');
+
         $db = \Config\Database::connect();
-        $mutasi = $db->table('inv_mutasi')
+        $countBuilder = $db->table('inv_mutasi')
+            ->join('inv_barang', 'inv_barang.id = inv_mutasi.barang_id');
+        if ($barangId) {
+            $countBuilder->where('inv_mutasi.barang_id', (int) $barangId);
+        }
+        $total = $countBuilder->countAllResults();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('inv_mutasi')
             ->select('inv_mutasi.*, inv_barang.nama_barang, inv_barang.kode_barang, inv_barang.satuan')
-            ->join('inv_barang', 'inv_barang.id = inv_mutasi.barang_id')
-            ->orderBy('inv_mutasi.created_at', 'DESC')
-            ->get()->getResultArray();
+            ->join('inv_barang', 'inv_barang.id = inv_mutasi.barang_id');
+        if ($barangId) {
+            $mainBuilder->where('inv_mutasi.barang_id', (int) $barangId);
+        }
+        $mutasi = $mainBuilder->orderBy('inv_mutasi.created_at', 'DESC')->limit($limit, $offset)->get()->getResultArray();
 
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $mutasi
+            'data'   => $mutasi,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
@@ -155,10 +208,44 @@ class Sarpras extends Controller
 
     public function indexPeminjaman()
     {
-        $peminjaman = $this->peminjamanModel->getPeminjaman();
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q     = $this->request->getVar('q');
+        $status = $this->request->getVar('status');
+
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('inv_peminjaman')
+            ->join('inv_barang', 'inv_barang.id = inv_peminjaman.barang_id');
+        if ($q) {
+            $countBuilder->like('inv_peminjaman.peminjam_nama', $q);
+        }
+        if ($status) {
+            $countBuilder->where('inv_peminjaman.status', $status);
+        }
+        $total = $countBuilder->countAllResults();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('inv_peminjaman')
+            ->select('inv_peminjaman.*, inv_barang.nama_barang, inv_barang.kode_barang, inv_barang.satuan')
+            ->join('inv_barang', 'inv_barang.id = inv_peminjaman.barang_id');
+        if ($q) {
+            $mainBuilder->like('inv_peminjaman.peminjam_nama', $q);
+        }
+        if ($status) {
+            $mainBuilder->where('inv_peminjaman.status', $status);
+        }
+        $peminjaman = $mainBuilder->orderBy('inv_peminjaman.tgl_pinjam', 'DESC')->limit($limit, $offset)->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $peminjaman
+            'data'   => $peminjaman,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

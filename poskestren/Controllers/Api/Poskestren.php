@@ -67,10 +67,42 @@ class Poskestren extends Controller
 
     public function getKunjungan()
     {
-        $kunjungan = $this->kunjunganModel->getKunjungan();
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q     = $this->request->getVar('q');
+
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('pos_kunjungan')
+            ->join('santri', 'santri.nisn = pos_kunjungan.nisn');
+
+        if ($q) {
+            $countBuilder->like('santri.nama_lengkap', $q);
+        }
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('pos_kunjungan')
+            ->select('pos_kunjungan.*, santri.nama_lengkap as nama_santri, santri.nis, akademik_kelas.nama_kelas')
+            ->join('santri', 'santri.nisn = pos_kunjungan.nisn')
+            ->join('akademik_kelas', 'akademik_kelas.id = santri.kelas_id', 'left');
+
+        if ($q) {
+            $mainBuilder->like('santri.nama_lengkap', $q);
+        }
+
+        $data = $mainBuilder->orderBy('pos_kunjungan.tgl_kunjungan', 'DESC')->limit($limit, $offset)->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $kunjungan
+            'data'   => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
@@ -264,10 +296,35 @@ class Poskestren extends Controller
 
     public function getObat()
     {
-        $obat = $this->obatModel->orderBy('nama_obat', 'ASC')->findAll();
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q     = $this->request->getVar('q');
+
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('pos_obat');
+        if ($q) {
+            $countBuilder->like('nama_obat', $q);
+        }
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('pos_obat');
+        if ($q) {
+            $mainBuilder->like('nama_obat', $q);
+        }
+        $data = $mainBuilder->orderBy('nama_obat', 'ASC')->limit($limit, $offset)->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $obat
+            'data'   => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
@@ -337,11 +394,37 @@ class Poskestren extends Controller
 
     public function getRiwayatStok()
     {
-        $obatId = $this->request->getGet('obat_id');
-        $riwayat = $this->stokMutasiModel->getRiwayat($obatId ? (int) $obatId : null);
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $obatId = $this->request->getVar('obat_id');
+
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('pos_stok_mutasi');
+        if ($obatId) {
+            $countBuilder->where('obat_id', (int) $obatId);
+        }
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('pos_stok_mutasi')
+            ->select('pos_stok_mutasi.*, pos_obat.nama_obat, pos_obat.satuan')
+            ->join('pos_obat', 'pos_obat.id = pos_stok_mutasi.obat_id');
+        if ($obatId) {
+            $mainBuilder->where('pos_stok_mutasi.obat_id', (int) $obatId);
+        }
+        $data = $mainBuilder->orderBy('pos_stok_mutasi.created_at', 'DESC')->limit($limit, $offset)->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $riwayat
+            'data'   => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

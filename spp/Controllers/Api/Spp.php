@@ -30,26 +30,53 @@ class Spp extends BaseController
 
     public function indexTagihan()
     {
-        $nisn   = $this->request->getGet('nisn');
-        $status = $this->request->getGet('status');
-        $bulan  = $this->request->getGet('bulan');
-        $q      = $this->request->getGet('q');
+        $page   = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit  = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $nisn   = $this->request->getVar('nisn');
+        $status = $this->request->getVar('status');
+        $bulan  = $this->request->getVar('bulan');
+        $q      = $this->request->getVar('q');
 
-        $query = $this->tagihanModel
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('spp_tagihan')
+            ->join('santri', 'santri.id = spp_tagihan.santri_id')
+            ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
+
+        if ($nisn)   $countBuilder->where('santri.nisn', $nisn);
+        if ($status) $countBuilder->where('spp_tagihan.status', $status);
+        if ($bulan !== null && $bulan !== '')  $countBuilder->where('spp_tagihan.bulan', $bulan);
+        if ($q)      $countBuilder->like('santri.nama_lengkap', $q);
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('spp_tagihan')
             ->select('spp_tagihan.*, santri.nisn, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
             ->join('santri', 'santri.id = spp_tagihan.santri_id')
             ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($nisn)   $query->where('santri.nisn', $nisn);
-        if ($status) $query->where('spp_tagihan.status', $status);
-        if ($bulan !== null && $bulan !== '')  $query->where('spp_tagihan.bulan', $bulan);
-        if ($q)      $query->like('santri.nama_lengkap', $q);
+        if ($nisn)   $mainBuilder->where('santri.nisn', $nisn);
+        if ($status) $mainBuilder->where('spp_tagihan.status', $status);
+        if ($bulan !== null && $bulan !== '')  $mainBuilder->where('spp_tagihan.bulan', $bulan);
+        if ($q)      $mainBuilder->like('santri.nama_lengkap', $q);
 
-        $data = $query->orderBy('spp_tagihan.tahun', 'DESC')
+        $data = $mainBuilder->orderBy('spp_tagihan.tahun', 'DESC')
                       ->orderBy('spp_tagihan.bulan', 'DESC')
-                      ->findAll();
+                      ->limit($limit, $offset)
+                      ->get()->getResultArray();
 
-        return $this->response->setJSON(['status' => 200, 'message' => 'Data tagihan berhasil diambil', 'data' => $data]);
+        return $this->response->setJSON([
+            'status'  => 200,
+            'message' => 'Data tagihan berhasil diambil',
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
+        ]);
     }
 
     public function generateTagihanMassal()
@@ -215,21 +242,48 @@ class Spp extends BaseController
 
     public function indexPembayaran()
     {
-        $tagihan_id = $this->request->getGet('tagihan_id');
-        $q          = $this->request->getGet('q');
+        $page   = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit  = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $tagihan_id = $this->request->getVar('tagihan_id');
+        $q          = $this->request->getVar('q');
 
-        $query = $this->pembayaranModel
+        $db = \Config\Database::connect();
+        $countBuilder = $db->table('spp_pembayaran')
+            ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
+            ->join('santri', 'santri.id = spp_tagihan.santri_id')
+            ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
+
+        if ($tagihan_id) $countBuilder->where('spp_pembayaran.tagihan_id', $tagihan_id);
+        if ($q)          $countBuilder->like('santri.nama_lengkap', $q);
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $mainBuilder = $db->table('spp_pembayaran')
             ->select('spp_pembayaran.*, santri.nama_lengkap as nama_santri, spp_tarif.nama_tarif')
             ->join('spp_tagihan', 'spp_tagihan.id = spp_pembayaran.tagihan_id')
             ->join('santri', 'santri.id = spp_tagihan.santri_id')
             ->join('spp_tarif', 'spp_tarif.id = spp_tagihan.tarif_id');
 
-        if ($tagihan_id) $query->where('spp_pembayaran.tagihan_id', $tagihan_id);
-        if ($q)          $query->like('santri.nama_lengkap', $q);
+        if ($tagihan_id) $mainBuilder->where('spp_pembayaran.tagihan_id', $tagihan_id);
+        if ($q)          $mainBuilder->like('santri.nama_lengkap', $q);
 
-        $data = $query->orderBy('spp_pembayaran.created_at', 'DESC')->findAll();
+        $data = $mainBuilder->orderBy('spp_pembayaran.created_at', 'DESC')
+                            ->limit($limit, $offset)
+                            ->get()->getResultArray();
 
-        return $this->response->setJSON(['status' => 200, 'message' => 'Data pembayaran berhasil diambil', 'data' => $data]);
+        return $this->response->setJSON([
+            'status'  => 200,
+            'message' => 'Data pembayaran berhasil diambil',
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
+        ]);
     }
 
     public function savePembayaran()

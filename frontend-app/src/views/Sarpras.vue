@@ -19,7 +19,12 @@
           <div class="card-header">
             <h3>Persediaan Aset &amp; Barang Inventaris</h3>
             <div class="header-actions">
-              <input v-model="searchBarang" placeholder="Cari nama atau kode barang..." class="search-input" />
+              <select v-model="barangLimit" class="fi" style="width: 100px; height: 36px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+              </select>
+              <input v-model="searchBarang" @input="debounceBarangSearch" placeholder="Cari nama atau kode barang..." class="search-input" />
               <button @click="openAddBarang" class="btn-primary">+ Daftarkan Barang</button>
             </div>
           </div>
@@ -28,8 +33,8 @@
               <thead><tr><th>Kode Barang</th><th>Nama Barang</th><th>Kategori</th><th>Stok Tersedia</th><th>Satuan</th><th>Lokasi Penyimpanan</th><th>Kondisi</th><th>Aksi</th></tr></thead>
               <tbody>
                 <tr v-if="loading"><td colspan="8" class="loading-cell">Memuat data inventaris...</td></tr>
-                <tr v-else-if="filteredBarang.length===0"><td colspan="8" class="empty-cell">Tidak ada data barang inventaris</td></tr>
-                <tr v-for="b in filteredBarang" :key="b.id">
+                <tr v-else-if="barangList.length===0"><td colspan="8" class="empty-cell">Tidak ada data barang inventaris</td></tr>
+                <tr v-for="b in barangList" :key="b.id">
                   <td><code>{{ b.kode_barang || '—' }}</code></td>
                   <td class="name-cell">{{ b.nama_barang }}</td>
                   <td><span class="badge badge-info">{{ b.kategori || 'Umum' }}</span></td>
@@ -51,6 +56,21 @@
               </tbody>
             </table>
           </div>
+          <!-- Paginasi Barang -->
+          <div v-if="barangTotalPages > 1" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; padding: 14px 20px;">
+            <span style="font-size: 12px; color: #64748b;">
+              Menampilkan <strong>{{ (barangPage - 1) * barangLimit + 1 }}</strong> – 
+              <strong>{{ Math.min(barangPage * barangLimit, barangTotal) }}</strong> dari 
+              <strong>{{ barangTotal }}</strong> barang
+            </span>
+            <div style="display: flex; gap: 5px;">
+              <button @click="changeBarangPage(1)" :disabled="barangPage===1" class="tab-btn" style="padding:5px 9px;">«</button>
+              <button @click="changeBarangPage(barangPage - 1)" :disabled="barangPage===1" class="tab-btn" style="padding:5px 10px;">‹</button>
+              <button v-for="p in barangPaginationRange" :key="p" @click="changeBarangPage(p)" :class="['tab-btn', barangPage===p ? 'active-indigo' : '']" style="padding:5px 10px;">{{ p }}</button>
+              <button @click="changeBarangPage(barangPage + 1)" :disabled="barangPage===barangTotalPages" class="tab-btn" style="padding:5px 10px;">›</button>
+              <button @click="changeBarangPage(barangTotalPages)" :disabled="barangPage===barangTotalPages" class="tab-btn" style="padding:5px 9px;">»</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -59,7 +79,15 @@
         <div class="card">
           <div class="card-header">
             <h3>Daftar Transaksi Peminjaman Aset</h3>
-            <button @click="openAddPeminjaman" class="btn-primary">+ Catat Peminjaman</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <select v-model="peminjamanLimit" class="fi" style="width: 100px; height: 36px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+              </select>
+              <input v-model="searchPeminjaman" @input="debouncePeminjamanSearch" placeholder="Cari nama peminjam..." class="search-input" />
+              <button @click="openAddPeminjaman" class="btn-primary">+ Catat Peminjaman</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -89,6 +117,21 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Paginasi Peminjaman -->
+          <div v-if="peminjamanTotalPages > 1" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; padding: 14px 20px;">
+            <span style="font-size: 12px; color: #64748b;">
+              Menampilkan <strong>{{ (peminjamanPage - 1) * peminjamanLimit + 1 }}</strong> – 
+              <strong>{{ Math.min(peminjamanPage * peminjamanLimit, peminjamanTotal) }}</strong> dari 
+              <strong>{{ peminjamanTotal }}</strong> peminjaman
+            </span>
+            <div style="display: flex; gap: 5px;">
+              <button @click="changePeminjamanPage(1)" :disabled="peminjamanPage===1" class="tab-btn" style="padding:5px 9px;">«</button>
+              <button @click="changePeminjamanPage(peminjamanPage - 1)" :disabled="peminjamanPage===1" class="tab-btn" style="padding:5px 10px;">‹</button>
+              <button v-for="p in peminjamanPaginationRange" :key="p" @click="changePeminjamanPage(p)" :class="['tab-btn', peminjamanPage===p ? 'active-indigo' : '']" style="padding:5px 10px;">{{ p }}</button>
+              <button @click="changePeminjamanPage(peminjamanPage + 1)" :disabled="peminjamanPage===peminjamanTotalPages" class="tab-btn" style="padding:5px 10px;">›</button>
+              <button @click="changePeminjamanPage(peminjamanTotalPages)" :disabled="peminjamanPage===peminjamanTotalPages" class="tab-btn" style="padding:5px 9px;">»</button>
+            </div>
           </div>
         </div>
       </section>
@@ -155,6 +198,28 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <!-- Paginasi Mutasi -->
+            <div v-if="mutasiTotalPages > 1" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 10px; padding: 14px 20px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <select v-model="mutasiLimit" class="fi" style="width: 100px; height: 36px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                  <option :value="10">10 baris</option>
+                  <option :value="25">25 baris</option>
+                  <option :value="50">50 baris</option>
+                </select>
+                <span style="font-size: 12px; color: #64748b;">
+                  Menampilkan <strong>{{ (mutasiPage - 1) * mutasiLimit + 1 }}</strong> – 
+                  <strong>{{ Math.min(mutasiPage * mutasiLimit, mutasiTotal) }}</strong> dari 
+                  <strong>{{ mutasiTotal }}</strong> mutasi
+                </span>
+              </div>
+              <div style="display: flex; gap: 5px;">
+                <button @click="changeMutasiPage(1)" :disabled="mutasiPage===1" class="tab-btn" style="padding:5px 9px;">«</button>
+                <button @click="changeMutasiPage(mutasiPage - 1)" :disabled="mutasiPage===1" class="tab-btn" style="padding:5px 10px;">‹</button>
+                <button v-for="p in mutasiPaginationRange" :key="p" @click="changeMutasiPage(p)" :class="['tab-btn', mutasiPage===p ? 'active-indigo' : '']" style="padding:5px 10px;">{{ p }}</button>
+                <button @click="changeMutasiPage(mutasiPage + 1)" :disabled="mutasiPage===mutasiTotalPages" class="tab-btn" style="padding:5px 10px;">›</button>
+                <button @click="changeMutasiPage(mutasiTotalPages)" :disabled="mutasiPage===mutasiTotalPages" class="tab-btn" style="padding:5px 9px;">»</button>
+              </div>
             </div>
           </div>
         </div>
@@ -242,7 +307,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
 
@@ -260,6 +325,26 @@ const searchBarang       = ref('')
 const barangList         = ref([])
 const peminjamanList     = ref([])
 const riwayatMutasi      = ref([])
+
+// Paginasi Barang
+const barangPage         = ref(1)
+const barangLimit        = ref(10)
+const barangTotal        = ref(0)
+const barangTotalPages   = ref(0)
+
+// Paginasi Peminjaman
+const peminjamanPage     = ref(1)
+const peminjamanLimit    = ref(10)
+const peminjamanTotal    = ref(0)
+const peminjamanTotalPages = ref(0)
+const searchPeminjaman   = ref('')
+
+// Paginasi Mutasi
+const mutasiPage         = ref(1)
+const mutasiLimit        = ref(10)
+const mutasiTotal        = ref(0)
+const mutasiTotalPages   = ref(0)
+const filterMutasiBarangId = ref('')
 
 const showBarangForm     = ref(false)
 const showPeminjamanForm = ref(false)
@@ -287,6 +372,27 @@ const barangActiveList = computed(() => {
   return barangList.value.filter(b => b.stok > 0)
 })
 
+const barangPaginationRange = computed(() => {
+  const c = barangPage.value, t = barangTotalPages.value, d = 2
+  const r = []
+  for (let i = Math.max(1, c - d); i <= Math.min(t, c + d); i++) r.push(i)
+  return r
+})
+
+const peminjamanPaginationRange = computed(() => {
+  const c = peminjamanPage.value, t = peminjamanTotalPages.value, d = 2
+  const r = []
+  for (let i = Math.max(1, c - d); i <= Math.min(t, c + d); i++) r.push(i)
+  return r
+})
+
+const mutasiPaginationRange = computed(() => {
+  const c = mutasiPage.value, t = mutasiTotalPages.value, d = 2
+  const r = []
+  for (let i = Math.max(1, c - d); i <= Math.min(t, c + d); i++) r.push(i)
+  return r
+})
+
 // ===== HELPERS =====
 function showNotif(m, type='success') { toast.value={show:true,message:m,type}; setTimeout(()=>toast.value.show=false, 3000) }
 function formatDate(d) { if(!d) return '-'; const date = new Date(d); return date.toLocaleDateString('id-ID', {day:'numeric',month:'short',year:'numeric'}) }
@@ -295,22 +401,43 @@ function formatDateTime(d) { if(!d) return '-'; const date = new Date(d); return
 // ===== METHODS =====
 async function switchTab(key) {
   activeTab.value = key
-  if (key === 'barang') await fetchBarang()
-  if (key === 'peminjaman') await fetchPeminjaman()
+  if (key === 'barang') await fetchBarang(1)
+  if (key === 'peminjaman') await fetchPeminjaman(1)
   if (key === 'mutasi') {
-    await fetchBarang()
-    await fetchMutasi()
+    await fetchBarang(1)
+    await fetchMutasi(1)
   }
 }
 
 // === BARANG CRUD ===
-async function fetchBarang() {
+async function fetchBarang(page = 1) {
   loading.value = true
+  barangPage.value = page
   try {
-    const res = await axios.get(`${API}/barang`, { headers })
+    const res = await axios.get(`${API}/barang`, {
+      params: { page: barangPage.value, limit: barangLimit.value, q: searchBarang.value },
+      headers
+    })
     barangList.value = res.data.data || []
+    if (res.data.pagination) {
+      barangTotal.value = res.data.pagination.total || 0
+      barangTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat barang inventaris', 'error') }
   finally { loading.value = false }
+}
+
+watch(barangLimit, () => { barangPage.value = 1; fetchBarang(1) })
+
+let barangSearchTimeout = null
+function debounceBarangSearch() {
+  if (barangSearchTimeout) clearTimeout(barangSearchTimeout)
+  barangSearchTimeout = setTimeout(() => fetchBarang(1), 400)
+}
+
+function changeBarangPage(p) {
+  if (p < 1 || p > barangTotalPages.value) return
+  barangPage.value = p; fetchBarang(p)
 }
 
 function openAddBarang() {
@@ -329,7 +456,7 @@ async function saveBarang() {
   try {
     await axios.post(`${API}/barang/save`, formBarang.value, { headers })
     showBarangForm.value = false
-    await fetchBarang()
+    await fetchBarang(1)
     showNotif('Barang inventaris berhasil disimpan!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan barang inventaris', 'error')
@@ -340,19 +467,40 @@ async function deleteBarang(id, nama) {
   if (!confirm(`Hapus barang "${nama}" dari inventaris?`)) return
   try {
     await axios.delete(`${API}/barang/delete/${id}`, { headers })
-    await fetchBarang()
+    await fetchBarang(barangPage.value)
     showNotif('Barang inventaris berhasil dihapus!')
   } catch { showNotif('Gagal menghapus barang inventaris', 'error') }
 }
 
 // === PEMINJAMAN CRUD ===
-async function fetchPeminjaman() {
+async function fetchPeminjaman(page = 1) {
   loading.value = true
+  peminjamanPage.value = page
   try {
-    const res = await axios.get(`${API}/peminjaman`, { headers })
+    const res = await axios.get(`${API}/peminjaman`, {
+      params: { page: peminjamanPage.value, limit: peminjamanLimit.value, q: searchPeminjaman.value },
+      headers
+    })
     peminjamanList.value = res.data.data || []
+    if (res.data.pagination) {
+      peminjamanTotal.value = res.data.pagination.total || 0
+      peminjamanTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat transaksi peminjaman', 'error') }
   finally { loading.value = false }
+}
+
+watch(peminjamanLimit, () => { peminjamanPage.value = 1; fetchPeminjaman(1) })
+
+let peminjamanSearchTimeout = null
+function debouncePeminjamanSearch() {
+  if (peminjamanSearchTimeout) clearTimeout(peminjamanSearchTimeout)
+  peminjamanSearchTimeout = setTimeout(() => fetchPeminjaman(1), 400)
+}
+
+function changePeminjamanPage(p) {
+  if (p < 1 || p > peminjamanTotalPages.value) return
+  peminjamanPage.value = p; fetchPeminjaman(p)
 }
 
 async function openAddPeminjaman() {
@@ -379,7 +527,7 @@ async function savePeminjaman() {
   try {
     await axios.post(`${API}/peminjaman/save`, f, { headers })
     showPeminjamanForm.value = false
-    await fetchPeminjaman()
+    await fetchPeminjaman(1)
     showNotif('Peminjaman barang berhasil dicatat!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan peminjaman', 'error')
@@ -390,7 +538,7 @@ async function kembalikanBarang(id, nama) {
   if (!confirm(`Tandai pengembalian barang dari "${nama}"?`)) return
   try {
     await axios.post(`${API}/peminjaman/kembalikan/${id}`, {}, { headers })
-    await fetchPeminjaman()
+    await fetchPeminjaman(peminjamanPage.value)
     showNotif('Barang berhasil dikembalikan ke gudang!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal melakukan pengembalian', 'error')
@@ -401,17 +549,32 @@ async function deletePeminjaman(id) {
   if (!confirm('Hapus rekam peminjaman ini? Jika status masih dipinjam, stok barang akan otomatis dikembalikan.')) return
   try {
     await axios.delete(`${API}/peminjaman/delete/${id}`, { headers })
-    await fetchPeminjaman()
+    await fetchPeminjaman(peminjamanPage.value)
     showNotif('Rekam peminjaman berhasil dihapus!')
   } catch { showNotif('Gagal menghapus rekam peminjaman', 'error') }
 }
 
 // === MUTASI STOK ===
-async function fetchMutasi() {
+async function fetchMutasi(page = 1) {
+  mutasiPage.value = page
   try {
-    const res = await axios.get(`${API}/mutasi`, { headers })
+    const res = await axios.get(`${API}/mutasi`, {
+      params: { page: mutasiPage.value, limit: mutasiLimit.value, barang_id: filterMutasiBarangId.value },
+      headers
+    })
     riwayatMutasi.value = res.data.data || []
+    if (res.data.pagination) {
+      mutasiTotal.value = res.data.pagination.total || 0
+      mutasiTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat log mutasi', 'error') }
+}
+
+watch(mutasiLimit, () => { mutasiPage.value = 1; fetchMutasi(1) })
+
+function changeMutasiPage(p) {
+  if (p < 1 || p > mutasiTotalPages.value) return
+  mutasiPage.value = p; fetchMutasi(p)
 }
 
 async function saveMutasi() {
@@ -424,8 +587,8 @@ async function saveMutasi() {
     await axios.post(`${API}/mutasi/save`, f, { headers })
     formMutasi.value = { barang_id: '', tipe: 'masuk', jumlah: 1, keterangan: '' }
     await Promise.all([
-      fetchBarang(),
-      fetchMutasi()
+      fetchBarang(1),
+      fetchMutasi(1)
     ])
     showNotif('Mutasi stok berhasil dicatat!')
   } catch (e) {
@@ -453,6 +616,8 @@ onMounted(fetchBarang)
 .active-blue { background: rgba(96,165,250,0.15); color: #60a5fa; border-color: rgba(96,165,250,0.3); font-weight: 600; }
 .active-purple { background: rgba(167,139,250,0.15); color: #a78bfa; border-color: rgba(167,139,250,0.3); font-weight: 600; }
 .active-green { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); font-weight: 600; }
+.active-indigo { background: rgba(99,102,241,0.2); color: #818cf8; border-color: rgba(99,102,241,0.4); font-weight: 700; }
+.tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .content-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; }
 

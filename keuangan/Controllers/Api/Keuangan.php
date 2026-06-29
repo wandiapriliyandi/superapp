@@ -78,14 +78,29 @@ class Keuangan extends BaseController
 
     public function indexJurnal()
     {
-        $jurnals = $this->jurnalModel->orderBy('tanggal', 'DESC')->orderBy('id', 'DESC')->findAll();
+        $page  = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+
+        $db = \Config\Database::connect();
+        $total = $db->table('keu_jurnal')->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $jurnals = $this->jurnalModel->orderBy('tanggal', 'DESC')->orderBy('id', 'DESC')->limit($limit, $offset)->findAll();
         foreach ($jurnals as &$j) {
             $j['details'] = $this->jurnalDetailModel->getByJurnal($j['id']);
         }
 
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $jurnals
+            'data'   => $jurnals,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

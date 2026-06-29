@@ -48,9 +48,17 @@
       <!-- ========== TAB 2: JURNAL UMUM ========== -->
       <section v-if="activeTab==='jurnal'">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Jurnal Umum &amp; Transaksi</h3>
-            <button @click="openAddJurnal" class="btn-primary">+ Buat Jurnal Baru</button>
+            <div style="display:flex; align-items:center; gap:12px">
+              <select v-model="jurnalLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <button @click="openAddJurnal" class="btn-primary">+ Buat Jurnal Baru</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -59,7 +67,7 @@
                 <tr v-if="loading"><td colspan="8" class="loading-cell">Memuat data jurnal...</td></tr>
                 <tr v-else-if="jurnals.length===0"><td colspan="8" class="empty-cell">Belum ada transaksi jurnal dicatat</td></tr>
                 <tr v-for="(j, idx) in jurnals" :key="j.id">
-                  <td>{{ idx+1 }}</td>
+                  <td>{{ (jurnalPage - 1) * jurnalLimit + idx + 1 }}</td>
                   <td><span class="badge badge-info">📄 {{ j.nomor_jurnal }}</span></td>
                   <td>{{ formatDate(j.tanggal) }}</td>
                   <td class="name-cell">{{ j.keterangan }}</td>
@@ -80,6 +88,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="jurnalTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (jurnalPage - 1) * jurnalLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(jurnalPage * jurnalLimit, jurnalTotal) }}</strong> dari 
+              <strong>{{ jurnalTotal }}</strong> transaksi
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeJurnalPage(1)" :disabled="jurnalPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeJurnalPage(jurnalPage - 1)" :disabled="jurnalPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in jurnalPaginationRange" :key="p" @click="changeJurnalPage(p)" :class="['tab-btn', jurnalPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeJurnalPage(jurnalPage + 1)" :disabled="jurnalPage === jurnalTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeJurnalPage(jurnalTotalPages)" :disabled="jurnalPage === jurnalTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -330,6 +359,11 @@ const toast         = ref({ show: false, message: '', type: 'success' })
 const akun          = ref([])
 const jurnals       = ref([])
 
+const jurnalPage = ref(1)
+const jurnalLimit = ref(10)
+const jurnalTotal = ref(0)
+const jurnalTotalPages = ref(0)
+
 const glParams      = ref({ akun_id: '', tgl_mulai: dateStr(1), tgl_selesai: dateStr(0) })
 const glData        = ref(null)
 
@@ -407,7 +441,7 @@ const isNeracaBalanced = computed(() => {
 async function switchTab(key) {
   activeTab.value = key
   if (key === 'akun') await fetchAkun()
-  if (key === 'jurnal') await fetchJurnals()
+  if (key === 'jurnal') await fetchJurnals(1)
 }
 
 // === COA FETCH & CRUD ===
@@ -452,14 +486,49 @@ async function deleteAkun(id, nama) {
 }
 
 // === JURNAL CRUD ===
-async function fetchJurnals() {
+async function fetchJurnals(page = 1) {
   loading.value = true
+  jurnalPage.value = page
   try {
-    const res = await axios.get(`${API}/keuangan/jurnal`, { headers })
+    const res = await axios.get(`${API}/keuangan/jurnal`, { 
+      params: {
+        page: jurnalPage.value,
+        limit: jurnalLimit.value
+      },
+      headers 
+    })
     jurnals.value = res.data.data || []
+    if (res.data.pagination) {
+      jurnalTotal.value = res.data.pagination.total || 0
+      jurnalTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat jurnal transaksi', 'error') }
   finally { loading.value = false }
 }
+
+watch(jurnalLimit, () => {
+  jurnalPage.value = 1
+  fetchJurnals(1)
+})
+
+function changeJurnalPage(page) {
+  if (page < 1 || page > jurnalTotalPages.value) return
+  jurnalPage.value = page
+  fetchJurnals(page)
+}
+
+const jurnalPaginationRange = computed(() => {
+  const current = jurnalPage.value
+  const total = jurnalTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 function openAddJurnal() {
   formJurnal.value = {
@@ -489,7 +558,7 @@ async function saveJurnal() {
   try {
     await axios.post(`${API}/keuangan/jurnal/save`, formJurnal.value, { headers })
     showJurnalForm.value = false
-    await fetchJurnals()
+    await fetchJurnals(1)
     showNotif('Jurnal berhasil diposting!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan transaksi jurnal', 'error')
@@ -500,7 +569,7 @@ async function deleteJurnal(id) {
   if (!confirm('Hapus transaksi jurnal ini?')) return
   try {
     await axios.delete(`${API}/keuangan/jurnal/delete/${id}`, { headers })
-    await fetchJurnals()
+    await fetchJurnals(jurnalPage.value)
     showNotif('Transaksi jurnal berhasil dihapus!')
   } catch { showNotif('Gagal menghapus jurnal', 'error') }
 }

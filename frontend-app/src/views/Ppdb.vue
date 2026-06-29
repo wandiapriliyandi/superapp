@@ -25,10 +25,16 @@
       <!-- ========== TAB: PENDAFTAR ========== -->
       <section v-if="activeTab==='pendaftar'">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Daftar Pendaftar</h3>
-            <div class="header-right">
-              <input v-model="searchQ" placeholder="Cari nama..." class="search-input" />
+            <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
+              <select v-model="ppdbLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <input v-model="searchQ" @input="debouncePpdbSearch" placeholder="Cari nama..." class="search-input" />
               <button @click="showAddForm=true" class="btn-primary">+ Tambah</button>
             </div>
           </div>
@@ -42,7 +48,7 @@
                 <tr v-if="loading"><td colspan="8" class="loading-cell">Memuat...</td></tr>
                 <tr v-else-if="filteredPendaftar.length===0"><td colspan="8" class="empty-cell">Tidak ada data</td></tr>
                 <tr v-for="(p,i) in filteredPendaftar" :key="p.id">
-                  <td class="num">{{ i+1 }}</td>
+                  <td class="num">{{ (ppdbPage - 1) * ppdbLimit + i + 1 }}</td>
                   <td><code>{{ p.nomor_pendaftaran }}</code></td>
                   <td class="name-cell" @click="openDetail(p)" style="cursor:pointer;text-decoration:underline dotted">{{ p.nama_lengkap }}</td>
                   <td>{{ p.jenis_kelamin }}</td>
@@ -61,6 +67,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="ppdbTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (ppdbPage - 1) * ppdbLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(ppdbPage * ppdbLimit, ppdbTotal) }}</strong> dari 
+              <strong>{{ ppdbTotal }}</strong> pendaftar
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changePpdbPage(1)" :disabled="ppdbPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changePpdbPage(ppdbPage - 1)" :disabled="ppdbPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in ppdbPaginationRange" :key="p" @click="changePpdbPage(p)" :class="['tab-btn', ppdbPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changePpdbPage(ppdbPage + 1)" :disabled="ppdbPage === ppdbTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changePpdbPage(ppdbTotalPages)" :disabled="ppdbPage === ppdbTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -452,13 +479,15 @@ const filterOpts = [
   { v:'Santri Terdaftar', l:'🎓 Terdaftar', c:'purple' },
 ]
 
-const filteredPendaftar = computed(() => pendaftar.value.filter(p => {
-  const st = !filterStatus.value || p.status_seleksi === filterStatus.value
-  const q  = !searchQ.value || p.nama_lengkap.toLowerCase().includes(searchQ.value.toLowerCase())
-  return st && q
-}))
+const ppdbPage = ref(1)
+const ppdbLimit = ref(10)
+const ppdbTotal = ref(0)
+const ppdbTotalPages = ref(0)
+const allPendingPendaftar = ref([])
 
-const pendaftarPending = computed(() => pendaftar.value.filter(p => p.status_seleksi === 'Pending'))
+const filteredPendaftar = computed(() => pendaftar.value)
+
+const pendaftarPending = computed(() => allPendingPendaftar.value)
 const pendaftarLulus   = computed(() => pendaftar.value.filter(p => p.status_seleksi === 'Lulus' || p.status_seleksi === 'Santri Terdaftar'))
 
 // ===== HELPERS =====
@@ -478,20 +507,77 @@ async function switchTab(key) {
 }
 
 // ===== FETCH =====
+async function fetchPendaftar(page = 1) {
+  ppdbPage.value = page
+  try {
+    const res = await axios.get(`${API}/ppdb/pendaftar`, {
+      params: {
+        page: ppdbPage.value,
+        limit: ppdbLimit.value,
+        status: filterStatus.value,
+        q: searchQ.value
+      },
+      headers
+    })
+    pendaftar.value = res.data.data || []
+    if (res.data.pagination) {
+      ppdbTotal.value = res.data.pagination.total || 0
+      ppdbTotalPages.value = res.data.pagination.total_pages || 0
+    }
+  } catch (err) {
+    showNotif('Gagal memuat data pendaftar', 'error')
+  }
+}
+
 async function fetchAll() {
   loading.value = true
   try {
-    const [rP, rS, rTA] = await Promise.all([
-      axios.get(`${API}/ppdb/pendaftar`, { headers }),
+    const [rS, rTA] = await Promise.all([
       axios.get(`${API}/ppdb/stats`, { headers }),
       axios.get(`${API}/ppdb/tahun-ajaran`, { headers }),
+      fetchPendaftar(1)
     ])
-    pendaftar.value   = rP.data.data || []
     stats.value       = rS.data.data || {}
     tahunAjaran.value = rTA.data.data || []
   } catch { showNotif('Gagal memuat data PPDB', 'error') }
   finally { loading.value = false }
 }
+
+watch(ppdbLimit, () => {
+  ppdbPage.value = 1
+  fetchPendaftar(1)
+})
+watch(filterStatus, () => {
+  ppdbPage.value = 1
+  fetchPendaftar(1)
+})
+
+let ppdbSearchTimeout = null
+function debouncePpdbSearch() {
+  if (ppdbSearchTimeout) clearTimeout(ppdbSearchTimeout)
+  ppdbSearchTimeout = setTimeout(() => {
+    fetchPendaftar(1)
+  }, 400)
+}
+
+function changePpdbPage(page) {
+  if (page < 1 || page > ppdbTotalPages.value) return
+  ppdbPage.value = page
+  fetchPendaftar(page)
+}
+
+const ppdbPaginationRange = computed(() => {
+  const current = ppdbPage.value
+  const total = ppdbTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 async function fetchJadwal() {
   loading.value = true
@@ -610,8 +696,12 @@ async function deleteJadwal(id, nama) {
 async function openPesertaJadwal(j) {
   selectedJadwal.value = j
   addPesertaId.value   = ''
-  const r = await axios.get(`${API}/ppdb/jadwal/${j.id}/peserta`, { headers })
+  const [r, rp] = await Promise.all([
+    axios.get(`${API}/ppdb/jadwal/${j.id}/peserta`, { headers }),
+    axios.get(`${API}/ppdb/pendaftar`, { params: { status: 'Pending', limit: 1000 }, headers })
+  ])
   pesertaJadwal.value  = r.data.data || []
+  allPendingPendaftar.value = rp.data.data || []
 }
 
 async function addPeserta() {
