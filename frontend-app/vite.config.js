@@ -23,7 +23,7 @@ export default defineConfig({
   plugins: [vue(), replaceApiUrlPlugin()],
   // Dev server: tetap bisa diakses di http://localhost:5173/
   // Build: output ke ../public/app/ agar bisa diakses via http://localhost/superapp/public/app/
-  base: '/superapp/public/app/',
+  base: './',
   build: {
     outDir: '../public/app',
     emptyOutDir: true,
