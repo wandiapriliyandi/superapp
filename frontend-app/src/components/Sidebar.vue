@@ -8,8 +8,12 @@
       </button>
     </div>
     <nav class="sidebar-menu">
+      <!-- Dashboard: semua user terotentikasi -->
+      <router-link to="/" class="menu-item" active-class="active" exact :title="isMinimized ? 'Dashboard' : ''">
+        <span class="icon">📊</span><span class="menu-text">Dashboard</span>
+      </router-link>
       <!-- Departemen: hanya superadmin -->
-      <router-link v-if="hasPermission('*')" to="/" class="menu-item" active-class="active" exact :title="isMinimized ? 'Departemen' : ''">
+      <router-link v-if="hasPermission('*')" to="/departemen" class="menu-item" active-class="active" :title="isMinimized ? 'Departemen' : ''">
         <span class="icon">🏢</span><span class="menu-text">Departemen</span>
       </router-link>
       <!-- Kepegawaian -->

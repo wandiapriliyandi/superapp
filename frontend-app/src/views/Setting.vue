@@ -115,6 +115,119 @@
         </div>
       </section>
 
+      <!-- ========== TAB: LOG AKTIVITAS ========== -->
+      <section v-if="activeTab==='activity'">
+        <div class="card">
+          <div class="card-header" style="justify-content: space-between;">
+            <h3>📜 Riwayat &amp; Log Aktivitas Pengguna</h3>
+            <button v-if="userPermissions.includes('*') || userPermissions.includes('setting.activity.hapus')" 
+                    @click="clearActivityLogs" 
+                    class="btn-primary" 
+                    style="background: #ef4444;" 
+                    :disabled="loading || activityLogs.length === 0">
+              🗑️ Bersihkan Semua Log
+            </button>
+          </div>
+
+          <!-- Filter & Search Panel -->
+          <div class="p20" style="background: rgba(255, 255, 255, 0.01); border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 250px; position: relative;">
+              <input v-model="activitySearch" @input="debounceSearch" type="text" class="fi" placeholder="Cari nama user, aktivitas, atau detail..." style="padding-left: 36px;" />
+              <span style="position: absolute; left: 14px; top: 12px; opacity: 0.5;">🔍</span>
+            </div>
+            
+            <div style="width: 200px;">
+              <select v-model="activityModule" @change="fetchActivityLogs(1)" class="fi">
+                <option value="">-- Semua Modul --</option>
+                <option v-for="mod in activityModules" :key="mod" :value="mod">{{ mod }}</option>
+              </select>
+            </div>
+            
+            <div style="width: 120px;">
+              <select v-model="activityLimit" @change="fetchActivityLogs(1)" class="fi">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+            </div>
+
+            <button @click="resetActivityFilters" class="btn-secondary" style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              🔄 Reset
+            </button>
+          </div>
+
+          <!-- Table -->
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th style="width: 160px;">Waktu</th>
+                  <th style="width: 140px;">Pengguna</th>
+                  <th style="width: 120px;">Modul</th>
+                  <th>Aktivitas</th>
+                  <th>Detail</th>
+                  <th style="width: 130px;">IP Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="loadingActivity"><td colspan="7" class="loading-cell">Memuat data log aktivitas...</td></tr>
+                <tr v-else-if="activityLogs.length===0"><td colspan="7" class="empty-cell">Tidak ada log aktivitas ditemukan</td></tr>
+                <tr v-for="(log, idx) in activityLogs" :key="log.id" :class="{'expanded-row': expandedLogId === log.id}">
+                  <td>{{ (activityPage - 1) * activityLimit + idx + 1 }}</td>
+                  <td class="text-muted" style="white-space: nowrap;">{{ formatDate(log.created_at) }}</td>
+                  <td><strong style="color: #cbd5e1;">{{ log.user }}</strong></td>
+                  <td>
+                    <span :class="['badge', getModuleBadgeClass(log.module)]">
+                      {{ log.module }}
+                    </span>
+                  </td>
+                  <td style="font-weight: 500;">{{ log.activity }}</td>
+                  <td>
+                    <div v-if="log.details" style="max-width: 250px;">
+                      <div v-if="expandedLogId === log.id" style="white-space: pre-wrap; font-family: monospace; font-size: 11px; color: #a7f3d0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; margin-top: 4px; max-height: 150px; overflow-y: auto;">
+                        {{ log.details }}
+                      </div>
+                      <span v-else class="text-muted" style="font-size: 12px; cursor: pointer; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" @click="toggleExpandLog(log.id)">
+                        {{ log.details }}
+                      </span>
+                      <button @click="toggleExpandLog(log.id)" style="background: none; border: none; color: #818cf8; font-size: 11px; padding: 0; cursor: pointer; margin-top: 2px; font-weight: 600; display: block;">
+                        {{ expandedLogId === log.id ? 'Sembunyikan' : 'Lihat Detail' }}
+                      </button>
+                    </div>
+                    <span v-else class="text-muted">—</span>
+                  </td>
+                  <td><code>{{ log.ip_address }}</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="activityTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (activityPage - 1) * activityLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(activityPage * activityLimit, activityTotal) }}</strong> dari 
+              <strong>{{ activityTotal }}</strong> log
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeActivityPage(1)" :disabled="activityPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeActivityPage(activityPage - 1)" :disabled="activityPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in pageNumbers" :key="p" @click="changeActivityPage(p)" :class="['tab-btn', activityPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeActivityPage(activityPage + 1)" :disabled="activityPage === activityTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeActivityPage(activityTotalPages)" :disabled="activityPage === activityTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ========== TAB 4: DATABASE MIGRATIONS ========== -->
       <section v-if="activeTab==='migrate'">
         <div class="card">
@@ -368,6 +481,9 @@ const tabs = computed(() => {
     { key: 'users', label: 'Pengguna', icon: '👥', color: 'purple' },
     { key: 'roles', label: 'Hak Akses / Role', icon: '🛡️', color: 'green' },
   ]
+  if (userPermissions.includes('*') || userPermissions.includes('setting.activity') || userPermissions.includes('setting.activity.baca')) {
+    list.push({ key: 'activity', label: 'Log Aktivitas', icon: '📜', color: 'indigo' })
+  }
   if (userPermissions.includes('*') || userPermissions.includes('setting.migrate') || userPermissions.includes('setting.migrate.baca')) {
     list.push({ key: 'migrate', label: 'Migrasi Database', icon: '⚡', color: 'orange' })
   }
@@ -378,6 +494,18 @@ const tabs = computed(() => {
 const migrateStatus = ref({ db_connected: false, db_error: '', environment: '', has_migrations_table: false, migration_files: [], history_count: 0 })
 const loadingMigrate = ref(false)
 const actionOutput  = ref('')
+
+// === STATE LOG AKTIVITAS ===
+const activityLogs = ref([])
+const activityModules = ref([])
+const activityPage = ref(1)
+const activityLimit = ref(25)
+const activitySearch = ref('')
+const activityModule = ref('')
+const activityTotal = ref(0)
+const activityTotalPages = ref(0)
+const loadingActivity = ref(false)
+const expandedLogId = ref(null)
 
 const modulesMap = {
   '*': '⭐ Superadmin (Akses Semua)',
@@ -612,6 +740,10 @@ const permissionTree = [
         { key: 'setting.roles.ubah', label: 'Ubah', type: 'update' },
         { key: 'setting.roles.hapus', label: 'Hapus', type: 'delete' },
       ]},
+      { key: 'setting.activity', label: 'Log Aktivitas', route: '/setting#activity', aksi: [
+        { key: 'setting.activity.baca', label: 'Lihat Log', type: 'read' },
+        { key: 'setting.activity.hapus', label: 'Bersihkan Log', type: 'delete' },
+      ]},
       { key: 'setting.migrate', label: 'Migrasi Database', route: '/setting#migrate', aksi: [
         { key: 'setting.migrate.baca', label: 'Lihat Status', type: 'read' },
         { key: 'setting.migrate.eksekusi', label: 'Eksekusi / Jalankan', type: 'update' },
@@ -744,8 +876,120 @@ async function switchTab(key) {
   if (key === 'profil') await fetchProfil()
   if (key === 'users') await fetchUsers()
   if (key === 'roles') await fetchRoles()
+  if (key === 'activity') await fetchActivityLogs()
   if (key === 'migrate') await fetchMigrateStatus()
 }
+
+// === USER ACTIVITY LOG METHODS ===
+async function fetchActivityLogs(page = 1) {
+  loadingActivity.value = true
+  activityPage.value = page
+  try {
+    const params = {
+      page: activityPage.value,
+      limit: activityLimit.value,
+      search: activitySearch.value,
+      module: activityModule.value
+    }
+    const res = await axios.get(`${API}/setting/activity`, { headers, params })
+    if (res.data && res.data.status === 200) {
+      activityLogs.value = res.data.data.logs || []
+      activityTotal.value = res.data.data.pagination.total || 0
+      activityTotalPages.value = res.data.data.pagination.total_pages || 0
+      activityModules.value = res.data.data.modules || []
+    }
+  } catch {
+    showNotif('Gagal memuat log aktivitas', 'error')
+  } finally {
+    loadingActivity.value = false
+  }
+}
+
+function resetActivityFilters() {
+  activitySearch.value = ''
+  activityModule.value = ''
+  activityPage.value = 1
+  fetchActivityLogs(1)
+}
+
+function toggleExpandLog(id) {
+  if (expandedLogId.value === id) {
+    expandedLogId.value = null
+  } else {
+    expandedLogId.value = id
+  }
+}
+
+function changeActivityPage(page) {
+  if (page >= 1 && page <= activityTotalPages.value) {
+    fetchActivityLogs(page)
+  }
+}
+
+async function clearActivityLogs() {
+  const confirm1 = confirm('PERINGATAN!\n\nTindakan ini akan menghapus seluruh catatan log aktivitas secara permanen.\n\nApakah Anda yakin ingin melanjutkan?')
+  if (!confirm1) return
+  
+  const confirm2 = prompt('Ketik "BERSIHKAN" untuk mengonfirmasi:')
+  if (confirm2 !== 'BERSIHKAN') return showNotif('Konfirmasi salah, tindakan dibatalkan.', 'error')
+
+  loading.value = true
+  try {
+    const res = await axios.delete(`${API}/setting/activity/clear`, { headers })
+    if (res.data && res.data.status === 200) {
+      showNotif(res.data.message || 'Log aktivitas berhasil dibersihkan!')
+      resetActivityFilters()
+    }
+  } catch (err) {
+    const msg = err.response?.data?.message || 'Gagal membersihkan log aktivitas'
+    showNotif(msg, 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—'
+  try {
+    return new Date(dateStr).toLocaleString('id-ID', { 
+      dateStyle: 'medium', 
+      timeStyle: 'short' 
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+function getModuleBadgeClass(mod) {
+  const m = String(mod).toLowerCase()
+  if (m.includes('sistem') || m.includes('auth')) return 'badge-info'
+  if (m.includes('db') || m.includes('database')) return 'badge-danger'
+  if (m.includes('spp') || m.includes('keuangan')) return 'badge-success'
+  return 'badge-gold'
+}
+
+let searchTimeout = null
+function debounceSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    fetchActivityLogs(1)
+  }, 400)
+}
+
+const pageNumbers = computed(() => {
+  const current = activityPage.value
+  const total = activityTotalPages.value
+  const delta = 2
+  const range = []
+  
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 // === DATABASE MIGRATION METHODS ===
 async function fetchMigrateStatus() {
@@ -998,6 +1242,8 @@ onMounted(init)
 .active-blue { background: rgba(96,165,250,0.15); color: #60a5fa; border-color: rgba(96,165,250,0.3); font-weight: 600; }
 .active-purple { background: rgba(167,139,250,0.15); color: #a78bfa; border-color: rgba(167,139,250,0.3); font-weight: 600; }
 .active-green { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); font-weight: 600; }
+.active-indigo { background: rgba(129,140,248,0.15); color: #818cf8; border-color: rgba(129,140,248,0.3); font-weight: 600; }
+.expanded-row td { background: rgba(129, 140, 248, 0.03); }
 
 /* Card */
 .card { margin: 20px 32px 24px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden; }

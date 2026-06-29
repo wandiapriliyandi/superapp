@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Login      from '../views/Login.vue'
+import Dashboard  from '../views/Dashboard.vue'
 import Departemen from '../views/Departemen.vue'
 import Perijinan  from '../views/Perijinan.vue'
 import Kepegawaian from '../views/Kepegawaian.vue'
@@ -22,6 +23,12 @@ const routes = [
   },
   {
     path: '/',
+    name: 'Dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/departemen',
     name: 'Departemen',
     component: Departemen,
     meta: { requiresAuth: true, requiredPermission: '*' }
@@ -126,11 +133,7 @@ const MODULE_ROUTES = [
  * @returns {string} nama route tujuan
  */
 function getFirstAllowedRoute(perms) {
-  if (perms.includes('*')) return 'Departemen'
-  for (const mod of MODULE_ROUTES) {
-    if (perms.includes(mod.permission)) return mod.name
-  }
-  return 'Login'
+  return 'Dashboard'
 }
 
 // Navigation guard — cek token JWT dan permission

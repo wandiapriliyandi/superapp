@@ -377,4 +377,95 @@ class Setting extends Controller
             return $this->response->setStatusCode(500)->setJSON(['status' => 500, 'message' => 'Gagal menjalankan seeder: ' . $e->getMessage()]);
         }
     }
+
+    // ===================== LOG AKTIVITAS USER =====================
+
+    public function indexActivity()
+    {
+        $user = $this->request->user ?? null;
+        $permissions = isset($user->permissions) ? (array) $user->permissions : [];
+
+        if (!in_array('*', $permissions) && !in_array('setting.activity.baca', $permissions)) {
+            return $this->response->setStatusCode(403)->setJSON([
+                'status' => 403,
+                'message' => 'Anda tidak memiliki hak akses untuk membaca log aktivitas.'
+            ]);
+        }
+
+        $activityModel = new \App\Models\ActivityModel();
+
+        $page   = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit  = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 25;
+        $search = $this->request->getVar('search') ? trim($this->request->getVar('search')) : '';
+        $module = $this->request->getVar('module') ? trim($this->request->getVar('module')) : '';
+
+        $query = $activityModel;
+
+        if ($search !== '') {
+            $query = $query->groupStart()
+                ->like('user', $search)
+                ->orLike('activity', $search)
+                ->orLike('details', $search)
+                ->groupEnd();
+        }
+
+        if ($module !== '') {
+            $query = $query->where('module', $module);
+        }
+
+        $total = $query->countAllResults(false);
+
+        $logs = $query->orderBy('created_at', 'DESC')
+            ->limit($limit, ($page - 1) * $limit)
+            ->find();
+
+        $db = \Config\Database::connect();
+        $modules = $db->table('activity_logs')
+            ->select('module')
+            ->distinct()
+            ->get()
+            ->getResultArray();
+        $modules = array_column($modules, 'module');
+
+        return $this->response->setJSON([
+            'status' => 200,
+            'data'   => [
+                'logs'       => $logs,
+                'pagination' => [
+                    'total'       => $total,
+                    'page'        => $page,
+                    'limit'       => $limit,
+                    'total_pages' => ceil($total / $limit)
+                ],
+                'modules'    => $modules
+            ]
+        ]);
+    }
+
+    public function clearActivity()
+    {
+        helper('activity');
+        $user = $this->request->user ?? null;
+        $permissions = isset($user->permissions) ? (array) $user->permissions : [];
+
+        if (!in_array('*', $permissions) && !in_array('setting.activity.hapus', $permissions)) {
+            return $this->response->setStatusCode(403)->setJSON([
+                'status' => 403,
+                'message' => 'Anda tidak memiliki hak akses untuk membersihkan log aktivitas.'
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $db->table('activity_logs')->truncate();
+
+        $namaLengkap = $user ? ($user->nama_lengkap ?? 'System') : 'System';
+        session()->set(['nama_lengkap' => $namaLengkap]);
+        log_activity('Membersihkan Seluruh Log Aktivitas', 'Sistem');
+        session()->remove('nama_lengkap');
+
+        return $this->response->setJSON([
+            'status'  => 200,
+            'message' => 'Seluruh log aktivitas berhasil dibersihkan!'
+        ]);
+    }
 }

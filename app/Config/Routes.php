@@ -78,6 +78,14 @@ $routes->group('api/setting', ['namespace' => 'App\Controllers\Api', 'filter' =>
     $routes->post('migrate/refresh', 'Setting::runMigrationRefresh');
     $routes->post('migrate/pull', 'Setting::pullGit');
     $routes->post('migrate/run-seeder', 'Setting::runSeeder');
+    // Log Aktivitas
+    $routes->get('activity', 'Setting::indexActivity');
+    $routes->delete('activity/clear', 'Setting::clearActivity');
+});
+
+// Rute REST API Dashboard (Dilindungi JWT)
+$routes->group('api/dashboard', ['namespace' => 'App\Controllers\Api', 'filter' => 'jwt'], function ($routes) {
+    $routes->get('stats', 'Dashboard::getStats');
 });
 
 
