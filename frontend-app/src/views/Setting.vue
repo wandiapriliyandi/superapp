@@ -287,11 +287,24 @@
 
             <!-- Migration Files Table -->
             <div>
-              <h4 style="margin-bottom:12px">Daftar Berkas Skema Migrasi</h4>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <h4 style="margin: 0">Daftar Berkas Skema Migrasi</h4>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="text-muted" style="font-size: 12px;">Baris per halaman:</span>
+                  <select v-model="migrateLimit" class="fi" style="width: 110px; height: 32px; padding: 4px 8px; font-size: 12px;">
+                    <option :value="10">10 baris</option>
+                    <option :value="25">25 baris</option>
+                    <option :value="50">50 baris</option>
+                    <option :value="100">100 baris</option>
+                  </select>
+                </div>
+              </div>
+              
               <div class="table-wrapper" style="border: 1px solid rgba(255,255,255,0.06); border-radius:10px; overflow:hidden">
                 <table class="data-table">
                   <thead>
                     <tr>
+                      <th style="width: 80px;">No</th>
                       <th>Status</th>
                       <th>Nama Berkas</th>
                       <th>Batch</th>
@@ -299,9 +312,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-if="loading"><td colspan="4" class="loading-cell">Memuat data migrasi...</td></tr>
-                    <tr v-else-if="migrateStatus.migration_files.length===0"><td colspan="4" class="empty-cell">Tidak ada berkas migrasi ditemukan</td></tr>
-                    <tr v-for="m in migrateStatus.migration_files" :key="m.file">
+                    <tr v-if="loading"><td colspan="5" class="loading-cell">Memuat data migrasi...</td></tr>
+                    <tr v-else-if="migrateStatus.migration_files.length===0"><td colspan="5" class="empty-cell">Tidak ada berkas migrasi ditemukan</td></tr>
+                    <tr v-for="(m, idx) in migrateStatus.migration_files" :key="m.file">
+                      <td>{{ (migratePage - 1) * migrateLimit + idx + 1 }}</td>
                       <td>
                         <span :class="['badge', m.is_executed ? 'badge-success' : 'badge-danger']">
                           {{ m.is_executed ? 'Sudah' : 'Belum' }}
@@ -313,6 +327,28 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Pagination -->
+              <div v-if="migrateTotalPages > 1" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 14px 10px 0; margin-top: 10px; flex-wrap: wrap; gap: 12px;">
+                <div class="text-muted" style="font-size: 12px;">
+                  Menampilkan <strong>{{ (migratePage - 1) * migrateLimit + 1 }}</strong> - 
+                  <strong>{{ Math.min(migratePage * migrateLimit, migrateTotal) }}</strong> dari 
+                  <strong>{{ migrateTotal }}</strong> berkas
+                </div>
+                
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <button @click="changeMigratePage(1)" :disabled="migratePage === 1" class="tab-btn" style="padding: 4px 8px; font-size: 11px;">« First</button>
+                  <button @click="changeMigratePage(migratePage - 1)" :disabled="migratePage === 1" class="tab-btn" style="padding: 4px 8px; font-size: 11px;">‹ Prev</button>
+                  
+                  <!-- Page numbers -->
+                  <button v-for="p in migratePaginationRange" :key="p" @click="changeMigratePage(p)" :class="['tab-btn', migratePage === p ? 'active-indigo' : '']" style="padding: 4px 10px; font-size: 11px; font-weight: 500;">
+                    {{ p }}
+                  </button>
+                  
+                  <button @click="changeMigratePage(migratePage + 1)" :disabled="migratePage === migrateTotalPages" class="tab-btn" style="padding: 4px 8px; font-size: 11px;">Next ›</button>
+                  <button @click="changeMigratePage(migrateTotalPages)" :disabled="migratePage === migrateTotalPages" class="tab-btn" style="padding: 4px 8px; font-size: 11px;">Last »</button>
+                </div>
               </div>
             </div>
 
@@ -448,7 +484,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
 
@@ -494,6 +530,10 @@ const tabs = computed(() => {
 const migrateStatus = ref({ db_connected: false, db_error: '', environment: '', has_migrations_table: false, migration_files: [], history_count: 0 })
 const loadingMigrate = ref(false)
 const actionOutput  = ref('')
+const migratePage   = ref(1)
+const migrateLimit  = ref(10)
+const migrateTotal  = ref(0)
+const migrateTotalPages = ref(0)
 
 // === STATE LOG AKTIVITAS ===
 const activityLogs = ref([])
@@ -995,9 +1035,19 @@ const pageNumbers = computed(() => {
 async function fetchMigrateStatus() {
   loading.value = true
   try {
-    const res = await axios.get(`${API}/setting/migrate`, { headers })
+    const res = await axios.get(`${API}/setting/migrate`, { 
+      params: {
+        page: migratePage.value,
+        limit: migrateLimit.value
+      },
+      headers 
+    })
     if (res.data && res.data.data) {
       migrateStatus.value = res.data.data
+      if (res.data.data.pagination) {
+        migrateTotal.value = res.data.data.pagination.total || 0
+        migrateTotalPages.value = res.data.data.pagination.total_pages || 0
+      }
     }
   } catch {
     showNotif('Gagal memuat status migrasi', 'error')
@@ -1005,6 +1055,32 @@ async function fetchMigrateStatus() {
     loading.value = false
   }
 }
+
+watch(migrateLimit, () => {
+  migratePage.value = 1
+  fetchMigrateStatus()
+})
+
+function changeMigratePage(page) {
+  if (page < 1 || page > migrateTotalPages.value) return
+  migratePage.value = page
+  fetchMigrateStatus()
+}
+
+const migratePaginationRange = computed(() => {
+  const current = migratePage.value
+  const total = migrateTotalPages.value
+  const delta = 2
+  const range = []
+  
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 async function runMigrationLatest() {
   loadingMigrate.value = true

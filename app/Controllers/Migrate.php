@@ -294,12 +294,26 @@ class Migrate extends BaseController
             }
         }
 
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        
+        $total = count($migrationFiles);
+        $totalPages = ceil($total / $limit);
+        
+        $offset = ($page - 1) * $limit;
+        $paginatedFiles = array_slice($migrationFiles, $offset, $limit);
+
         return $this->response->setJSON([
             'status'               => 'success',
-            'migration_files'      => $migrationFiles,
-            'history'              => $history,
+            'migration_files'      => $paginatedFiles,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ],
             'has_migrations_table' => $hasMigrationsTable,
-            'total_files'          => count($migrationFiles)
+            'total_files'          => $total
         ]);
     }
 

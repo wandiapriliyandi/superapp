@@ -245,6 +245,12 @@
                         <p class="small text-muted mb-0">File-file skema PHP yang ditemukan di dalam direktori <code>app/Database/Migrations/</code> dimuat secara asinkron</p>
                     </div>
                     <div class="d-flex align-items-center gap-2">
+                        <select id="limitSelectBtn" class="form-select form-select-sm rounded-pill px-3" style="width: auto;">
+                            <option value="10">10 baris</option>
+                            <option value="25">25 baris</option>
+                            <option value="50">50 baris</option>
+                            <option value="100">100 baris</option>
+                        </select>
                         <button type="button" id="refreshAjaxBtn" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm d-flex align-items-center">
                             <i class="bi bi-arrow-clockwise me-1" id="refreshSpinnerIcon"></i> Muat Ulang Data
                         </button>
@@ -276,6 +282,17 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination Controls -->
+                <div id="migrationPagination" class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top d-none">
+                    <div class="small text-muted" id="migrationPaginationText">
+                        Menampilkan <strong>0</strong> - <strong>0</strong> dari <strong>0</strong> berkas
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="migrationPaginationList">
+                            <!-- Halaman secara dinamis -->
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -333,8 +350,14 @@
 <?= $this->section('scripts') ?>
 <script>
 $(document).ready(function() {
+    let currentMigrationPage = 1;
+    let currentMigrationLimit = 10;
+
     // Fungsi memuat tabel migrasi menggunakan AJAX yang kebal terhadap injeksi naskah hosting
-    function loadMigrationTable() {
+    function loadMigrationTable(page = 1) {
+        currentMigrationPage = page;
+        currentMigrationLimit = parseInt($('#limitSelectBtn').val()) || 10;
+
         const spinnerIcon = $('#refreshSpinnerIcon');
         spinnerIcon.addClass('spinner-border spinner-border-sm').removeClass('bi-arrow-clockwise');
         
@@ -352,6 +375,10 @@ $(document).ready(function() {
         $.ajax({
             url: targetAjaxUrl,
             type: 'GET',
+            data: {
+                page: currentMigrationPage,
+                limit: currentMigrationLimit
+            },
             dataType: 'text', // Menggunakan text untuk mencegah error parse otomatis jika server menyisipkan kode HTML/JS tambahan
             success: function(rawText) {
                 try {
@@ -377,8 +404,10 @@ $(document).ready(function() {
                                         </td>
                                     </tr>
                                 `);
+                                $('#migrationPagination').addClass('d-none');
                             } else {
-                                let no = 1;
+                                let startNum = (response.pagination.page - 1) * response.pagination.limit + 1;
+                                let no = startNum;
                                 response.migration_files.forEach(function(item) {
                                     let statusBadge = item.is_executed ? 
                                         `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill">
@@ -408,6 +437,9 @@ $(document).ready(function() {
                                     `;
                                     tbody.append(rowHtml);
                                 });
+
+                                // Render Paginator
+                                renderMigrationPagination(response.pagination);
                             }
                         }
                     } else {
@@ -422,6 +454,7 @@ $(document).ready(function() {
                             </td>
                         </tr>
                     `);
+                    $('#migrationPagination').addClass('d-none');
                 }
             },
             error: function(xhr, status, error) {
@@ -433,6 +466,7 @@ $(document).ready(function() {
                         </td>
                     </tr>
                 `);
+                $('#migrationPagination').addClass('d-none');
             },
             complete: function() {
                 setTimeout(() => {
@@ -441,6 +475,68 @@ $(document).ready(function() {
             }
         });
     }
+
+    function renderMigrationPagination(pag) {
+        const pagContainer = $('#migrationPagination');
+        const pagText = $('#migrationPaginationText');
+        const pagList = $('#migrationPaginationList');
+        
+        pagContainer.removeClass('d-none');
+        
+        const start = (pag.page - 1) * pag.limit + 1;
+        const end = Math.min(pag.page * pag.limit, pag.total);
+        pagText.html(`Menampilkan <strong>${start}</strong> - <strong>${end}</strong> dari <strong>${pag.total}</strong> berkas`);
+        
+        pagList.empty();
+        
+        // Prev button
+        const prevDisabled = pag.page === 1 ? 'disabled' : '';
+        pagList.append(`
+            <li class="page-item ${prevDisabled}">
+                <a class="page-link" href="#" data-page="${pag.page - 1}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        `);
+        
+        // Page numbers (delta 2)
+        const delta = 2;
+        let startPage = Math.max(1, pag.page - delta);
+        let endPage = Math.min(pag.total_pages, pag.page + delta);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = pag.page === i ? 'active' : '';
+            pagList.append(`
+                <li class="page-item ${activeClass}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+        }
+        
+        // Next button
+        const nextDisabled = pag.page === pag.total_pages ? 'disabled' : '';
+        pagList.append(`
+            <li class="page-item ${nextDisabled}">
+                <a class="page-link" href="#" data-page="${pag.page + 1}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        `);
+    }
+
+    // Event listener click link paginasi
+    $(document).on('click', '#migrationPaginationList .page-link', function(e) {
+        e.preventDefault();
+        const page = parseInt($(this).attr('data-page'));
+        if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+            loadMigrationTable(page);
+        }
+    });
+
+    // Event listener change limit baris
+    $('#limitSelectBtn').on('change', function() {
+        loadMigrationTable(1);
+    });
 
     // Buat wadah alert dinamis untuk menampilkan feedback sukses/gagal di halaman
     function showAjaxAlert(message, type) {
@@ -510,8 +606,8 @@ $(document).ready(function() {
                         console.error("Gagal parsing JSON hasil aksi:", err, rawText);
                         showAjaxAlert('Tindakan berhasil dikirim, namun respon server gagal diurai.', 'success');
                     }
-                    // Refresh data tabel secara dinamis setelah aksi
-                    loadMigrationTable();
+                    // Refresh data tabel secara dinamis setelah aksi (kembali ke hal 1)
+                    loadMigrationTable(1);
                 },
                 error: function(xhr, status, error) {
                     let errMsg = 'Koneksi ke server gagal atau server menolak permintaan.';
@@ -520,18 +616,18 @@ $(document).ready(function() {
                         if (response.message) errMsg = response.message;
                     } catch(e) {}
                     showAjaxAlert(errMsg, 'error');
-                    loadMigrationTable();
+                    loadMigrationTable(currentMigrationPage);
                 }
             });
         }
     });
 
     // Eksekusi otomatis saat halaman selesai dimuat
-    loadMigrationTable();
+    loadMigrationTable(1);
 
     // Event tombol muat ulang data manual
     $('#refreshAjaxBtn').on('click', function() {
-        loadMigrationTable();
+        loadMigrationTable(currentMigrationPage);
     });
 });
 </script>

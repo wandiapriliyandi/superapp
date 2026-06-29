@@ -249,6 +249,15 @@ class Setting extends Controller
             }
         }
 
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        
+        $total = count($migrationFiles);
+        $totalPages = ceil($total / $limit);
+        
+        $offset = ($page - 1) * $limit;
+        $paginatedFiles = array_slice($migrationFiles, $offset, $limit);
+
         return $this->response->setJSON([
             'status' => 200,
             'data'   => [
@@ -256,8 +265,14 @@ class Setting extends Controller
                 'db_error'             => $dbError,
                 'environment'          => ENVIRONMENT,
                 'has_migrations_table' => $hasMigrationsTable,
-                'migration_files'      => $migrationFiles,
-                'history_count'        => count($history)
+                'migration_files'      => $paginatedFiles,
+                'history_count'        => count($history),
+                'pagination' => [
+                    'total'       => $total,
+                    'page'        => $page,
+                    'limit'       => $limit,
+                    'total_pages' => $totalPages
+                ]
             ]
         ]);
     }
