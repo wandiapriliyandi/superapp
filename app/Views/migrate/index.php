@@ -442,6 +442,90 @@ $(document).ready(function() {
         });
     }
 
+    // Buat wadah alert dinamis untuk menampilkan feedback sukses/gagal di halaman
+    function showAjaxAlert(message, type) {
+        // Hapus alert lama jika ada
+        $('#ajaxAlertContainer').remove();
+        
+        const alertClass = type === 'success' ? 'alert-success bg-success bg-opacity-10 border-success text-success' : 'alert-danger bg-danger bg-opacity-10 border-danger text-danger';
+        const iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+        
+        const alertHtml = `
+            <div id="ajaxAlertContainer" class="col-12 mb-3" style="animation: slideDown 0.4s ease-out;">
+                <div class="alert ${alertClass} border border-opacity-25 p-3 shadow-sm d-flex align-items-center" style="border-radius: 16px;">
+                    <i class="bi ${iconClass} fs-3 me-3"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">${type === 'success' ? 'Aksi Berhasil!' : 'Aksi Gagal/Kendala'}</h6>
+                        <p class="mb-0 small text-body-secondary">${message}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('.row.g-4').prepend(alertHtml);
+        
+        $('html, body').animate({ scrollTop: 0 }, 'slow');
+    }
+
+    // Intersep tombol konfirmasi modal statusModal
+    $('#confirmStatusBtn').on('click', function(e) {
+        const href = $(this).attr('href');
+        if (href && href !== '#' && href !== '') {
+            e.preventDefault(); // Mencegah perpindahan halaman (redirect)
+            
+            // Tutup modal
+            const statusModalEl = document.getElementById('statusModal');
+            const statusModalInstance = bootstrap.Modal.getInstance(statusModalEl);
+            if (statusModalInstance) {
+                statusModalInstance.hide();
+            }
+            
+            // Ubah tombol reload menjadi loading spinner
+            const spinnerIcon = $('#refreshSpinnerIcon');
+            spinnerIcon.addClass('spinner-border spinner-border-sm').removeClass('bi-arrow-clockwise');
+            
+            showAjaxAlert('Memproses perintah database via AJAX... Mohon tunggu sebentar.', 'success');
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+                dataType: 'text', // Gunakan text agar tahan terhadap injeksi naskah server
+                success: function(rawText) {
+                    try {
+                        const startIdx = rawText.indexOf('{');
+                        const endIdx = rawText.lastIndexOf('}');
+                        
+                        if (startIdx !== -1 && endIdx !== -1) {
+                            const pureJsonStr = rawText.substring(startIdx, endIdx + 1);
+                            const response = JSON.parse(pureJsonStr);
+                            
+                            if (response.status === 'success') {
+                                showAjaxAlert(response.message || 'Tindakan database berhasil dieksekusi.', 'success');
+                            } else {
+                                showAjaxAlert(response.message || 'Terjadi kesalahan saat memproses tindakan.', 'error');
+                            }
+                        } else {
+                            showAjaxAlert('Format respon server tidak valid (bukan JSON murni).', 'error');
+                        }
+                    } catch (err) {
+                        console.error("Gagal parsing JSON hasil aksi:", err, rawText);
+                        showAjaxAlert('Tindakan berhasil dikirim, namun respon server gagal diurai.', 'success');
+                    }
+                    // Refresh data tabel secara dinamis setelah aksi
+                    loadMigrationTable();
+                },
+                error: function(xhr, status, error) {
+                    let errMsg = 'Koneksi ke server gagal atau server menolak permintaan.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) errMsg = response.message;
+                    } catch(e) {}
+                    showAjaxAlert(errMsg, 'error');
+                    loadMigrationTable();
+                }
+            });
+        }
+    });
+
     // Eksekusi otomatis saat halaman selesai dimuat
     loadMigrationTable();
 

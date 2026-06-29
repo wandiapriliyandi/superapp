@@ -103,9 +103,15 @@ class Migrate extends BaseController
             $migrations->latest();
             
             log_activity('Menjalankan Migrasi Database (Latest)', 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Migrasi terbaru berhasil dijalankan dengan sukses!']);
+            }
             return redirect()->to('migrate')->with('success', 'Migrasi terbaru berhasil dijalankan dengan sukses!');
         } catch (\Throwable $e) {
             log_activity('Gagal Menjalankan Migrasi: ' . $e->getMessage(), 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Gagal menjalankan migrasi: ' . $e->getMessage()]);
+            }
             return redirect()->to('migrate')->with('error', 'Gagal menjalankan migrasi: ' . $e->getMessage());
         }
     }
@@ -123,9 +129,15 @@ class Migrate extends BaseController
             $migrations->latest('App');
 
             log_activity('Melakukan Refresh Migrasi Database', 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Seluruh migrasi berhasil di-refresh (dikosongkan & dibuat ulang)!']);
+            }
             return redirect()->to('migrate')->with('success', 'Seluruh migrasi berhasil di-refresh (dikosongkan & dibuat ulang)!');
         } catch (\Throwable $e) {
             log_activity('Gagal Refresh Migrasi: ' . $e->getMessage(), 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Gagal melakukan refresh migrasi: ' . $e->getMessage()]);
+            }
             return redirect()->to('migrate')->with('error', 'Gagal melakukan refresh migrasi: ' . $e->getMessage());
         }
     }
@@ -138,12 +150,18 @@ class Migrate extends BaseController
         try {
             $db = \Config\Database::connect();
             if (!$db->tableExists('migrations')) {
+                if ($this->request->isAJAX()) {
+                    return $this->response->setStatusCode(400)->setJSON(['status' => 'error', 'message' => 'Tabel migrasi tidak ditemukan.']);
+                }
                 return redirect()->to('migrate')->with('error', 'Tabel migrasi tidak ditemukan.');
             }
 
             // Cari batch terakhir
             $lastRow = $db->table('migrations')->orderBy('batch', 'DESC')->get()->getRowArray();
             if (!$lastRow) {
+                if ($this->request->isAJAX()) {
+                    return $this->response->setStatusCode(400)->setJSON(['status' => 'error', 'message' => 'Tidak ada riwayat migrasi untuk di-rollback.']);
+                }
                 return redirect()->to('migrate')->with('error', 'Tidak ada riwayat migrasi untuk di-rollback.');
             }
 
@@ -152,9 +170,15 @@ class Migrate extends BaseController
             $migrations->regress($targetBatch, 'App');
 
             log_activity('Melakukan Rollback Migrasi Database ke Batch ' . $targetBatch, 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Rollback migrasi berhasil dilakukan ke batch ' . $targetBatch . '!']);
+            }
             return redirect()->to('migrate')->with('success', 'Rollback migrasi berhasil dilakukan ke batch ' . $targetBatch . '!');
         } catch (\Throwable $e) {
             log_activity('Gagal Rollback Migrasi: ' . $e->getMessage(), 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Gagal melakukan rollback: ' . $e->getMessage()]);
+            }
             return redirect()->to('migrate')->with('error', 'Gagal melakukan rollback: ' . $e->getMessage());
         }
     }
@@ -171,12 +195,21 @@ class Migrate extends BaseController
             if ($db->tableExists('migrations')) {
                 $forge->dropTable('migrations', true);
                 log_activity('Menghapus Tabel Riwayat Migrasi Secara Paksa', 'Database');
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON(['status' => 'success', 'message' => 'Tabel riwayat migrasi (migrations) berhasil dihapus secara paksa. Anda dapat menjalankan migrasi terbaru untuk mencatat ulang.']);
+                }
                 return redirect()->to('migrate')->with('success', 'Tabel riwayat migrasi (migrations) berhasil dihapus secara paksa. Anda dapat menjalankan migrasi terbaru untuk mencatat ulang.');
             }
 
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Tabel migrasi memang belum ada atau sudah terhapus.']);
+            }
             return redirect()->to('migrate')->with('success', 'Tabel migrasi memang belum ada atau sudah terhapus.');
         } catch (\Throwable $e) {
             log_activity('Gagal Hapus Paksa Tabel Migrasi: ' . $e->getMessage(), 'Database');
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Gagal menghapus tabel migrasi secara paksa: ' . $e->getMessage()]);
+            }
             return redirect()->to('migrate')->with('error', 'Gagal menghapus tabel migrasi secara paksa: ' . $e->getMessage());
         }
     }
@@ -311,12 +344,21 @@ class Migrate extends BaseController
 
             if (!$isError) {
                 log_activity('Melakukan Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON(['status' => 'success', 'message' => 'Git Pull berhasil ditarik dengan sukses! Output: ' . $resultText]);
+                }
                 return redirect()->to('migrate')->with('success', 'Git Pull berhasil ditarik dengan sukses! Output: ' . esc($resultText));
             } else {
                 log_activity('Gagal Sinkronisasi Repositori (Git Pull)', 'Sistem', $resultText);
+                if ($this->request->isAJAX()) {
+                    return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Git Pull mendapati kendala: ' . $resultText]);
+                }
                 return redirect()->to('migrate')->with('error', 'Git Pull mendapati kendala: ' . esc($resultText));
             }
         } catch (\Throwable $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setStatusCode(500)->setJSON(['status' => 'error', 'message' => 'Gagal memicu perintah git pull: ' . $e->getMessage()]);
+            }
             return redirect()->to('migrate')->with('error', 'Gagal memicu perintah git pull: ' . $e->getMessage());
         }
     }
