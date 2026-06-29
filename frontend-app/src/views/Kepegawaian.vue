@@ -16,10 +16,16 @@
       <!-- ========== TAB 1: PEGAWAI ========== -->
       <section v-if="activeTab==='pegawai'">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Daftar Pegawai &amp; Asatidz</h3>
-            <div class="header-actions">
-              <input v-model="searchPegawai" placeholder="Cari nama pegawai..." class="search-input" />
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+              <select v-model="pegawaiLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <input v-model="searchPegawai" @input="debouncePegawaiSearch" placeholder="Cari nama..." class="search-input" />
               <select v-model="filterDept" class="filter-select">
                 <option value="">Semua Departemen</option>
                 <option v-for="d in departemen" :key="d.id" :value="d.id">{{ d.nama_departemen }}</option>
@@ -34,7 +40,7 @@
                 <tr v-if="loading"><td colspan="9" class="loading-cell">Memuat data...</td></tr>
                 <tr v-else-if="filteredPegawai.length===0"><td colspan="9" class="empty-cell">Tidak ada data pegawai</td></tr>
                 <tr v-for="(p, i) in filteredPegawai" :key="p.id">
-                  <td>{{ i+1 }}</td>
+                  <td>{{ (pegawaiPage - 1) * pegawaiLimit + i + 1 }}</td>
                   <td class="name-cell">{{ p.nama_lengkap }}</td>
                   <td><code>{{ p.nik || '—' }}</code></td>
                   <td>{{ p.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
@@ -51,6 +57,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="pegawaiTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (pegawaiPage - 1) * pegawaiLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(pegawaiPage * pegawaiLimit, pegawaiTotal) }}</strong> dari 
+              <strong>{{ pegawaiTotal }}</strong> pegawai
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changePegawaiPage(1)" :disabled="pegawaiPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changePegawaiPage(pegawaiPage - 1)" :disabled="pegawaiPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in pegawaiPaginationRange" :key="p" @click="changePegawaiPage(p)" :class="['tab-btn', pegawaiPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changePegawaiPage(pegawaiPage + 1)" :disabled="pegawaiPage === pegawaiTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changePegawaiPage(pegawaiTotalPages)" :disabled="pegawaiPage === pegawaiTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -300,7 +327,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
@@ -327,6 +354,11 @@ const searchPegawai   = ref('')
 const filterDept      = ref('')
 const absensiTanggal  = ref(new Date().toISOString().slice(0, 10))
 
+const pegawaiPage = ref(1)
+const pegawaiLimit = ref(10)
+const pegawaiTotal = ref(0)
+const pegawaiTotalPages = ref(0)
+
 const showPegawaiForm = ref(false)
 const showJabatanForm = ref(false)
 const showCutiForm    = ref(false)
@@ -348,11 +380,7 @@ const tabs = [
 const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 
 // ===== COMPUTED =====
-const filteredPegawai = computed(() => pegawai.value.filter(p => {
-  const matchSearch = !searchPegawai.value || p.nama_lengkap.toLowerCase().includes(searchPegawai.value.toLowerCase())
-  const matchDept   = !filterDept.value || p.departemen_id == filterDept.value
-  return matchSearch && matchDept
-}))
+const filteredPegawai = computed(() => pegawai.value)
 
 // ===== HELPERS =====
 function calcTotalSalary(j) {
@@ -365,19 +393,71 @@ function showNotif(m, type='success') { toast.value={show:true,message:m,type}; 
 // ===== METHODS =====
 async function switchTab(key) {
   activeTab.value = key
-  if (key === 'pegawai') await fetchPegawai()
+  if (key === 'pegawai') await fetchPegawai(1)
   if (key === 'jabatan') await fetchJabatan()
   if (key === 'cuti') await fetchCuti()
   if (key === 'payroll') await fetchPayroll()
 }
 
 // === FETCH DATA ===
-async function fetchPegawai() {
+async function fetchPegawai(page = 1) {
   loading.value = true
-  try { pegawai.value = (await axios.get(`${API}/kepegawaian/pegawai`, { headers })).data.data || [] }
+  pegawaiPage.value = page
+  try { 
+    const res = await axios.get(`${API}/kepegawaian/pegawai`, { 
+      params: {
+        page: pegawaiPage.value,
+        limit: pegawaiLimit.value,
+        q: searchPegawai.value,
+        dept: filterDept.value
+      },
+      headers 
+    })
+    pegawai.value = res.data.data || []
+    if (res.data.pagination) {
+      pegawaiTotal.value = res.data.pagination.total || 0
+      pegawaiTotalPages.value = res.data.pagination.total_pages || 0
+    }
+  }
   catch { showNotif('Gagal memuat data pegawai', 'error') }
   finally { loading.value = false }
 }
+
+watch(pegawaiLimit, () => {
+  pegawaiPage.value = 1
+  fetchPegawai(1)
+})
+watch(filterDept, () => {
+  pegawaiPage.value = 1
+  fetchPegawai(1)
+})
+
+let pegawaiSearchTimeout = null
+function debouncePegawaiSearch() {
+  if (pegawaiSearchTimeout) clearTimeout(pegawaiSearchTimeout)
+  pegawaiSearchTimeout = setTimeout(() => {
+    fetchPegawai(1)
+  }, 400)
+}
+
+function changePegawaiPage(page) {
+  if (page < 1 || page > pegawaiTotalPages.value) return
+  pegawaiPage.value = page
+  fetchPegawai(page)
+}
+
+const pegawaiPaginationRange = computed(() => {
+  const current = pegawaiPage.value
+  const total = pegawaiTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 async function fetchJabatan() {
   try { jabatan.value = (await axios.get(`${API}/kepegawaian/jabatan`, { headers })).data.data || [] }
@@ -406,7 +486,7 @@ async function savePegawai() {
   try {
     await axios.post(`${API}/kepegawaian/pegawai/save`, formPegawai.value, { headers })
     showPegawaiForm.value = false
-    await fetchPegawai()
+    await fetchPegawai(1)
     showNotif('Data pegawai berhasil disimpan!')
   } catch { showNotif('Gagal menyimpan data pegawai', 'error') }
   finally { saving.value = false }
@@ -416,7 +496,7 @@ async function deletePegawai(id, nama) {
   if (!confirm(`Hapus pegawai "${nama}"?`)) return
   try {
     await axios.delete(`${API}/kepegawaian/pegawai/delete/${id}`, { headers })
-    await fetchPegawai()
+    await fetchPegawai(pegawaiPage.value)
     showNotif('Pegawai berhasil dihapus!')
   } catch { showNotif('Gagal menghapus pegawai', 'error') }
 }
@@ -543,7 +623,7 @@ async function init() {
   loading.value = true
   try {
     await Promise.all([
-      fetchPegawai(),
+      fetchPegawai(1),
       fetchJabatan(),
       fetchDepartemen()
     ])

@@ -33,21 +33,43 @@ class Kepegawaian extends BaseController
 
     public function indexPegawai()
     {
-        $q = $this->request->getGet('q');
-        $dept = $this->request->getGet('dept');
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q = $this->request->getVar('q');
+        $dept = $this->request->getVar('dept');
 
-        $query = $this->pegawaiModel
-            ->select('hr_pegawai.*, hr_departemen.nama_departemen, hr_jabatan.nama_jabatan, hr_jabatan.gaji_pokok, hr_jabatan.tunjangan_makan, hr_jabatan.tunjangan_transport')
-            ->join('hr_departemen', 'hr_departemen.id = hr_pegawai.departemen_id', 'left')
-            ->join('hr_jabatan', 'hr_jabatan.id = hr_pegawai.jabatan_id', 'left');
+        $db = \Config\Database::connect();
 
-        if ($q)    $query->like('hr_pegawai.nama_lengkap', $q);
-        if ($dept) $query->where('hr_pegawai.departemen_id', $dept);
+        // Hitung total data pegawai
+        $countBuilder = $db->table('hr_pegawai');
+        if ($q)    $countBuilder->like('hr_pegawai.nama_lengkap', $q);
+        if ($dept) $countBuilder->where('hr_pegawai.departemen_id', $dept);
+        $total = $countBuilder->countAllResults();
+
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        // Ambil data terpaginasi
+        $mainBuilder = $db->table('hr_pegawai');
+        $mainBuilder->select('hr_pegawai.*, hr_departemen.nama_departemen, hr_jabatan.nama_jabatan, hr_jabatan.gaji_pokok, hr_jabatan.tunjangan_makan, hr_jabatan.tunjangan_transport');
+        $mainBuilder->join('hr_departemen', 'hr_departemen.id = hr_pegawai.departemen_id', 'left');
+        $mainBuilder->join('hr_jabatan', 'hr_jabatan.id = hr_pegawai.jabatan_id', 'left');
+
+        if ($q)    $mainBuilder->like('hr_pegawai.nama_lengkap', $q);
+        if ($dept) $mainBuilder->where('hr_pegawai.departemen_id', $dept);
+
+        $data = $mainBuilder->orderBy('hr_pegawai.nama_lengkap', 'ASC')->limit($limit, $offset)->get()->getResultArray();
 
         return $this->response->setJSON([
             'status'  => 200,
             'message' => 'Data pegawai berhasil diambil',
-            'data'    => $query->findAll()
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
