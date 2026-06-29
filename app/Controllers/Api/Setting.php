@@ -64,13 +64,27 @@ class Setting extends Controller
 
     public function indexUsers()
     {
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        
+        $total = $this->userModel->countAllResults();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
         $users = $this->userModel->select('users.*, roles.nama_role')
             ->join('roles', 'roles.id = users.role_id', 'left')
+            ->limit($limit, $offset)
             ->findAll();
 
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $users
+            'data'   => $users,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 
@@ -136,14 +150,27 @@ class Setting extends Controller
 
     public function indexRoles()
     {
-        $roles = $this->roleModel->findAll();
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        
+        $total = $this->roleModel->countAllResults();
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        $roles = $this->roleModel->limit($limit, $offset)->findAll();
         foreach ($roles as &$r) {
             $r['permissions'] = json_decode($r['permissions'], true) ?: [];
         }
 
         return $this->response->setJSON([
             'status' => 200,
-            'data'   => $roles
+            'data'   => $roles,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

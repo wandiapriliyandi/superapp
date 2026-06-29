@@ -44,9 +44,18 @@
       <!-- ========== TAB 2: USER MANAGEMENT ========== -->
       <section v-if="activeTab==='users'">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Manajemen Akun Pengguna</h3>
-            <button @click="openAddUser" class="btn-primary">+ Tambah User</button>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="text-muted" style="font-size: 12px;">Baris:</span>
+              <select v-model="usersLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <button @click="openAddUser" class="btn-primary">+ Tambah User</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -55,7 +64,7 @@
                 <tr v-if="loading"><td colspan="5" class="loading-cell">Memuat data pengguna...</td></tr>
                 <tr v-else-if="users.length===0"><td colspan="5" class="empty-cell">Belum ada user terdaftar</td></tr>
                 <tr v-for="(u, idx) in users" :key="u.id">
-                  <td>{{ idx+1 }}</td>
+                  <td>{{ (usersPage - 1) * usersLimit + idx + 1 }}</td>
                   <td class="name-cell">{{ u.nama_lengkap }}</td>
                   <td><code>{{ u.username }}</code></td>
                   <td><span class="badge badge-info">{{ u.nama_role || 'No Role / Custom' }}</span></td>
@@ -69,15 +78,45 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination -->
+          <div v-if="usersTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (usersPage - 1) * usersLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(usersPage * usersLimit, usersTotal) }}</strong> dari 
+              <strong>{{ usersTotal }}</strong> pengguna
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeUsersPage(1)" :disabled="usersPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeUsersPage(usersPage - 1)" :disabled="usersPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in usersPaginationRange" :key="p" @click="changeUsersPage(p)" :class="['tab-btn', usersPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeUsersPage(usersPage + 1)" :disabled="usersPage === usersTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeUsersPage(usersTotalPages)" :disabled="usersPage === usersTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- ========== TAB 3: ROLE MANAGEMENT ========== -->
       <section v-if="activeTab==='roles'">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Hak Akses Modul (Role Permissions)</h3>
-            <button @click="openAddRole" class="btn-primary">+ Tambah Role</button>
+            <div style="display:flex; align-items:center; gap:12px">
+              <span class="text-muted" style="font-size: 12px;">Baris:</span>
+              <select v-model="rolesLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <button @click="openAddRole" class="btn-primary">+ Tambah Role</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table class="data-table">
@@ -86,7 +125,7 @@
                 <tr v-if="loading"><td colspan="4" class="loading-cell">Memuat data role...</td></tr>
                 <tr v-else-if="roles.length===0"><td colspan="4" class="empty-cell">Belum ada role terdaftar</td></tr>
                 <tr v-for="(r, idx) in roles" :key="r.id">
-                  <td>{{ idx+1 }}</td>
+                  <td>{{ (rolesPage - 1) * rolesLimit + idx + 1 }}</td>
                   <td class="name-cell" style="width: 200px">{{ r.nama_role }}</td>
                   <td>
                     <div v-if="r.permissions && r.permissions.includes('*')" style="display:flex;align-items:center;gap:6px">
@@ -111,6 +150,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="rolesTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (rolesPage - 1) * rolesLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(rolesPage * rolesLimit, rolesTotal) }}</strong> dari 
+              <strong>{{ rolesTotal }}</strong> role
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeRolesPage(1)" :disabled="rolesPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeRolesPage(rolesPage - 1)" :disabled="rolesPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in rolesPaginationRange" :key="p" @click="changeRolesPage(p)" :class="['tab-btn', rolesPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeRolesPage(rolesPage + 1)" :disabled="rolesPage === rolesTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeRolesPage(rolesTotalPages)" :disabled="rolesPage === rolesTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -526,6 +586,17 @@ const tabs = computed(() => {
   return list
 })
 
+// === STATE USERS & ROLES PAGINASI ===
+const usersPage = ref(1)
+const usersLimit = ref(10)
+const usersTotal = ref(0)
+const usersTotalPages = ref(0)
+
+const rolesPage = ref(1)
+const rolesLimit = ref(10)
+const rolesTotal = ref(0)
+const rolesTotalPages = ref(0)
+
 // === STATE MIGRASI ===
 const migrateStatus = ref({ db_connected: false, db_error: '', environment: '', has_migrations_table: false, migration_files: [], history_count: 0 })
 const loadingMigrate = ref(false)
@@ -914,8 +985,8 @@ function showNotif(m, type='success') { toast.value={show:true,message:m,type}; 
 async function switchTab(key) {
   activeTab.value = key
   if (key === 'profil') await fetchProfil()
-  if (key === 'users') await fetchUsers()
-  if (key === 'roles') await fetchRoles()
+  if (key === 'users') await fetchUsers(1)
+  if (key === 'roles') await fetchRoles(1)
   if (key === 'activity') await fetchActivityLogs()
   if (key === 'migrate') await fetchMigrateStatus()
 }
@@ -1197,14 +1268,49 @@ async function saveProfil() {
 }
 
 // === USERS ===
-async function fetchUsers() {
+async function fetchUsers(page = 1) {
   loading.value = true
+  usersPage.value = page
   try {
-    const res = await axios.get(`${API}/setting/users`, { headers })
+    const res = await axios.get(`${API}/setting/users`, { 
+      params: {
+        page: usersPage.value,
+        limit: usersLimit.value
+      },
+      headers 
+    })
     users.value = res.data.data || []
+    if (res.data.pagination) {
+      usersTotal.value = res.data.pagination.total || 0
+      usersTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat pengguna', 'error') }
   finally { loading.value = false }
 }
+
+watch(usersLimit, () => {
+  usersPage.value = 1
+  fetchUsers(1)
+})
+
+function changeUsersPage(page) {
+  if (page < 1 || page > usersTotalPages.value) return
+  usersPage.value = page
+  fetchUsers(page)
+}
+
+const usersPaginationRange = computed(() => {
+  const current = usersPage.value
+  const total = usersTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 function openAddUser() {
   formUser.value = { id: '', nama_lengkap: '', username: '', role_id: '', password: '' }
@@ -1224,7 +1330,7 @@ async function saveUser() {
   try {
     await axios.post(`${API}/setting/users/save`, formUser.value, { headers })
     showUserForm.value = false
-    await fetchUsers()
+    await fetchUsers(usersPage.value)
     showNotif('Pengguna berhasil disimpan!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan pengguna', 'error')
@@ -1239,20 +1345,55 @@ async function deleteUser(id, username) {
   if (!confirm(`Hapus pengguna "${username}"?`)) return
   try {
     await axios.delete(`${API}/setting/users/delete/${id}`, { headers })
-    await fetchUsers()
+    await fetchUsers(usersPage.value)
     showNotif('Pengguna berhasil dihapus!')
   } catch { showNotif('Gagal menghapus pengguna', 'error') }
 }
 
 // === ROLES ===
-async function fetchRoles() {
+async function fetchRoles(page = 1) {
   loading.value = true
+  rolesPage.value = page
   try {
-    const res = await axios.get(`${API}/setting/roles`, { headers })
+    const res = await axios.get(`${API}/setting/roles`, { 
+      params: {
+        page: rolesPage.value,
+        limit: rolesLimit.value
+      },
+      headers 
+    })
     roles.value = res.data.data || []
+    if (res.data.pagination) {
+      rolesTotal.value = res.data.pagination.total || 0
+      rolesTotalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch { showNotif('Gagal memuat role', 'error') }
   finally { loading.value = false }
 }
+
+watch(rolesLimit, () => {
+  rolesPage.value = 1
+  fetchRoles(1)
+})
+
+function changeRolesPage(page) {
+  if (page < 1 || page > rolesTotalPages.value) return
+  rolesPage.value = page
+  fetchRoles(page)
+}
+
+const rolesPaginationRange = computed(() => {
+  const current = rolesPage.value
+  const total = rolesTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 function openAddRole() {
   formRole.value = { id: '', nama_role: '', permissions: [] }
@@ -1270,7 +1411,7 @@ async function saveRole() {
   try {
     await axios.post(`${API}/setting/roles/save`, formRole.value, { headers })
     showRoleForm.value = false
-    await fetchRoles()
+    await fetchRoles(rolesPage.value)
     showNotif('Role berhasil disimpan!')
   } catch (e) {
     showNotif(e.response?.data?.message || 'Gagal menyimpan role', 'error')
@@ -1281,7 +1422,7 @@ async function deleteRole(id, nama) {
   if (!confirm(`Hapus role "${nama}"? Semua pengguna yang memiliki role ini akan kehilangan hak akses!`)) return
   try {
     await axios.delete(`${API}/setting/roles/delete/${id}`, { headers })
-    await fetchRoles()
+    await fetchRoles(rolesPage.value)
     showNotif('Role berhasil dihapus!')
   } catch { showNotif('Gagal menghapus role', 'error') }
 }
@@ -1292,8 +1433,8 @@ async function init() {
   try {
     await Promise.all([
       fetchProfil(),
-      fetchRoles(),
-      fetchUsers()
+      fetchRoles(1),
+      fetchUsers(1)
     ])
   } catch {}
   finally { loading.value = false }
