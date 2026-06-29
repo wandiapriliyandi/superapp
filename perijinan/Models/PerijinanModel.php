@@ -32,7 +32,7 @@ class PerijinanModel extends Model
     public function getIzin($id = null)
     {
         $builder = $this->db->table($this->table);
-        $builder->select('perijinan.*, santri.nama_lengkap as nama_santri, santri.nis');
+        $builder->select('perijinan.*, santri.nama_lengkap, santri.nama_lengkap as nama_santri, santri.nis');
         $builder->join('santri', 'santri.nisn = perijinan.nisn');
         
         if ($id) {

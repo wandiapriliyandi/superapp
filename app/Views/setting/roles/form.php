@@ -52,6 +52,7 @@
                             'perijinan'    => ['perijinan' => 'Data Perizinan', 'rekap' => 'Rekap Laporan', 'pengaturan' => 'Pengaturan'],
                             'poskestren'   => ['kunjungan' => 'Kunjungan / Rekam Medis', 'obat' => 'Data Obat', 'stok' => 'Stok Obat'],
                             'keuangan'     => ['akun' => 'COA / Akun', 'jurnal' => 'Jurnal Umum', 'buku-besar' => 'Buku Besar', 'laporan' => 'Laporan Keuangan'],
+                            'alquran'      => ['tahsin' => 'Tahsin Qur\'an', 'tahfidz' => 'Tahfidz Qur\'an', 'laporan' => 'Rekap Laporan'],
                         ];
                         ?>
 

@@ -37,7 +37,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "disable-tls": true,
-        "cafile": "c:\\xampp\\htdocs\\superapp\\cacert.pem"
+        "cafile": "c:\\xampp\\htdocs\\superapp\\cacert.pem",
+        "secure-http": false
     },
     "scripts": {
         "test": "phpunit"

@@ -226,6 +226,8 @@ class Setting extends Controller
                 'e-learning'   => 'Modul E-Learning',
                 'perpustakaan' => 'Modul Perpustakaan',
                 'ppdb'         => 'Modul PPDB (Pendaftaran)',
+                'sarpras'      => 'Modul Inventaris & Sarpras',
+                'alquran'      => 'Modul Al-Qur\'an (Tahsin & Tahfidz)',
                 'setting'      => 'Modul System Settings',
                 'activity'     => 'Modul Log Aktivitas Audit',
             ]
@@ -273,6 +275,8 @@ class Setting extends Controller
                 'e-learning'   => 'Modul E-Learning',
                 'perpustakaan' => 'Modul Perpustakaan',
                 'ppdb'         => 'Modul PPDB (Pendaftaran)',
+                'sarpras'      => 'Modul Inventaris & Sarpras',
+                'alquran'      => 'Modul Al-Qur\'an (Tahsin & Tahfidz)',
                 'setting'      => 'Modul System Settings',
                 'activity'     => 'Modul Log Aktivitas Audit',
             ]

@@ -54,6 +54,7 @@ class AuthFilter implements FilterInterface
         'perijinan'    => ['perijinan', 'rekap', 'pengaturan'],
         'poskestren'   => ['kunjungan', 'obat', 'stok'],
         'keuangan'     => ['akun', 'jurnal', 'buku-besar', 'laporan'],
+        'alquran'      => ['tahsin', 'tahfidz', 'laporan'],
         'monitoring'   => [],
         'e-learning'   => [],
     ];
@@ -81,7 +82,7 @@ class AuthFilter implements FilterInterface
         // 4. Modul yang dilindungi
         $protectedModules = [
             'perijinan', 'poskestren', 'monitoring', 'setting', 'activity',
-            'akademik', 'spp', 'keuangan', 'kepegawaian', 'perpustakaan', 'ppdb', 'e-learning'
+            'akademik', 'spp', 'keuangan', 'kepegawaian', 'perpustakaan', 'ppdb', 'e-learning', 'alquran'
         ];
 
         if (!in_array($module, $protectedModules)) {

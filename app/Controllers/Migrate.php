@@ -320,5 +320,22 @@ class Migrate extends BaseController
             return redirect()->to('migrate')->with('error', 'Gagal memicu perintah git pull: ' . $e->getMessage());
         }
     }
+    /**
+     * !! SEMENTARA: Jalankan UserSeeder untuk menambah role dan user baru.
+     * Akses via: /migrate/run-seeder
+     * Hapus method ini setelah berhasil dijalankan.
+     */
+    public function runSeeder()
+    {
+        try {
+            $seeder = \Config\Database::seeder();
+            $seeder->call('UserSeeder');
+
+            log_activity('Menjalankan UserSeeder via web', 'Database');
+            return redirect()->to('migrate')->with('success', '✅ UserSeeder berhasil! Role dan user baru telah ditambahkan ke database.');
+        } catch (\Throwable $e) {
+            return redirect()->to('migrate')->with('error', 'Gagal menjalankan UserSeeder: ' . $e->getMessage());
+        }
+    }
 }
 

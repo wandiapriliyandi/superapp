@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
+        'jwt'           => \App\Filters\JWTAuthFilter::class,
     ];
 
     /**
@@ -76,14 +77,17 @@ class Filters extends BaseFilters
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
+            'cors',
             'auth' => [
                 'except' => [
+                    '/',
                     'login',
                     'login/proses',
                     'logout',
                     'verify/*',
                     'migrate',
                     'migrate/*',
+                    'api/*',
                 ]
             ],
         ],

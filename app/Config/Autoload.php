@@ -52,6 +52,7 @@ class Autoload extends AutoloadConfig
         'Perijinan'    => ROOTPATH . 'perijinan',
         'Poskestren'   => ROOTPATH . 'poskestren',
         'Monitoring'   => ROOTPATH . 'monitoring',
+        'Alquran'      => ROOTPATH . 'alquran',
     ];
 
     /**
