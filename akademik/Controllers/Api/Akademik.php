@@ -33,22 +33,45 @@ class Akademik extends BaseController
 
     public function indexSantri()
     {
-        $q      = $this->request->getGet('q');
-        $jk     = $this->request->getGet('jk');
-        $status = $this->request->getGet('status');
+        $page   = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit  = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $q      = $this->request->getVar('q');
+        $jk     = $this->request->getVar('jk');
+        $status = $this->request->getVar('status');
 
-        $query = $this->santriModel
-            ->select('santri.*, tahun_ajaran.tahun_ajaran as nama_tahun_ajaran')
-            ->join('tahun_ajaran', 'tahun_ajaran.id = santri.id_tahun_ajaran', 'left');
+        $db = \Config\Database::connect();
+        
+        // Hitung total dengan builder murni
+        $countBuilder = $db->table('santri');
+        if ($q)      $countBuilder->like('santri.nama_lengkap', $q);
+        if ($jk)     $countBuilder->where('santri.jenis_kelamin', $jk);
+        if ($status) $countBuilder->where('santri.status_santri', $status);
+        $total = $countBuilder->countAllResults();
 
-        if ($q)      $query->like('santri.nama_lengkap', $q);
-        if ($jk)     $query->where('santri.jenis_kelamin', $jk);
-        if ($status) $query->where('santri.status_santri', $status);
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+
+        // Ambil data terpaginasi
+        $mainBuilder = $db->table('santri');
+        $mainBuilder->select('santri.*, tahun_ajaran.tahun_ajaran as nama_tahun_ajaran');
+        $mainBuilder->join('tahun_ajaran', 'tahun_ajaran.id = santri.id_tahun_ajaran', 'left');
+
+        if ($q)      $mainBuilder->like('santri.nama_lengkap', $q);
+        if ($jk)     $mainBuilder->where('santri.jenis_kelamin', $jk);
+        if ($status) $mainBuilder->where('santri.status_santri', $status);
+
+        $data = $mainBuilder->orderBy('santri.nama_lengkap', 'ASC')->limit($limit, $offset)->get()->getResultArray();
 
         return $this->response->setJSON([
             'status'  => 200,
             'message' => 'Data santri berhasil diambil',
-            'data'    => $query->orderBy('santri.nama_lengkap', 'ASC')->findAll()
+            'data'    => $data,
+            'pagination' => [
+                'total'       => $total,
+                'page'        => $page,
+                'limit'       => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

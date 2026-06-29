@@ -48,14 +48,20 @@
 
       <!-- Data Table -->
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <h3>
             Daftar Izin
             <span v-if="activeFilter" class="header-badge">{{ activeFilter }}</span>
           </h3>
-          <div class="header-actions">
-            <input v-model="searchQ" placeholder="Cari nama santri..." class="search-input" />
-            <button @click="fetchIzinLogs" class="btn-refresh" :disabled="isLoading">
+          <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+            <select v-model="limit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #e2e8f0; outline: none;">
+              <option :value="10">10 baris</option>
+              <option :value="25">25 baris</option>
+              <option :value="50">50 baris</option>
+              <option :value="100">100 baris</option>
+            </select>
+            <input v-model="searchQ" @input="debounceSearch" placeholder="Cari nama santri..." class="search-input" />
+            <button @click="fetchIzinLogs(page)" class="btn-refresh" :disabled="isLoading">
               <span :class="{ spinning: isLoading }">🔄</span>
             </button>
           </div>
@@ -90,7 +96,7 @@
             </thead>
             <tbody>
               <tr v-for="(izin, i) in filteredList" :key="izin.id" :class="'row-' + izin.status.toLowerCase()">
-                <td class="num-cell">{{ i + 1 }}</td>
+                <td class="num-cell">{{ (page - 1) * limit + i + 1 }}</td>
                 <td>
                   <div class="santri-info">
                     <div class="santri-avatar">{{ (izin.nama_lengkap || 'S').charAt(0) }}</div>
@@ -133,6 +139,27 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+          <div class="text-muted" style="font-size: 12px;">
+            Menampilkan <strong>{{ (page - 1) * limit + 1 }}</strong> - 
+            <strong>{{ Math.min(page * limit, total) }}</strong> dari 
+            <strong>{{ total }}</strong> izin
+          </div>
+          
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button @click="changePage(1)" :disabled="page === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+            <button @click="changePage(page - 1)" :disabled="page === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+            
+            <!-- Page numbers -->
+            <button v-for="p in paginationRange" :key="p" @click="changePage(p)" :class="['tab-btn', page === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+              {{ p }}
+            </button>
+            
+            <button @click="changePage(page + 1)" :disabled="page === totalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+            <button @click="changePage(totalPages)" :disabled="page === totalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+          </div>
         </div>
       </div>
     </main>
@@ -243,7 +270,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
@@ -263,6 +290,11 @@ const isSaving   = ref(false)
 const showForm   = ref(false)
 const activeFilter = ref('')
 const searchQ    = ref('')
+
+const page = ref(1)
+const limit = ref(10)
+const total = ref(0)
+const totalPages = ref(0)
 const formError   = ref('')
 const showScanner = ref(false)
 const scannerStarted = ref(false)
@@ -284,11 +316,7 @@ const filterOptions = [
   { value: 'Ditolak',   label: '❌ Ditolak',  color: 'gray' },
 ]
 
-const filteredList = computed(() => izinList.value.filter(izin => {
-  const matchStatus = !activeFilter.value || izin.status === activeFilter.value
-  const matchQ      = !searchQ.value || (izin.nama_lengkap || '').toLowerCase().includes(searchQ.value.toLowerCase())
-  return matchStatus && matchQ
-}))
+const filteredList = computed(() => izinList.value)
 
 function countByStatus(status) { return izinList.value.filter(i => i.status === status).length }
 
@@ -388,17 +416,66 @@ async function fetchSantri() {
   } catch {}
 }
 
-async function fetchIzinLogs() {
+async function fetchIzinLogs(p = 1) {
   isLoading.value = true
+  page.value = p
   try {
-    const res = await axios.get(`${API}/api/perijinan/`, { headers })
+    const res = await axios.get(`${API}/api/perijinan/`, { 
+      params: {
+        page: page.value,
+        limit: limit.value,
+        status: activeFilter.value,
+        search: searchQ.value
+      },
+      headers 
+    })
     izinList.value = res.data.data || []
+    if (res.data.pagination) {
+      total.value = res.data.pagination.total || 0
+      totalPages.value = res.data.pagination.total_pages || 0
+    }
   } catch (e) {
     if (e.response?.status === 401) handleLogout()
   } finally {
     isLoading.value = false
   }
 }
+
+watch(limit, () => {
+  page.value = 1
+  fetchIzinLogs(1)
+})
+watch(activeFilter, () => {
+  page.value = 1
+  fetchIzinLogs(1)
+})
+
+let searchTimeout = null
+function debounceSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    fetchIzinLogs(1)
+  }, 400)
+}
+
+function changePage(p) {
+  if (p < 1 || p > totalPages.value) return
+  page.value = p
+  fetchIzinLogs(p)
+}
+
+const paginationRange = computed(() => {
+  const curr = page.value
+  const tot = totalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, curr - delta)
+  let end = Math.min(tot, curr + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 async function handleSave() {
   formError.value   = ''
@@ -412,7 +489,7 @@ async function handleSave() {
     await axios.post(`${API}/api/perijinan/save`, newIzin.value, { headers })
     formSuccess.value = 'Pengajuan izin berhasil diajukan!'
     newIzin.value = { nisn: '', jenis_izin: 'Keluar Lingkungan', tanggal_mulai: '', tanggal_selesai: '', alasan: '' }
-    await fetchIzinLogs()
+    await fetchIzinLogs(1)
     setTimeout(() => { showForm.value = false }, 1500)
     showToast('Izin berhasil diajukan!')
   } catch (e) {
@@ -426,7 +503,7 @@ async function handleApprove(id) {
   if (!confirm('Setujui pengajuan izin ini?')) return
   try {
     await axios.post(`${API}/api/perijinan/approve/${id}`, {}, { headers })
-    await fetchIzinLogs()
+    await fetchIzinLogs(page.value)
     showToast('Izin telah disetujui ✅')
   } catch { showToast('Gagal menyetujui izin', 'error') }
 }
@@ -436,7 +513,7 @@ async function handleReject(id) {
   if (catatan === null) return
   try {
     await axios.post(`${API}/api/perijinan/reject/${id}`, { catatan }, { headers })
-    await fetchIzinLogs()
+    await fetchIzinLogs(page.value)
     showToast('Izin ditolak')
   } catch { showToast('Gagal menolak izin', 'error') }
 }
@@ -445,7 +522,7 @@ async function handleAktifkan(id) {
   if (!confirm('Konfirmasi santri keluar dari pesantren?')) return
   try {
     await axios.post(`${API}/api/perijinan/aktifkan/${id}`, {}, { headers })
-    await fetchIzinLogs()
+    await fetchIzinLogs(page.value)
     showToast('Status diperbarui: Santri keluar 🏃')
   } catch { showToast('Gagal memperbarui status', 'error') }
 }
@@ -454,7 +531,7 @@ async function handleKembali(id) {
   if (!confirm('Konfirmasi santri telah kembali ke pesantren?')) return
   try {
     await axios.post(`${API}/api/perijinan/kembali/${id}`, {}, { headers })
-    await fetchIzinLogs()
+    await fetchIzinLogs(page.value)
     showToast('Santri telah kembali ke pesantren 🏠')
   } catch { showToast('Gagal memperbarui status', 'error') }
 }
@@ -463,7 +540,7 @@ async function handleDelete(id) {
   if (!confirm('Hapus data izin ini secara permanen?')) return
   try {
     await axios.delete(`${API}/api/perijinan/delete/${id}`, { headers })
-    await fetchIzinLogs()
+    await fetchIzinLogs(page.value)
     showToast('Data izin berhasil dihapus')
   } catch { showToast('Gagal menghapus data', 'error') }
 }
@@ -481,7 +558,7 @@ onUnmounted(async () => { if (html5QrCode && scannerStarted.value) { try { await
 
 onMounted(() => {
   fetchSantri()
-  fetchIzinLogs()
+  fetchIzinLogs(1)
 })
 </script>
 

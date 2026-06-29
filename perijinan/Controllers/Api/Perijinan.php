@@ -22,15 +22,68 @@ class Perijinan extends BaseController
     }
 
     /**
-     * Get all permission logs
+     * Get all permission logs with backend search, status filter, and pagination
      */
     public function index()
     {
-        $perijinan = $this->perijinanModel->getIzin();
+        $page = $this->request->getVar('page') ? (int) $this->request->getVar('page') : 1;
+        $limit = $this->request->getVar('limit') ? (int) $this->request->getVar('limit') : 10;
+        $status = $this->request->getVar('status') ?? '';
+        $search = $this->request->getVar('search') ?? '';
+
+        $db = \Config\Database::connect();
+        
+        // Query penghitungan total
+        $countBuilder = $db->table('perijinan');
+        $countBuilder->join('santri', 'santri.nisn = perijinan.nisn');
+        
+        if (!empty($status)) {
+            $countBuilder->where('perijinan.status', $status);
+        }
+        if (!empty($search)) {
+            $countBuilder->groupStart()
+                ->like('santri.nama_lengkap', $search)
+                ->orLike('perijinan.nisn', $search)
+                ->orLike('perijinan.token', $search)
+                ->groupEnd();
+        }
+        $total = $countBuilder->countAllResults();
+
+        // Query data terpaginasi
+        $mainBuilder = $db->table('perijinan');
+        $mainBuilder->select('perijinan.*, santri.nama_lengkap, santri.nama_lengkap as nama_santri, santri.nis');
+        $mainBuilder->join('santri', 'santri.nisn = perijinan.nisn');
+
+        if (!empty($status)) {
+            $mainBuilder->where('perijinan.status', $status);
+        }
+        if (!empty($search)) {
+            $mainBuilder->groupStart()
+                ->like('santri.nama_lengkap', $search)
+                ->orLike('perijinan.nisn', $search)
+                ->orLike('perijinan.token', $search)
+                ->groupEnd();
+        }
+
+        $offset = ($page - 1) * $limit;
+        $results = $mainBuilder->orderBy('perijinan.id', 'DESC')->limit($limit, $offset)->get()->getResultArray();
+        
+        foreach ($results as &$r) {
+            $r['is_terlambat'] = ($r['status'] == 'Aktif' && strtotime(date('Y-m-d H:i:s')) > strtotime($r['tanggal_selesai']));
+        }
+
+        $totalPages = ceil($total / $limit);
+
         return $this->respond([
             'status' => 200,
             'message' => 'Data perizinan berhasil diambil',
-            'data' => $perijinan
+            'data' => $results,
+            'pagination' => [
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'total_pages' => $totalPages
+            ]
         ]);
     }
 

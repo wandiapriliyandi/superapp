@@ -16,15 +16,21 @@
       <!-- ========== TAB 1: SANTRI ========== -->
       <section v-if="activeTab==='santri'">
         <div class="stats-grid">
-          <div class="stat-card purple"><div class="stat-icon">👨‍🎓</div><div><div class="stat-num">{{ santri.length }}</div><div class="stat-lbl">Total Santri</div></div></div>
-          <div class="stat-card green"><div class="stat-icon">✅</div><div><div class="stat-num">{{ countSantriByStatus('Aktif') }}</div><div class="stat-lbl">Santri Aktif</div></div></div>
-          <div class="stat-card gold"><div class="stat-icon">🎓</div><div><div class="stat-num">{{ countSantriByStatus('Alumni') }}</div><div class="stat-lbl">Alumni/Lulusan</div></div></div>
+          <div class="stat-card purple"><div class="stat-icon">👨‍🎓</div><div><div class="stat-num">{{ santriTotal }}</div><div class="stat-lbl">Total Santri</div></div></div>
+          <div class="stat-card green"><div class="stat-icon">✅</div><div><div class="stat-num">{{ countSantriByStatus('Aktif') }}</div><div class="stat-lbl">Santri (Hal. Ini)</div></div></div>
+          <div class="stat-card gold"><div class="stat-icon">🎓</div><div><div class="stat-num">{{ countSantriByStatus('Alumni') }}</div><div class="stat-lbl">Alumni (Hal. Ini)</div></div></div>
         </div>
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <h3>Daftar Santri</h3>
-            <div class="header-actions">
-              <input v-model="searchSantri" placeholder="Cari nama santri..." class="search-input" />
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+              <select v-model="santriLimit" class="fi" style="width: 100px; height: 38px; padding: 4px 8px; font-size: 13px; margin-bottom: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e2e8f0; outline: none;">
+                <option :value="10">10 baris</option>
+                <option :value="25">25 baris</option>
+                <option :value="50">50 baris</option>
+                <option :value="100">100 baris</option>
+              </select>
+              <input v-model="searchSantri" @input="debounceSantriSearch" placeholder="Cari nama/NISN..." class="search-input" />
               <button @click="openAddSantri" class="btn-primary">+ Tambah Santri</button>
             </div>
           </div>
@@ -35,7 +41,7 @@
                 <tr v-if="loading"><td colspan="8" class="loading-cell">Memuat data...</td></tr>
                 <tr v-else-if="filteredSantri.length===0"><td colspan="8" class="empty-cell">Tidak ada data santri</td></tr>
                 <tr v-for="(s, i) in filteredSantri" :key="s.id">
-                  <td>{{ i+1 }}</td>
+                  <td>{{ (santriPage - 1) * santriLimit + i + 1 }}</td>
                   <td class="name-cell">{{ s.nama_lengkap }}</td>
                   <td><code>{{ s.nisn || '—' }}</code></td>
                   <td>{{ s.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
@@ -53,6 +59,27 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <!-- Pagination -->
+          <div v-if="santriTotalPages > 1" class="p20" style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap; gap: 12px; padding: 20px;">
+            <div class="text-muted" style="font-size: 12px;">
+              Menampilkan <strong>{{ (santriPage - 1) * santriLimit + 1 }}</strong> - 
+              <strong>{{ Math.min(santriPage * santriLimit, santriTotal) }}</strong> dari 
+              <strong>{{ santriTotal }}</strong> santri
+            </div>
+            
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button @click="changeSantriPage(1)" :disabled="santriPage === 1" class="tab-btn" style="padding: 6px 10px;">« First</button>
+              <button @click="changeSantriPage(santriPage - 1)" :disabled="santriPage === 1" class="tab-btn" style="padding: 6px 12px;">‹ Prev</button>
+              
+              <!-- Page numbers -->
+              <button v-for="p in santriPaginationRange" :key="p" @click="changeSantriPage(p)" :class="['tab-btn', santriPage === p ? 'active-indigo' : '']" style="padding: 6px 12px; font-weight: 500;">
+                {{ p }}
+              </button>
+              
+              <button @click="changeSantriPage(santriPage + 1)" :disabled="santriPage === santriTotalPages" class="tab-btn" style="padding: 6px 12px;">Next ›</button>
+              <button @click="changeSantriPage(santriTotalPages)" :disabled="santriPage === santriTotalPages" class="tab-btn" style="padding: 6px 10px;">Last »</button>
+            </div>
           </div>
         </div>
       </section>
@@ -495,6 +522,11 @@ const tahunAjaran     = ref([])
 const searchSantri    = ref('')
 const filterKelasJadwal = ref('')
 
+const santriPage = ref(1)
+const santriLimit = ref(10)
+const santriTotal = ref(0)
+const santriTotalPages = ref(0)
+
 const showSantriForm  = ref(false)
 const showKelasForm   = ref(false)
 const showMapelForm   = ref(false)
@@ -526,9 +558,7 @@ const tabs = [
 const hariUrutan = { 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6, 'Minggu': 7 }
 
 // ===== COMPUTED =====
-const filteredSantri = computed(() => santri.value.filter(s =>
-  !searchSantri.value || s.nama_lengkap.toLowerCase().includes(searchSantri.value.toLowerCase()) || s.nisn?.includes(searchSantri.value)
-))
+const filteredSantri = computed(() => santri.value)
 
 const countSantriByStatus = (status) => santri.value.filter(s => s.status_santri === status).length
 
@@ -578,7 +608,7 @@ function gradeClass(n) {
 // ===== METHODS =====
 async function switchTab(key) {
   activeTab.value = key
-  if (key === 'santri') await fetchSantri()
+  if (key === 'santri') await fetchSantri(1)
   if (key === 'kelas') await fetchKelas()
   if (key === 'mapel') await fetchMapel()
   if (key === 'jadwal') {
@@ -588,12 +618,59 @@ async function switchTab(key) {
 }
 
 // === FETCH DATA ===
-async function fetchSantri() {
+async function fetchSantri(page = 1) {
   loading.value = true
-  try { santri.value = (await axios.get(`${API}/akademik/santri`, { headers })).data.data || [] }
+  santriPage.value = page
+  try { 
+    const res = await axios.get(`${API}/akademik/santri`, { 
+      params: {
+        page: santriPage.value,
+        limit: santriLimit.value,
+        q: searchSantri.value
+      },
+      headers 
+    })
+    santri.value = res.data.data || []
+    if (res.data.pagination) {
+      santriTotal.value = res.data.pagination.total || 0
+      santriTotalPages.value = res.data.pagination.total_pages || 0
+    }
+  }
   catch { showNotif('Gagal memuat data santri', 'error') }
   finally { loading.value = false }
 }
+
+watch(santriLimit, () => {
+  santriPage.value = 1
+  fetchSantri(1)
+})
+
+let santriSearchTimeout = null
+function debounceSantriSearch() {
+  if (santriSearchTimeout) clearTimeout(santriSearchTimeout)
+  santriSearchTimeout = setTimeout(() => {
+    fetchSantri(1)
+  }, 400)
+}
+
+function changeSantriPage(page) {
+  if (page < 1 || page > santriTotalPages.value) return
+  santriPage.value = page
+  fetchSantri(page)
+}
+
+const santriPaginationRange = computed(() => {
+  const current = santriPage.value
+  const total = santriTotalPages.value
+  const delta = 2
+  const range = []
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  for (let i = start; i <= end; i++) {
+    range.push(i)
+  }
+  return range
+})
 
 async function fetchKelas() {
   try { kelas.value = (await axios.get(`${API}/akademik/kelas`, { headers })).data.data || [] }
@@ -647,7 +724,7 @@ async function saveSantri() {
   try {
     await axios.post(`${API}/akademik/santri/save`, formSantri.value, { headers })
     showSantriForm.value = false
-    await fetchSantri()
+    await fetchSantri(1)
     showNotif('Data santri berhasil disimpan!')
   } catch { showNotif('Gagal menyimpan santri', 'error') }
   finally { saving.value = false }
@@ -657,7 +734,7 @@ async function deleteSantri(id, nama) {
   if (!confirm(`Hapus santri "${nama}"?`)) return
   try {
     await axios.delete(`${API}/akademik/santri/delete/${id}`, { headers })
-    await fetchSantri()
+    await fetchSantri(santriPage.value)
     showNotif('Santri berhasil dihapus!')
   } catch { showNotif('Gagal menghapus santri', 'error') }
 }
@@ -804,11 +881,15 @@ async function init() {
   loading.value = true
   try {
     const [resT, resG, resTa] = await Promise.all([
-      axios.get(`${API}/akademik/santri`, { headers }),
+      axios.get(`${API}/akademik/santri`, { params: { page: 1, limit: santriLimit.value }, headers }),
       axios.get(`${API}/akademik/guru`, { headers }),
       axios.get(`${API}/akademik/tahun-ajaran`, { headers })
     ])
     santri.value      = resT.data.data || []
+    if (resT.data.pagination) {
+      santriTotal.value = resT.data.pagination.total || 0
+      santriTotalPages.value = resT.data.pagination.total_pages || 0
+    }
     guru.value        = resG.data.data || []
     tahunAjaran.value = resTa.data.data || []
     await fetchKelas()
