@@ -507,7 +507,8 @@ const token  = localStorage.getItem('jwt_token')
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab       = ref('santri')
+const activeTab       = ref(localStorage.getItem('active_tab_akademik') || 'santri')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_akademik', val) })
 const loading         = ref(false)
 const saving          = ref(false)
 const toast           = ref({ show: false, message: '', type: 'success' })

@@ -505,7 +505,8 @@ const token  = localStorage.getItem('jwt_token')
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab          = ref('dashboard')
+const activeTab          = ref(localStorage.getItem('active_tab_poskestren') || 'dashboard')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_poskestren', val) })
 const loading            = ref(false)
 const saving             = ref(false)
 const toast              = ref({ show: false, message: '', type: 'success' })

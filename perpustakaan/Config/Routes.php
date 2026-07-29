@@ -17,4 +17,5 @@ $routes->group('api/perpustakaan', ['namespace' => 'Perpustakaan\Controllers\Api
     $routes->post('buku/save', 'Perpustakaan::saveBuku');
     $routes->delete('buku/delete/(:num)', 'Perpustakaan::deleteBuku/$1');
     $routes->get('stats', 'Perpustakaan::stats');
+    $routes->get('drive-token', 'Perpustakaan::driveToken');
 });

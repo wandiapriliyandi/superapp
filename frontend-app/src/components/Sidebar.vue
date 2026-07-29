@@ -92,7 +92,7 @@ const userInitial = computed(() => {
  */
 function hasPermission(perm) {
   if (permissions.value.includes('*')) return true
-  return permissions.value.includes(perm)
+  return permissions.value.some(p => p === perm || p.startsWith(perm + '.'))
 }
 
 function toggleMinimize() {
@@ -231,7 +231,6 @@ onMounted(() => {
 .sidebar.minimized .sidebar-menu {
   padding: 16px 8px;
   align-items: center;
-  pointer-events: none;
 }
 
 /* Scrollbar styling for sidebar */

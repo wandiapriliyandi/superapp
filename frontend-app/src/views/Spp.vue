@@ -386,7 +386,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
@@ -398,7 +398,8 @@ const user   = JSON.parse(localStorage.getItem('user_info') || '{}')
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab       = ref('tagihan')
+const activeTab       = ref(localStorage.getItem('active_tab_spp') || 'tagihan')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_spp', val) })
 const loading         = ref(false)
 const saving          = ref(false)
 const showBayarForm   = ref(false)

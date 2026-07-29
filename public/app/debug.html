@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Debug - Vue Router & Permissions</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+    h2 { color: #6cf; }
+    pre { background: #1a1a1a; padding: 12px; border-radius: 6px; overflow-x: auto; color: #0f0; }
+    .err { color: #f66; }
+    .ok { color: #6f6; }
+    .warn { color: #fa0; }
+    button { background: #333; color: white; border: 1px solid #555; padding: 8px 16px; cursor: pointer; border-radius: 4px; margin: 4px; }
+    button:hover { background: #555; }
+    #output { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>🔍 SuperApp Debug Tool</h2>
+  
+  <button onclick="checkStorage()">📦 Cek LocalStorage</button>
+  <button onclick="testSppRoute()">🔗 Test Load SPP Module</button>
+  <button onclick="clearAndLogin()">🗑️ Clear Storage & Ke Login</button>
+  
+  <div id="output"></div>
+
+  <script type="module">
+    const out = document.getElementById('output');
+    
+    function log(msg, cls='') {
+      out.innerHTML += `<pre class="${cls}">${msg}</pre>`;
+    }
+
+    window.checkStorage = function() {
+      out.innerHTML = '<h3>📦 LocalStorage Contents:</h3>';
+      const token = localStorage.getItem('jwt_token');
+      const user = localStorage.getItem('user') || localStorage.getItem('user_info');
+      
+      log(`JWT Token: ${token ? '✅ Ada (' + token.substring(0,30) + '...)' : '❌ TIDAK ADA'}`, token ? 'ok' : 'err');
+      
+      if (user) {
+        try {
+          const parsed = JSON.parse(user);
+          log('User Data:\n' + JSON.stringify(parsed, null, 2), 'ok');
+          log(`Permissions: ${JSON.stringify(parsed.permissions)}`, 'ok');
+          const hasSpp = parsed.permissions?.includes('*') || parsed.permissions?.includes('spp') || parsed.permissions?.some(p => p.startsWith('spp.'));
+          log(`Has SPP access: ${hasSpp ? '✅ YA' : '❌ TIDAK'}`, hasSpp ? 'ok' : 'err');
+        } catch(e) {
+          log('Error parse user: ' + e.message, 'err');
+        }
+      } else {
+        log('❌ User data tidak ada di localStorage!', 'err');
+      }
+    };
+
+    window.testSppRoute = async function() {
+      out.innerHTML = '<h3>🔗 Test Load SPP Module:</h3>';
+      try {
+        log('Mencoba import Spp-o1iyW4Jx.js...', 'warn');
+        const mod = await import('./assets/Spp-o1iyW4Jx.js');
+        log('✅ Module SPP berhasil dimuat!', 'ok');
+        log('Exports: ' + Object.keys(mod).join(', '), 'ok');
+      } catch(e) {
+        log('❌ ERROR saat load SPP module:\n' + e.message + '\n' + e.stack, 'err');
+      }
+    };
+
+    window.clearAndLogin = function() {
+      localStorage.clear();
+      window.location.href = '../#/login';
+    };
+
+    // Auto check on load
+    window.checkStorage();
+  </script>
+</body>
+</html>

@@ -135,7 +135,12 @@
               <option value="Digital">Digital / E-Book</option>
             </select>
           </div>
-          <div class="fg full"><label>Link E-Book / Digital File (Google Drive dll)</label><input v-model="formBuku.link_eksternal" class="fi" placeholder="https://..." /></div>
+          <div v-if="formBuku.lokasi === 'Digital'" class="fg full">
+            <label>Upload File Digital (Otomatis ke Google Drive)</label>
+            <input type="file" @change="handleFileChange" class="fi" accept=".pdf,.epub,.docx,.doc" />
+            <small class="muted" style="margin-top: 4px; display: block;">Format PDF, EPUB, DOCX. File akan diunggah otomatis ke Google Drive (atau penyimpanan lokal jika GDrive belum aktif).</small>
+          </div>
+          <div class="fg full"><label>Link E-Book / External URL (Opsional)</label><input v-model="formBuku.link_eksternal" class="fi" placeholder="https://drive.google.com/..." /></div>
           <div class="fg full"><label>Deskripsi Singkat</label><input v-model="formBuku.deskripsi" class="fi" /></div>
         </div>
         <div class="modal-actions">
@@ -162,7 +167,7 @@ const token  = localStorage.getItem('jwt_token')
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab     = ref('putra')
+const activeTab     = ref(localStorage.getItem('active_tab_perpustakaan') || 'putra')
 const loading       = ref(false)
 const saving        = ref(false)
 const toast         = ref({ show: false, message: '', type: 'success' })
@@ -224,27 +229,93 @@ async function fetchBuku(page = 1) {
   finally { loading.value = false }
 }
 
+const selectedFile = ref(null)
+
+function handleFileChange(e) {
+  const files = e.target.files
+  if (files && files.length > 0) {
+    selectedFile.value = files[0]
+  } else {
+    selectedFile.value = null
+  }
+}
+
 function openAddBuku() {
+  selectedFile.value = null
   const mapTab = { putra: 'Putra', putri: 'Putri', digital: 'Digital' }
   formBuku.value = { id: '', kode_buku: '', judul: '', pengarang: '', penerbit: '', tahun_terbit: new Date().getFullYear(), kategori: 'Agama', stok: 1, lokasi: mapTab[activeTab.value], deskripsi: '', link_eksternal: '' }
   showBukuForm.value = true
 }
 
 function openEditBuku(b) {
+  selectedFile.value = null
   formBuku.value = { ...b }
   showBukuForm.value = true
+}
+
+async function uploadDirectToDrive(file) {
+  const resToken = await axios.get(`${API}/perpustakaan/drive-token`, { headers })
+  const token = resToken.data.data?.access_token
+  if (!token) throw new Error('Token Google Drive tidak tersedia')
+
+  const metadata = {
+    name: file.name,
+    parents: ['12NijqsqRXpbNjkOE41C7exL5nCBC-431']
+  }
+
+  const form = new FormData()
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }))
+  form.append('file', file)
+
+  const resDrive = await axios.post(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true',
+    form,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  )
+
+  const fileId = resDrive.data?.id
+  if (!fileId) throw new Error('Gagal mengunggah file langsung ke Google Drive')
+  return `https://drive.google.com/file/d/${fileId}/view?usp=sharing`
 }
 
 async function saveBuku() {
   if (!formBuku.value.judul || !formBuku.value.kode_buku) return showNotif('Judul & kode buku wajib diisi', 'error')
   saving.value = true
   try {
-    await axios.post(`${API}/perpustakaan/buku/save`, formBuku.value, { headers })
+    let payload = { ...formBuku.value }
+    let reqHeaders = { ...headers }
+
+    if (selectedFile.value) {
+      try {
+        showNotif('Mengunggah file langsung ke Google Drive (0% Bandwidth Server)...', 'info')
+        const driveUrl = await uploadDirectToDrive(selectedFile.value)
+        payload.link_eksternal = driveUrl
+        payload.is_drive = 1
+      } catch (driveErr) {
+        showNotif('Direct upload gagal, mengunggah via server...', 'warning')
+        const formData = new FormData()
+        Object.keys(formBuku.value).forEach(key => {
+          if (formBuku.value[key] !== null && formBuku.value[key] !== undefined) {
+            formData.append(key, formBuku.value[key])
+          }
+        })
+        formData.append('file_digital', selectedFile.value)
+        payload = formData
+        reqHeaders['Content-Type'] = 'multipart/form-data'
+      }
+    }
+
+    await axios.post(`${API}/perpustakaan/buku/save`, payload, { headers: reqHeaders })
     showBukuForm.value = false
+    selectedFile.value = null
     await fetchBuku(1)
     showNotif('Buku berhasil disimpan!')
   } catch (e) {
-    showNotif(e.response?.data?.message || 'Gagal menyimpan buku', 'error')
+    showNotif(e.response?.data?.message || e.message || 'Gagal menyimpan buku', 'error')
   } finally { saving.value = false }
 }
 
@@ -266,7 +337,8 @@ watch(filterKategori, () => {
   bukuPage.value = 1
   fetchBuku(1)
 })
-watch(activeTab, () => {
+watch(activeTab, (val) => {
+  localStorage.setItem('active_tab_perpustakaan', val)
   searchQuery.value = ''
   filterKategori.value = ''
   bukuPage.value = 1

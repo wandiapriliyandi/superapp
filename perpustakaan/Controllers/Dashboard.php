@@ -100,15 +100,18 @@ class Dashboard extends BaseController
             $driveService = new \App\Services\GoogleDriveService();
             
             if ($driveService->isConfigured()) {
-                // Upload ke Google Drive
-                $tempPath = $fileDigital->getTempName();
-                $driveFileId = $driveService->upload($tempPath, $fileDigital->getName());
-                
-                if ($driveFileId) {
-                    $data['link_eksternal'] = "https://drive.google.com/file/d/{$driveFileId}/view?usp=sharing";
-                    $data['is_drive'] = 1;
-                    $data['file_digital'] = null; // Tidak perlu simpan lokal
-                } else {
+                try {
+                    // Upload ke Google Drive
+                    $tempPath = $fileDigital->getTempName();
+                    $driveFileId = $driveService->upload($tempPath, $fileDigital->getName());
+                    
+                    if ($driveFileId) {
+                        $link = $driveService->getFileLink($driveFileId);
+                        $data['link_eksternal'] = $link ?? "https://drive.google.com/file/d/{$driveFileId}/view?usp=sharing";
+                        $data['is_drive'] = 1;
+                        $data['file_digital'] = null; // Tidak perlu simpan lokal
+                    }
+                } catch (\Throwable $e) {
                     // Fallback ke lokal jika gagal upload ke Drive
                     $newName = $fileDigital->getRandomName();
                     $fileDigital->move('uploads/perpus/digital', $newName);

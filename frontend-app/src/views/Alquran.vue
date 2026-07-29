@@ -686,7 +686,8 @@ const santriList = ref([])
 const kelasList = ref([])
 const activeSantriId = ref(null)
 const activeSantri = ref(null)
-const activeTab = ref('overview')
+const activeTab = ref(localStorage.getItem('active_tab_alquran') || 'overview')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_alquran', val) })
 
 // Loading states
 const loadingStats = ref(false)

@@ -340,7 +340,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar.vue'
 
@@ -349,7 +349,8 @@ const token  = localStorage.getItem('jwt_token')
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab     = ref('akun')
+const activeTab     = ref(localStorage.getItem('active_tab_keuangan') || 'akun')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_keuangan', val) })
 const subTab        = ref('laba_rugi')
 const loading       = ref(false)
 const loadingGL     = ref(false)

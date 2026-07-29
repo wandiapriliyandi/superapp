@@ -136,6 +136,15 @@ const MODULE_ROUTES = [
  * @returns {string} nama route tujuan
  */
 function getFirstAllowedRoute(perms) {
+  if (!perms || perms.length === 0) return 'Login'
+  const isAdmin = perms.includes('*')
+  if (isAdmin) return 'Dashboard'
+
+  for (const mod of MODULE_ROUTES) {
+    if (mod.permission === '*') continue // skip superadmin-only entries for non-admins
+    const allowed = perms.includes(mod.permission) || perms.some(p => p.startsWith(mod.permission + '.'))
+    if (allowed) return mod.name
+  }
   return 'Dashboard'
 }
 
@@ -157,7 +166,7 @@ router.beforeEach((to, from) => {
     // Jika halaman ini butuh permission khusus, cek dulu
     const requiredPerm = to.meta.requiredPermission
     if (requiredPerm) {
-      const allowed = isAdmin || perms.includes(requiredPerm)
+      const allowed = isAdmin || perms.includes(requiredPerm) || perms.some(p => p.startsWith(requiredPerm + '.'))
       if (!allowed) {
         // Redirect ke halaman pertama yang diizinkan
         const firstRoute = getFirstAllowedRoute(perms)

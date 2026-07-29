@@ -430,7 +430,8 @@ const userInitial = computed(() => (user.nama_lengkap || 'U').charAt(0).toUpperC
 const headers = { Authorization: 'Bearer ' + token }
 
 // ===== STATE =====
-const activeTab  = ref('pendaftar')
+const activeTab  = ref(localStorage.getItem('active_tab_ppdb') || 'pendaftar')
+watch(activeTab, (val) => { localStorage.setItem('active_tab_ppdb', val) })
 const loading    = ref(false)
 const saving     = ref(false)
 const toast      = ref({ show: false, message: '', type: 'success' })

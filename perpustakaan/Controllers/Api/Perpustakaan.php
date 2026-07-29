@@ -95,6 +95,33 @@ class Perpustakaan extends BaseController
             'cover'          => $data['cover'] ?? 'default.png',
         ];
 
+        // Handle Digital File Upload jika ada file diunggah
+        $fileDigital = $this->request->getFile('file_digital');
+        if ($fileDigital && $fileDigital->isValid() && !$fileDigital->hasMoved()) {
+            $driveService = new \App\Services\GoogleDriveService();
+            
+            if ($driveService->isConfigured()) {
+                try {
+                    $tempPath = $fileDigital->getTempName();
+                    $driveFileId = $driveService->upload($tempPath, $fileDigital->getName());
+                    
+                    if ($driveFileId) {
+                        $link = $driveService->getFileLink($driveFileId);
+                        $payload['link_eksternal'] = $link ?? "https://drive.google.com/file/d/{$driveFileId}/view?usp=sharing";
+                        $payload['is_drive'] = 1;
+                    }
+                } catch (\Throwable $e) {
+                    $newName = $fileDigital->getRandomName();
+                    $fileDigital->move('uploads/perpus/digital', $newName);
+                    $payload['file_digital'] = $newName;
+                }
+            } else {
+                $newName = $fileDigital->getRandomName();
+                $fileDigital->move('uploads/perpus/digital', $newName);
+                $payload['file_digital'] = $newName;
+            }
+        }
+
         $isUpdate = !empty($data['id']);
         $this->bukuModel->save($payload);
 
@@ -128,5 +155,23 @@ class Perpustakaan extends BaseController
         ];
 
         return $this->response->setJSON(['status' => 200, 'data' => $stats]);
+    }
+
+    public function driveToken()
+    {
+        $driveService = new \App\Services\GoogleDriveService();
+        $config = $driveService->getUploadConfig();
+
+        if (!$config) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 400,
+                'message' => 'Google Drive belum dikonfigurasi'
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 200,
+            'data' => $config
+        ]);
     }
 }
