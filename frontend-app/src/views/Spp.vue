@@ -28,7 +28,7 @@
             <h3>Data Tagihan SPP</h3>
             <div class="header-actions">
               <button @click="showGenModal = true" class="btn-primary-purple">⚡ Generate Tagihan</button>
-              <button @click="showBayarForm = true" class="btn-primary">+ Catat Pembayaran</button>
+              <button @click="openBayarForm()" class="btn-primary">+ Catat Pembayaran</button>
             </div>
           </div>
           <div class="search-bar" style="display: flex; align-items: center; gap: 10px;">
@@ -68,7 +68,7 @@
                   <td :class="['sisa-cell', sisa(t) > 0 ? 'unpaid' : '']">{{ formatRupiah(sisa(t)) }}</td>
                   <td><span :class="['badge', statusClass(t.status)]">{{ t.status }}</span></td>
                   <td class="action-cell">
-                    <button v-if="t.status !== 'Lunas'" @click="selectedTagihan = t; showBayarForm = true" class="btn-sm-green" title="Bayar">💳</button>
+                    <button v-if="t.status !== 'Lunas'" @click="openBayarForm(t)" class="btn-sm-green" title="Bayar">💳</button>
                     <button @click="deleteTagihan(t.id)" class="btn-danger-sm">🗑️</button>
                   </td>
                 </tr>
@@ -355,15 +355,15 @@
                 <tbody>
                   <tr v-for="t in tarif" :key="t.id">
                     <td>
-                      <input type="checkbox" :value="t.id" v-model="formMapping.tarif_ids" style="width: 18px; height: 18px; cursor: pointer" />
+                      <input type="checkbox" :value="Number(t.id)" v-model="formMapping.tarif_ids" style="width: 18px; height: 18px; cursor: pointer" />
                     </td>
                     <td class="name-cell">{{ t.nama_tarif }}</td>
                     <td>{{ formatRupiah(t.nominal) }}</td>
                     <td>
-                      <input type="number" v-model="formMapping.nominal_diskon[t.id]" class="mini-input" placeholder="0" :disabled="!formMapping.tarif_ids.includes(t.id)" />
+                      <input type="number" v-model="formMapping.nominal_diskon[t.id]" class="mini-input" placeholder="0" :disabled="!formMapping.tarif_ids.includes(Number(t.id))" />
                     </td>
                     <td>
-                      <input type="text" v-model="formMapping.keterangan_diskon[t.id]" class="mini-input-text" placeholder="misal: Beasiswa, Anak Yatim" :disabled="!formMapping.tarif_ids.includes(t.id)" />
+                      <input type="text" v-model="formMapping.keterangan_diskon[t.id]" class="mini-input-text" placeholder="misal: Beasiswa, Anak Yatim" :disabled="!formMapping.tarif_ids.includes(Number(t.id))" />
                     </td>
                   </tr>
                 </tbody>
@@ -639,11 +639,42 @@ async function deleteTagihan(id) {
 }
 
 // === CATAT BAYAR ===
+function openBayarForm(t = null) {
+  selectedTagihan.value = t
+  if (t) {
+    formBayar.value = {
+      tagihan_id: t.id,
+      nominal_bayar: sisa(t),
+      tanggal_bayar: dateToday(),
+      metode_bayar: 'Tunai',
+      keterangan: ''
+    }
+  } else {
+    formBayar.value = {
+      tagihan_id: '',
+      nominal_bayar: '',
+      tanggal_bayar: dateToday(),
+      metode_bayar: 'Tunai',
+      keterangan: ''
+    }
+  }
+  showBayarForm.value = true
+}
+
 function closeBayarForm() {
   showBayarForm.value = false
   selectedTagihan.value = null
   formBayar.value = { tagihan_id: '', nominal_bayar: '', tanggal_bayar: dateToday(), metode_bayar: 'Tunai', keterangan: '' }
 }
+
+watch(() => formBayar.value.tagihan_id, (newId) => {
+  if (newId && !selectedTagihan.value) {
+    const found = tagihan.value.find(x => x.id == newId)
+    if (found) {
+      formBayar.value.nominal_bayar = sisa(found)
+    }
+  }
+})
 
 async function savePembayaran() {
   const id = selectedTagihan.value?.id || formBayar.value.tagihan_id
@@ -696,12 +727,12 @@ async function openMappingModal(m) {
   formMapping.value = { tarif_ids: [], nominal_diskon: {}, keterangan_diskon: {} }
   try {
     const res = await axios.get(`${API}/spp/mapping/santri/${m.id}`, { headers })
-    const data = res.data.data
-    formMapping.value.tarif_ids = data.current.map(c => c.tarif_id)
+    const data = res.data.data || { current: [] }
+    formMapping.value.tarif_ids = (data.current || []).map(c => Number(c.tarif_id))
     
     // Set diskon & ket
     tarif.value.forEach(t => {
-      const match = data.current.find(c => c.tarif_id === t.id)
+      const match = (data.current || []).find(c => Number(c.tarif_id) === Number(t.id))
       formMapping.value.nominal_diskon[t.id] = match ? match.nominal_diskon : 0
       formMapping.value.keterangan_diskon[t.id] = match ? match.keterangan_diskon : ''
     })
@@ -724,7 +755,21 @@ async function saveMapping() {
   finally { saving.value = false }
 }
 
-onMounted(fetchAll)
+function syncTabFromHash() {
+  const hash = (router.currentRoute.value?.hash || '').replace('#', '')
+  if (hash && tabs.some(t => t.key === hash)) {
+    activeTab.value = hash
+  }
+}
+
+watch(() => router.currentRoute.value.hash, () => {
+  syncTabFromHash()
+})
+
+onMounted(() => {
+  syncTabFromHash()
+  fetchAll()
+})
 </script>
 
 <style scoped>
